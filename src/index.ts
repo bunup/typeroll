@@ -1,7 +1,6 @@
 import {
     type IsolatedDeclarationsOptions,
-    type OxcError,
-    type SourceMap,
+    type IsolatedDeclarationsResult,
     isolatedDeclaration,
 } from "oxc-transform";
 import { bundleTs } from "./bundle";
@@ -34,26 +33,18 @@ export type GenerateDtsOptions = {
 /**
  * Result of the declaration file generation
  */
-export type GenerateDtsResult = {
-    /**
-     * Generated declaration file content
-     */
-    code: string;
-    /**
-     * Errors encountered during generation
-     */
-    errors: Array<OxcError>;
-    /**
-     * Source map if enabled in options
-     */
-    map?: SourceMap;
-};
+export type GenerateDtsResult = IsolatedDeclarationsResult;
 
 export async function generateDts(
     entryFilePath: string,
     options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult> {
-    const rootDir = options.rootDir ?? process.cwd();
+    const {
+        rootDir = process.cwd(),
+        preferredTsConfigPath,
+        resolve,
+        ...isolatedDeclarationOptions
+    } = options;
 
     const bundle = await bundleTs(entryFilePath, {
         rootDir,
@@ -61,16 +52,13 @@ export async function generateDts(
         resolve: options.resolve,
     });
 
-    const result = isolatedDeclaration(entryFilePath, bundle, {
-        sourcemap: options.sourcemap,
-        stripInternal: options.stripInternal,
-    });
+    const result = isolatedDeclaration(
+        entryFilePath,
+        bundle,
+        isolatedDeclarationOptions,
+    );
 
-    return {
-        code: result.code,
-        errors: result.errors,
-        map: result.map,
-    };
+    return result;
 }
 
 export default generateDts;
