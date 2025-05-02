@@ -88,10 +88,10 @@ const benchmarks: BenchmarkConfig[] = [
         },
     },
     {
-        name: "generateDts",
+        name: "lightning-dts",
         color: "green",
-        run: () => {
-            generateDts(ENTRY_FILE, {
+        run: async () => {
+            await generateDts(ENTRY_FILE, {
                 sourcemap: true,
             });
         },
