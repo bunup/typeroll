@@ -87,7 +87,7 @@ Generates and bundles TypeScript declaration files.
 ```typescript
 {
   code: string;     // The generated .d.ts content
-  errors: Error[];  // Any errors encountered during generation
+  errors: OxcError[];  // Any errors encountered during generation
   map?: SourceMap;  // Sourcemap (if enabled)
 }
 ```
