@@ -2,7 +2,7 @@
 
 Lightning-fast TypeScript .d.ts generator and bundler with sourcemap support and ability to resolve types from node_modules, all at blazing speed.
 
-## 📊 Benchmarks
+## Benchmarks
 
 | Tool                 | Execution Time | Comparison      |
 | -------------------- | -------------- | --------------- |
@@ -13,7 +13,7 @@ Lightning-fast TypeScript .d.ts generator and bundler with sourcemap support and
 
 _Benchmarks run on identical code with sourcemap generation enabled_
 
-## ✨ Features
+## Features
 
 - **Ultra-Fast**: Generate TypeScript declaration files at lightning speed
 - **Bundling**: Not just generation, bundles all declarations into a single `.d.ts` file ready to ship
@@ -21,7 +21,7 @@ _Benchmarks run on identical code with sourcemap generation enabled_
 - **Node Module Resolution**: Seamlessly resolves types from node_modules
 - **Configurable**: Customize with TSConfig options
 
-## 📦 Installation
+## Installation
 
 ```bash
 # npm
@@ -34,7 +34,7 @@ yarn add lightning-dts --dev
 pnpm add lightning-dts -D
 ```
 
-## 🚀 Usage
+## Usage
 
 ```typescript
 import { generateDts } from 'lightning-dts';
@@ -64,7 +64,7 @@ if (result.errors.length > 0) {
 }
 ```
 
-## 🔧 API
+## API
 
 ### `generateDts(entryFilePath, options?)`
 
@@ -89,6 +89,6 @@ Generates and bundles TypeScript declaration files.
 }
 ```
 
-## ❤️ Contributing
+## Contributing
 
 For guidelines on contributing, please read the [contributing guide](../../CONTRIBUTING.md).
