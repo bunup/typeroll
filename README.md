@@ -27,8 +27,8 @@ _Benchmarks run on identical code with sourcemap generation enabled_
 # npm
 npm install lightning-dts --save-dev
 
-# yarn
-yarn add lightning-dts --dev
+# bun
+bun add lightning-dts --dev
 
 # pnpm
 pnpm add lightning-dts -D

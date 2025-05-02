@@ -4,7 +4,7 @@ import { build } from "rolldown";
 import { dts as rolldownDts } from "rolldown-plugin-dts";
 import { rollup } from "rollup";
 import { dts as rollupDts } from "rollup-plugin-dts";
-import { generateDts } from "../dist/index.js";
+import { generateDts } from "../src";
 
 const ENTRY_FILE = "test/project/index.ts";
 const DEFAULT_ITERATIONS = 5;

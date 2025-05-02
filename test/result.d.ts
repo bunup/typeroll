@@ -1,3 +1,5 @@
+import type { Alternative } from "oxc-parser";
+import type { ResolveTsImportPathOptions } from "ts-import-resolver";
 /**
  * Sums two numbers
  */
@@ -16,3 +18,8 @@ export { multiply, cosa };
 export type { MultiplyOptions };
 declare function subtract(a: number, b: number): number;
 export { subtract };
+export type AnotherType = {
+    name: string;
+    age: number;
+} & Alternative &
+    ResolveTsImportPathOptions;

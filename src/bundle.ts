@@ -9,6 +9,8 @@ import {
 } from "oxc-parser";
 import { resolveTsImportPath } from "ts-import-resolver";
 import type { GenerateDtsOptions } from ".";
+import { createResolver } from "./resolver";
+import { loadTsConfig } from "./utils";
 
 interface ExportInfo {
     name: string;
@@ -16,7 +18,7 @@ interface ExportInfo {
 }
 
 /**
- * bundles a typescript file to a single file that will be passed to the oxc-transform isolateddeclaration function
+ * bundles a typescript file to a single file that will be passed to the oxc-transform isolatedDeclaration function
  *
  * 1. tracking exports from all modules
  * 2. inlining imported and re-exported files recursively
@@ -30,17 +32,23 @@ interface ExportInfo {
  * no imports, and only entry file exports preserved.
  */
 
-export function bundleTs(
+export async function bundleTs(
     entryFilePath: string,
     options: GenerateDtsOptions = {},
-): string {
+): Promise<string> {
     const rootDir = options.rootDir ?? process.cwd();
-    const tsconfig = options.tsconfig ?? {};
+    const tsconfig = await loadTsConfig(rootDir, options.preferredTsConfigPath);
 
     const fileCache = new Map<string, string>();
     const parseCache = new Map<string, ReturnType<typeof parseSync>>();
     const moduleExports = new Map<string, ExportInfo[]>();
     const processedFiles = new Set<string>();
+
+    const resolveExternal = createResolver({
+        tsconfig: tsconfig.filepath,
+        cwd: rootDir,
+        resolveOption: options.resolve,
+    });
 
     function getContent(filePath: string): string {
         const absPath = path.resolve(filePath);
@@ -59,16 +67,24 @@ export function bundleTs(
         return parseCache.get(absPath) ?? parseSync(absPath, "");
     }
 
-    function resolveImport(
+    async function resolveImport(
         importPath: string,
         importer: string,
-    ): string | null {
+    ): Promise<string | null> {
         const resolved = resolveTsImportPath({
             path: importPath,
             importer,
-            tsconfig,
+            tsconfig: tsconfig.config,
             rootDir,
         });
+
+        // if the import path is not resolved, try to resolve it from node_modules if options.resolve is defined
+        if (!resolved) {
+            const resolvedPath = resolveExternal(importPath, importer);
+            if (resolvedPath) {
+                return resolvedPath;
+            }
+        }
 
         if (
             !resolved ||
@@ -80,7 +96,7 @@ export function bundleTs(
         return path.resolve(resolved);
     }
 
-    function getExports(filePath: string): ExportInfo[] {
+    async function getExports(filePath: string): Promise<ExportInfo[]> {
         const absPath = path.resolve(filePath);
 
         if (moduleExports.has(absPath)) {
@@ -100,14 +116,17 @@ export function bundleTs(
                     if (!entry.moduleRequest) continue;
 
                     const modulePath = entry.moduleRequest.value;
-                    const resolvedPath = resolveImport(modulePath, absPath);
+                    const resolvedPath = await resolveImport(
+                        modulePath,
+                        absPath,
+                    );
                     if (!resolvedPath) continue;
 
                     if (
                         entry.importName.kind ===
                         ExportImportNameKind.AllButDefault
                     ) {
-                        exports.push(...getExports(resolvedPath));
+                        exports.push(...(await getExports(resolvedPath)));
                     } else if (
                         entry.importName.kind === ExportImportNameKind.Name &&
                         entry.exportName.kind === ExportExportNameKind.Name &&
@@ -138,7 +157,10 @@ export function bundleTs(
         return exports;
     }
 
-    function processFile(filePath: string, isEntry = false): string {
+    async function processFile(
+        filePath: string,
+        isEntry = false,
+    ): Promise<string> {
         const absPath = path.resolve(filePath);
 
         if (processedFiles.has(absPath) && !isEntry) {
@@ -168,10 +190,11 @@ export function bundleTs(
 
         for (const imp of parsed.module.staticImports) {
             const importPath = imp.moduleRequest.value;
-            const resolvedPath = resolveImport(importPath, absPath);
+            const resolvedPath = await resolveImport(importPath, absPath);
+
             if (!resolvedPath) continue;
 
-            const importedContent = processFile(resolvedPath);
+            const importedContent = await processFile(resolvedPath);
 
             if (importedContent.trim()) {
                 ms.appendLeft(imp.start, `${importedContent}\n`);
@@ -181,7 +204,7 @@ export function bundleTs(
             const namespaceName = isNamespaceImport(imp, content);
 
             if (namespaceName) {
-                const moduleExportsList = getExports(resolvedPath);
+                const moduleExportsList = await getExports(resolvedPath);
                 const valueExports = moduleExportsList
                     .filter((e) => !e.isType)
                     .map((e) => e.name);
@@ -207,7 +230,7 @@ export function bundleTs(
             }
         }
 
-        // process exports
+        // process re-exports
         for (const exp of parsed.module.staticExports) {
             const isReExport = exp.entries.some((entry) => entry.moduleRequest);
 
@@ -220,10 +243,13 @@ export function bundleTs(
                     if (!entry.moduleRequest) continue;
 
                     const modulePath = entry.moduleRequest.value;
-                    const resolvedPath = resolveImport(modulePath, absPath);
+                    const resolvedPath = await resolveImport(
+                        modulePath,
+                        absPath,
+                    );
                     if (!resolvedPath) continue;
 
-                    const reExportedContent = processFile(resolvedPath);
+                    const reExportedContent = await processFile(resolvedPath);
                     if (reExportedContent.trim()) {
                         ms.appendLeft(exp.start, `${reExportedContent}\n`);
                     }
@@ -241,7 +267,7 @@ export function bundleTs(
         return ms.toString();
     }
 
-    function transformReExports(content: string): string {
+    async function transformReExports(content: string): Promise<string> {
         const parsed = parseSync(entryFilePath, content);
         const ms = new MagicString(content);
 
@@ -273,7 +299,10 @@ export function bundleTs(
                 if (!entry.moduleRequest) continue;
 
                 const modulePath = entry.moduleRequest.value;
-                const resolvedPath = resolveImport(modulePath, entryFilePath);
+                const resolvedPath = await resolveImport(
+                    modulePath,
+                    entryFilePath,
+                );
                 if (!resolvedPath) continue;
 
                 if (
@@ -355,6 +384,6 @@ export function bundleTs(
         return ms.toString();
     }
 
-    const inlinedContent = processFile(entryFilePath, true);
+    const inlinedContent = await processFile(entryFilePath, true);
     return transformReExports(inlinedContent);
 }

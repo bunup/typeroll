@@ -1,9 +1,9 @@
 import fs from "node:fs";
-import { generateDts } from "../dist";
+import { generateDts } from "../src";
 
 const start = performance.now();
 
-const result = generateDts("test/project/index.ts");
+const result = await generateDts("test/project/index.ts");
 
 const end = performance.now();
 
