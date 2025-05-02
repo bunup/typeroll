@@ -1,6 +1,6 @@
 {
     "name": "lightning-dts",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Lightning-fast TypeScript .d.ts generator and bundler ⚡️",
     "type": "module",
     "main": "./dist/index.cjs",
