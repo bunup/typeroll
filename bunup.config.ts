@@ -7,6 +7,5 @@ export default defineConfig({
     dts: {
         resolve: true,
     },
-    minify: true,
     plugins: [report()],
 });

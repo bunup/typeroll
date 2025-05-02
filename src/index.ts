@@ -35,6 +35,23 @@ export type GenerateDtsOptions = {
  */
 export type GenerateDtsResult = IsolatedDeclarationsResult;
 
+/**
+ * Generates TypeScript declaration files (.d.ts) from TypeScript source files
+ *
+ * @param entryFilePath - Path to the entry TypeScript file
+ * @param options - Options for declaration generation
+ * @returns Promise resolving to the generated declaration result
+ *
+ * @example
+ * ```ts
+ * const result = await generateDts('src/index.ts', {
+ *   rootDir: process.cwd(),
+ *   resolve: true
+ * });
+ *
+ * fs.writeFileSync('dist/index.d.ts', result.code);
+ * ```
+ */
 export async function generateDts(
     entryFilePath: string,
     options: GenerateDtsOptions = {},
