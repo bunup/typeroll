@@ -47,9 +47,8 @@ const result = generateDts('./src/index.ts', {
 	rootDir: './src',
 	sourcemap: true,
 	stripInternal: true,
-	tsconfig: {
-		/* your parsed tsconfig */
-	},
+	preferredTsConfigPath: './tsconfig.build.json',
+	resolve: true, // resolve all external modules from node_modules
 });
 
 // Access the generated declaration
@@ -75,7 +74,11 @@ Generates and bundles TypeScript declaration files.
 - `entryFilePath`: Path to the entry TypeScript file
 - `options`: (Optional) Configuration options
   - `rootDir`: Root directory of the project (default: `process.cwd()`)
-  - `tsconfig`: Custom parsed TSConfig (default: `{}`)
+  - `preferredTsConfigPath`: Path to the preferred tsconfig.json file (by default, the closest tsconfig.json will be used)
+  - `resolve`: Controls which external modules should be resolved:
+    - `true` to resolve all external modules
+    - Array of strings or RegExp to match specific modules
+    - `false` or `undefined` to disable external resolution
   - `sourcemap`: Generate sourcemap (default: `false`)
   - `stripInternal`: Remove declarations marked as `@internal` (default: `false`)
 
