@@ -1,6 +1,3 @@
-import type { Alternative } from "oxc-parser";
-import type { ResolveTsImportPathOptions } from "ts-import-resolver";
-
 /**
  * Sums two numbers
  */
@@ -11,9 +8,3 @@ export function sum(a: number, b: number): Promise<number> {
 export * from "./add";
 export * from "./cosa";
 export * from "./utils";
-
-export type AnotherType = {
-    name: string;
-    age: number;
-} & Alternative &
-    ResolveTsImportPathOptions;
