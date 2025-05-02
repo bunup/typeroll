@@ -1,70 +1,67 @@
 {
-  "name": "lightning-dts",
-  "version": "0.1.0",
-  "description": "Lightning-fast TypeScript .d.ts generator and bundler ⚡️",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "bunup",
-    "dev": "bunup --watch",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format .",
-    "format:fix": "biome format --write .",
-    "tsc": "tsc --noEmit",
-    "test": "bun test",
-    "generate": "bun test/generate.ts",
-    "test:watch": "bun test --watch",
-    "test:coverage": "bun test --coverage",
-    "release": "bumpp --commit --push --tag",
-    "publish:ci": "bun publish --access public --no-git-checks",
-    "prepare": "husky"
-  },
-  "dependencies": {
-    "magic-string": "^0.30.17",
-    "oxc-parser": "^0.67.0",
-    "oxc-transform": "^0.67.0",
-    "ts-import-resolver": "^0.1.16"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
-    "@types/bun": "^1.2.11",
-    "bumpp": "^10.1.0",
-    "bunup": "^0.5.6",
-    "dts-bundle-generator": "^9.5.1",
-    "husky": "^9.1.7",
-    "rolldown": "^1.0.0-beta.8",
-    "rolldown-plugin-dts": "^0.9.11",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
-  },
-  "license": "MIT",
-  "author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
-  "maintainers": [
-    {
-      "name": "Arshad Yaseen",
-      "email": "m@arshadyaseen.com",
-      "url": "https://arshadyaseen.com"
-    }
-  ],
-  "keywords": [
-    "typescript",
-    "dts",
-    "declaration",
-    "declaration map",
-    "declaration map generation"
-  ],
-  "funding": "https://github.com/sponsors/arshad-yaseen",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/arshad-yaseen/lightning-dts.git"
-  },
-  "homepage": "https://github.com/arshad-yaseen/lightning-dts#readme"
+    "name": "lightning-dts",
+    "version": "0.1.0",
+    "description": "Lightning-fast TypeScript .d.ts generator and bundler ⚡️",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": ["dist"],
+    "scripts": {
+        "build": "bunup",
+        "dev": "bunup --watch",
+        "lint": "biome check .",
+        "lint:fix": "biome check --write .",
+        "format": "biome format .",
+        "format:fix": "biome format --write .",
+        "tsc": "tsc --noEmit",
+        "test": "bun test",
+        "generate": "bun test/generate.ts",
+        "test:watch": "bun test --watch",
+        "test:coverage": "bun test --coverage",
+        "release": "bumpp --commit --push --tag",
+        "publish:ci": "bun publish --access public --no-git-checks",
+        "prepare": "husky",
+        "benchmark": "bun run benchmarks/benchmarks.ts"
+    },
+    "dependencies": {
+        "magic-string": "^0.30.17",
+        "oxc-parser": "^0.67.0",
+        "oxc-transform": "^0.67.0",
+        "ts-import-resolver": "^0.1.16"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "@commitlint/cli": "^19.8.0",
+        "@commitlint/config-conventional": "^19.8.0",
+        "@types/bun": "^1.2.11",
+        "bumpp": "^10.1.0",
+        "bunup": "^0.5.6",
+        "husky": "^9.1.7",
+        "typescript": "^5.8.3",
+        "vitest": "^3.1.2"
+    },
+    "license": "MIT",
+    "author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
+    "maintainers": [
+        {
+            "name": "Arshad Yaseen",
+            "email": "m@arshadyaseen.com",
+            "url": "https://arshadyaseen.com"
+        }
+    ],
+    "keywords": [
+        "typescript",
+        "dts",
+        "declaration",
+        "declaration map",
+        "declaration map generation"
+    ],
+    "funding": "https://github.com/sponsors/arshad-yaseen",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arshad-yaseen/lightning-dts.git"
+    },
+    "workspaces": ["benchmarks"],
+    "homepage": "https://github.com/arshad-yaseen/lightning-dts#readme"
 }

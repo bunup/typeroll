@@ -1,13 +1,18 @@
-import { parseSync } from 'oxc-parser'
-import MagicString from 'magic-string'
-import { resolveTsImportPath } from 'ts-import-resolver'
-import fs from 'node:fs'
-import path from 'node:path'
-import type { GenerateDtsOptions } from '.'
+import fs from "node:fs";
+import path from "node:path";
+import MagicString from "magic-string";
+import {
+    ExportExportNameKind,
+    ExportImportNameKind,
+    type StaticImport,
+    parseSync,
+} from "oxc-parser";
+import { resolveTsImportPath } from "ts-import-resolver";
+import type { GenerateDtsOptions } from ".";
 
 interface ExportInfo {
-	name: string
-	isType: boolean
+    name: string;
+    isType: boolean;
 }
 
 /**
@@ -26,321 +31,330 @@ interface ExportInfo {
  */
 
 export function bundleTs(
-	entryFilePath: string,
-	options: GenerateDtsOptions = {},
+    entryFilePath: string,
+    options: GenerateDtsOptions = {},
 ): string {
-	const rootDir = options.rootDir ?? process.cwd()
-	const tsconfig = options.tsconfig ?? {}
+    const rootDir = options.rootDir ?? process.cwd();
+    const tsconfig = options.tsconfig ?? {};
 
-	const fileCache = new Map<string, string>()
-	const parseCache = new Map<string, ReturnType<typeof parseSync>>()
-	const moduleExports = new Map<string, ExportInfo[]>()
-	const processedFiles = new Set<string>()
+    const fileCache = new Map<string, string>();
+    const parseCache = new Map<string, ReturnType<typeof parseSync>>();
+    const moduleExports = new Map<string, ExportInfo[]>();
+    const processedFiles = new Set<string>();
 
-	function getContent(filePath: string): string {
-		const absPath = path.resolve(filePath)
-		if (!fileCache.has(absPath)) {
-			fileCache.set(absPath, fs.readFileSync(absPath, 'utf8'))
-		}
-		return fileCache.get(absPath)!
-	}
+    function getContent(filePath: string): string {
+        const absPath = path.resolve(filePath);
+        if (!fileCache.has(absPath)) {
+            fileCache.set(absPath, fs.readFileSync(absPath, "utf8"));
+        }
+        return fileCache.get(absPath) ?? "";
+    }
 
-	function getParsed(filePath: string): ReturnType<typeof parseSync> {
-		const absPath = path.resolve(filePath)
-		if (!parseCache.has(absPath)) {
-			const content = getContent(absPath)
-			parseCache.set(absPath, parseSync(absPath, content))
-		}
-		return parseCache.get(absPath)!
-	}
+    function getParsed(filePath: string): ReturnType<typeof parseSync> {
+        const absPath = path.resolve(filePath);
+        if (!parseCache.has(absPath)) {
+            const content = getContent(absPath);
+            parseCache.set(absPath, parseSync(absPath, content));
+        }
+        return parseCache.get(absPath) ?? parseSync(absPath, "");
+    }
 
-	function resolveImport(
-		importPath: string,
-		importer: string,
-	): string | null {
-		const resolved = resolveTsImportPath({
-			path: importPath,
-			importer,
-			tsconfig,
-			rootDir,
-		})
+    function resolveImport(
+        importPath: string,
+        importer: string,
+    ): string | null {
+        const resolved = resolveTsImportPath({
+            path: importPath,
+            importer,
+            tsconfig,
+            rootDir,
+        });
 
-		if (
-			!resolved ||
-			(!resolved.endsWith('.ts') && !resolved.endsWith('.tsx'))
-		) {
-			return null
-		}
+        if (
+            !resolved ||
+            (!resolved.endsWith(".ts") && !resolved.endsWith(".tsx"))
+        ) {
+            return null;
+        }
 
-		return path.resolve(resolved)
-	}
+        return path.resolve(resolved);
+    }
 
-	function getExports(filePath: string): ExportInfo[] {
-		const absPath = path.resolve(filePath)
+    function getExports(filePath: string): ExportInfo[] {
+        const absPath = path.resolve(filePath);
 
-		if (moduleExports.has(absPath)) {
-			return moduleExports.get(absPath)!
-		}
+        if (moduleExports.has(absPath)) {
+            return moduleExports.get(absPath) ?? [];
+        }
 
-		moduleExports.set(absPath, []) // prevent circular dependencies
+        moduleExports.set(absPath, []); // prevent circular dependencies
 
-		const parsed = getParsed(absPath)
-		const exports: ExportInfo[] = []
+        const parsed = getParsed(absPath);
+        const exports: ExportInfo[] = [];
 
-		for (const exp of parsed.module.staticExports) {
-			const isReExport = exp.entries.some((entry) => entry.moduleRequest)
+        for (const exp of parsed.module.staticExports) {
+            const isReExport = exp.entries.some((entry) => entry.moduleRequest);
 
-			if (isReExport) {
-				for (const entry of exp.entries) {
-					if (!entry.moduleRequest) continue
+            if (isReExport) {
+                for (const entry of exp.entries) {
+                    if (!entry.moduleRequest) continue;
 
-					const modulePath = entry.moduleRequest.value
-					const resolvedPath = resolveImport(modulePath, absPath)
-					if (!resolvedPath) continue
+                    const modulePath = entry.moduleRequest.value;
+                    const resolvedPath = resolveImport(modulePath, absPath);
+                    if (!resolvedPath) continue;
 
-					if (entry.importName.kind === 'AllButDefault') {
-						exports.push(...getExports(resolvedPath))
-					} else if (
-						entry.importName.kind === 'Name' &&
-						entry.exportName.kind === 'Name' &&
-						entry.exportName.name
-					) {
-						exports.push({
-							name: entry.exportName.name,
-							isType: entry.isType,
-						})
-					}
-				}
-			} else {
-				for (const entry of exp.entries) {
-					if (
-						entry.exportName.kind === 'Name' &&
-						entry.exportName.name
-					) {
-						exports.push({
-							name: entry.exportName.name,
-							isType: entry.isType,
-						})
-					}
-				}
-			}
-		}
+                    if (
+                        entry.importName.kind ===
+                        ExportImportNameKind.AllButDefault
+                    ) {
+                        exports.push(...getExports(resolvedPath));
+                    } else if (
+                        entry.importName.kind === ExportImportNameKind.Name &&
+                        entry.exportName.kind === ExportExportNameKind.Name &&
+                        entry.exportName.name
+                    ) {
+                        exports.push({
+                            name: entry.exportName.name,
+                            isType: entry.isType,
+                        });
+                    }
+                }
+            } else {
+                for (const entry of exp.entries) {
+                    if (
+                        entry.exportName.kind === ExportExportNameKind.Name &&
+                        entry.exportName.name
+                    ) {
+                        exports.push({
+                            name: entry.exportName.name,
+                            isType: entry.isType,
+                        });
+                    }
+                }
+            }
+        }
 
-		moduleExports.set(absPath, exports)
-		return exports
-	}
+        moduleExports.set(absPath, exports);
+        return exports;
+    }
 
-	function isNamespaceImport(imp: any, content: string): string | null {
-		// first check for namespaceImport property
-		if (
-			imp.namespaceImport &&
-			typeof imp.namespaceImport.name === 'string'
-		) {
-			return imp.namespaceImport.name
-		}
+    function processFile(filePath: string, isEntry = false): string {
+        const absPath = path.resolve(filePath);
 
-		// fallback to regex-based detection
-		const importText = content.substring(imp.start, imp.end)
-		const match = importText.match(/import\s+\*\s+as\s+(\w+)\s+from/)
-		return match?.[1] ?? null
-	}
+        if (processedFiles.has(absPath) && !isEntry) {
+            return "";
+        }
 
-	function processFile(filePath: string, isEntry = false): string {
-		const absPath = path.resolve(filePath)
+        processedFiles.add(absPath);
 
-		if (processedFiles.has(absPath) && !isEntry) {
-			return ''
-		}
+        const content = getContent(absPath);
+        const parsed = getParsed(absPath);
+        const ms = new MagicString(content);
 
-		processedFiles.add(absPath)
+        if (parsed.program.hashbang) {
+            ms.remove(0, parsed.program.hashbang.end);
+        }
 
-		const content = getContent(absPath)
-		const parsed = getParsed(absPath)
-		const ms = new MagicString(content)
+        getExports(absPath);
 
-		if (parsed.program.hashbang) {
-			ms.remove(0, parsed.program.hashbang.end)
-		}
+        function isNamespaceImport(
+            imp: StaticImport,
+            content: string,
+        ): string | null {
+            const importText = content.substring(imp.start, imp.end);
+            const match = importText.match(/import\s+\*\s+as\s+(\w+)\s+from/);
+            return match?.[1] ?? null;
+        }
 
-		getExports(absPath)
+        for (const imp of parsed.module.staticImports) {
+            const importPath = imp.moduleRequest.value;
+            const resolvedPath = resolveImport(importPath, absPath);
+            if (!resolvedPath) continue;
 
-		// process imports
-		for (const imp of parsed.module.staticImports) {
-			const importPath = imp.moduleRequest.value
-			const resolvedPath = resolveImport(importPath, absPath)
-			if (!resolvedPath) continue
+            const importedContent = processFile(resolvedPath);
 
-			const importedContent = processFile(resolvedPath)
+            if (importedContent.trim()) {
+                ms.appendLeft(imp.start, `${importedContent}\n`);
+            }
 
-			if (importedContent.trim()) {
-				ms.appendLeft(imp.start, `${importedContent}\n`)
-			}
+            // handle namespace imports
+            const namespaceName = isNamespaceImport(imp, content);
 
-			// handle namespace imports
-			const namespaceName = isNamespaceImport(imp, content)
+            if (namespaceName) {
+                const moduleExportsList = getExports(resolvedPath);
+                const valueExports = moduleExportsList
+                    .filter((e) => !e.isType)
+                    .map((e) => e.name);
+                const typeExports = moduleExportsList
+                    .filter((e) => e.isType)
+                    .map((e) => e.name);
 
-			if (namespaceName) {
-				const moduleExportsList = getExports(resolvedPath)
-				const valueExports = moduleExportsList
-					.filter((e) => !e.isType)
-					.map((e) => e.name)
-				const typeExports = moduleExportsList
-					.filter((e) => e.isType)
-					.map((e) => e.name)
+                let namespaceDecl = `namespace ${namespaceName} {\n`;
 
-				let namespaceDecl = `namespace ${namespaceName} {\n`
+                if (valueExports.length > 0) {
+                    namespaceDecl += `  export { ${valueExports.join(", ")} };\n`;
+                }
 
-				if (valueExports.length > 0) {
-					namespaceDecl += `  export { ${valueExports.join(', ')} };\n`
-				}
+                if (typeExports.length > 0) {
+                    namespaceDecl += `  export type { ${typeExports.join(", ")} };\n`;
+                }
 
-				if (typeExports.length > 0) {
-					namespaceDecl += `  export type { ${typeExports.join(', ')} };\n`
-				}
+                namespaceDecl += "}";
 
-				namespaceDecl += '}'
+                ms.overwrite(imp.start, imp.end, namespaceDecl);
+            } else {
+                ms.remove(imp.start, imp.end);
+            }
+        }
 
-				ms.overwrite(imp.start, imp.end, namespaceDecl)
-			} else {
-				ms.remove(imp.start, imp.end)
-			}
-		}
+        // process exports
+        for (const exp of parsed.module.staticExports) {
+            const isReExport = exp.entries.some((entry) => entry.moduleRequest);
 
-		// process exports
-		for (const exp of parsed.module.staticExports) {
-			const isReExport = exp.entries.some((entry) => entry.moduleRequest)
+            if (isReExport) {
+                if (!isEntry) {
+                    ms.remove(exp.start, exp.end);
+                }
 
-			if (isReExport) {
-				if (!isEntry) {
-					ms.remove(exp.start, exp.end)
-				}
+                for (const entry of exp.entries) {
+                    if (!entry.moduleRequest) continue;
 
-				for (const entry of exp.entries) {
-					if (!entry.moduleRequest) continue
+                    const modulePath = entry.moduleRequest.value;
+                    const resolvedPath = resolveImport(modulePath, absPath);
+                    if (!resolvedPath) continue;
 
-					const modulePath = entry.moduleRequest.value
-					const resolvedPath = resolveImport(modulePath, absPath)
-					if (!resolvedPath) continue
+                    const reExportedContent = processFile(resolvedPath);
+                    if (reExportedContent.trim()) {
+                        ms.appendLeft(exp.start, `${reExportedContent}\n`);
+                    }
+                }
+            } else if (!isEntry) {
+                const exportText = content.substring(exp.start, exp.end);
+                ms.overwrite(
+                    exp.start,
+                    exp.end,
+                    exportText.replace(/^export\s+/, ""),
+                );
+            }
+        }
 
-					const reExportedContent = processFile(resolvedPath)
-					if (reExportedContent.trim()) {
-						ms.appendLeft(exp.start, `${reExportedContent}\n`)
-					}
-				}
-			} else if (!isEntry) {
-				const exportText = content.substring(exp.start, exp.end)
-				ms.overwrite(
-					exp.start,
-					exp.end,
-					exportText.replace(/^export\s+/, ''),
-				)
-			}
-		}
+        return ms.toString();
+    }
 
-		return ms.toString()
-	}
+    function transformReExports(content: string): string {
+        const parsed = parseSync(entryFilePath, content);
+        const ms = new MagicString(content);
 
-	function transformReExports(content: string): string {
-		const parsed = parseSync(entryFilePath, content)
-		const ms = new MagicString(content)
+        // track already exported names to avoid duplication
+        const exportedValues = new Set<string>();
+        const exportedTypes = new Set<string>();
 
-		// track already exported names to avoid duplication
-		const exportedValues = new Set<string>()
-		const exportedTypes = new Set<string>()
+        for (const exp of parsed.module.staticExports) {
+            if (!exp.entries.some((entry) => entry.moduleRequest)) {
+                // for direct exports (not re-exports), track them
+                for (const entry of exp.entries) {
+                    if (
+                        entry.exportName.kind === ExportExportNameKind.Name &&
+                        entry.exportName.name
+                    ) {
+                        if (entry.isType) {
+                            exportedTypes.add(entry.exportName.name);
+                        } else {
+                            exportedValues.add(entry.exportName.name);
+                        }
+                    }
+                }
+                continue;
+            }
 
-		for (const exp of parsed.module.staticExports) {
-			if (!exp.entries.some((entry) => entry.moduleRequest)) {
-				// for direct exports (not re-exports), track them
-				for (const entry of exp.entries) {
-					if (entry.exportName.kind === 'Name' && entry.exportName.name) {
-						if (entry.isType) {
-							exportedTypes.add(entry.exportName.name)
-						} else {
-							exportedValues.add(entry.exportName.name)
-						}
-					}
-				}
-				continue
-			}
+            const replacements: string[] = [];
 
-			const replacements: string[] = []
+            for (const entry of exp.entries) {
+                if (!entry.moduleRequest) continue;
 
-			for (const entry of exp.entries) {
-				if (!entry.moduleRequest) continue
+                const modulePath = entry.moduleRequest.value;
+                const resolvedPath = resolveImport(modulePath, entryFilePath);
+                if (!resolvedPath) continue;
 
-				const modulePath = entry.moduleRequest.value
-				const resolvedPath = resolveImport(modulePath, entryFilePath)
-				if (!resolvedPath) continue
+                if (
+                    entry.importName.kind === ExportImportNameKind.AllButDefault
+                ) {
+                    // handle wildcard exports
+                    const exports = moduleExports.get(resolvedPath) || [];
 
-				if (entry.importName.kind === 'AllButDefault') {
-					// handle wildcard exports
-					const exports = moduleExports.get(resolvedPath) || []
-					
-					// filter out already exported values
-					const values = exports
-						.filter((e) => !e.isType && !exportedValues.has(e.name))
-					
-					// filter out already exported types
-					const types = exports
-						.filter((e) => e.isType && !exportedTypes.has(e.name))
+                    // filter out already exported values
+                    const values = exports.filter(
+                        (e) => !e.isType && !exportedValues.has(e.name),
+                    );
 
-					// add to tracking sets
-					values.forEach(e => exportedValues.add(e.name))
-					types.forEach(e => exportedTypes.add(e.name))
+                    // filter out already exported types
+                    const types = exports.filter(
+                        (e) => e.isType && !exportedTypes.has(e.name),
+                    );
 
-					if (values.length) {
-						replacements.push(
-							`export { ${values.map((e) => e.name).join(', ')} };`,
-						)
-					}
+                    // add to tracking sets
+                    for (const e of values) {
+                        exportedValues.add(e.name);
+                    }
+                    for (const e of types) {
+                        exportedTypes.add(e.name);
+                    }
 
-					if (types.length) {
-						replacements.push(
-							`export type { ${types.map((e) => e.name).join(', ')} };`,
-						)
-					}
-				} else if (
-					entry.importName.kind === 'Name' &&
-					entry.exportName.kind === 'Name' &&
-					entry.importName.name &&
-					entry.exportName.name
-				) {
-					const importName = entry.importName.name
-					const exportName = entry.exportName.name
+                    if (values.length) {
+                        replacements.push(
+                            `export { ${values.map((e) => e.name).join(", ")} };`,
+                        );
+                    }
 
-					// check if this export already exists
-					const isAlreadyExported = entry.isType
-						? exportedTypes.has(exportName)
-						: exportedValues.has(exportName)
+                    if (types.length) {
+                        replacements.push(
+                            `export type { ${types.map((e) => e.name).join(", ")} };`,
+                        );
+                    }
+                } else if (
+                    entry.importName.kind === ExportImportNameKind.Name &&
+                    entry.exportName.kind === ExportExportNameKind.Name &&
+                    entry.importName.name &&
+                    entry.exportName.name
+                ) {
+                    const importName = entry.importName.name;
+                    const exportName = entry.exportName.name;
 
-					if (!isAlreadyExported) {
-						// track this export
-						if (entry.isType) {
-							exportedTypes.add(exportName)
-						} else {
-							exportedValues.add(exportName)
-						}
+                    // check if this export already exists
+                    const isAlreadyExported = entry.isType
+                        ? exportedTypes.has(exportName)
+                        : exportedValues.has(exportName);
 
-						replacements.push(
-							`export ${entry.isType ? 'type ' : ''}{ ${importName}${
-								importName !== exportName ? ` as ${exportName}` : ''
-							} };`,
-						)
-					}
-				}
-			}
+                    if (!isAlreadyExported) {
+                        // track this export
+                        if (entry.isType) {
+                            exportedTypes.add(exportName);
+                        } else {
+                            exportedValues.add(exportName);
+                        }
 
-			if (replacements.length) {
-				ms.overwrite(exp.start, exp.end, replacements.join('\n'))
-			} else {
-				// if all exports were already handled, remove this export statement completely
-				ms.remove(exp.start, exp.end)
-			}
-		}
+                        replacements.push(
+                            `export ${entry.isType ? "type " : ""}{ ${importName}${
+                                importName !== exportName
+                                    ? ` as ${exportName}`
+                                    : ""
+                            } };`,
+                        );
+                    }
+                }
+            }
 
-		return ms.toString()
-	}
+            if (replacements.length) {
+                ms.overwrite(exp.start, exp.end, replacements.join("\n"));
+            } else {
+                // if all exports were already handled, remove this export statement completely
+                ms.remove(exp.start, exp.end);
+            }
+        }
 
-	const inlinedContent = processFile(entryFilePath, true)
-	return transformReExports(inlinedContent)
+        return ms.toString();
+    }
+
+    const inlinedContent = processFile(entryFilePath, true);
+    return transformReExports(inlinedContent);
 }

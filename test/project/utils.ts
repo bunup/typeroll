@@ -1,5 +1,5 @@
 export function subtract(a: number, b: number): number {
-	return a - b
+    return a - b;
 }
 
-export * from './cosa'
+export * from "./cosa";

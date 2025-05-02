@@ -4,11 +4,12 @@ Lightning-fast TypeScript .d.ts generator and bundler with sourcemap support and
 
 ## 📊 Benchmarks
 
-| Tool                 | Execution Time | Comparison     |
-| -------------------- | -------------- | -------------- |
-| **lightning-dts**    | 0.86ms         | baseline       |
-| rolldown-plugin-dts  | 45.92ms        | 53.61x slower  |
-| dts-bundle-generator | 716.68ms       | 834.51x slower |
+| Tool                 | Execution Time | Comparison      |
+| -------------------- | -------------- | --------------- |
+| **lightning-dts**    | **0.64ms** ⚡️ | baseline        |
+| rolldown-plugin-dts  | 49.51ms        | 77.74x slower   |
+| rollup-plugin-dts    | 84.43ms        | 132.55x slower  |
+| dts-bundle-generator | 833.71ms       | 1308.90x slower |
 
 _Benchmarks run on identical code with sourcemap generation enabled_
 
