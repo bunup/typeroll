@@ -42,7 +42,7 @@ function encodeDeclaration(node: ts.Node, sourceFile: ts.SourceFile): string {
     );
     const escapedText = escapeString(removeExport(nodeText));
     const name = getName(node, sourceFile);
-    const refs = getReferences(node, sourceFile, name);
+    const refs = getTypesReferences(node, sourceFile, name);
     const exportPrefix = shouldExport(node) ? "export " : "";
     const varName = name || `__decl_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -79,59 +79,68 @@ function getName(node: ts.Node, sourceFile: ts.SourceFile): string | null {
     return null;
 }
 
-function getReferences(
+function getTypesReferences(
     node: ts.Node,
     sourceFile: ts.SourceFile,
     selfName: string | null,
 ): string[] {
     const refs = new Set<string>();
+    const builtInTypes = new Set([
+        "string",
+        "number",
+        "boolean",
+        "any",
+        "unknown",
+        "never",
+        "object",
+        "void",
+        "undefined",
+        "null",
+        "this",
+        "true",
+        "false",
+        "bigint",
+        "symbol",
+    ]);
 
-    function visit(n: ts.Node): void {
-        if (ts.isTypeReferenceNode(n) && ts.isIdentifier(n.typeName)) {
-            refs.add(n.typeName.getText(sourceFile));
-        } else if (
-            ts.isPropertyAccessExpression(n) &&
-            ts.isIdentifier(n.expression)
-        ) {
-            refs.add(n.expression.getText(sourceFile));
-        } else if (ts.isQualifiedName(n) && ts.isIdentifier(n.left)) {
-            refs.add(n.left.getText(sourceFile));
-        } else if (ts.isHeritageClause(n)) {
-            for (const type of n.types) {
+    const visitor = (node: ts.Node): void => {
+        if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
+            const name = node.typeName.getText(sourceFile);
+            if (!builtInTypes.has(name)) {
+                refs.add(name);
+            }
+        } else if (ts.isQualifiedName(node) && ts.isIdentifier(node.left)) {
+            refs.add(node.left.getText(sourceFile));
+        } else if (ts.isHeritageClause(node)) {
+            for (const type of node.types) {
                 if (ts.isIdentifier(type.expression)) {
                     refs.add(type.expression.getText(sourceFile));
+                } else if (
+                    ts.isPropertyAccessExpression(type.expression) &&
+                    ts.isIdentifier(type.expression.expression)
+                ) {
+                    refs.add(type.expression.expression.getText(sourceFile));
                 }
             }
-        } else if (ts.isIdentifier(n) && !isDeclarationName(n)) {
-            refs.add(n.getText(sourceFile));
+        } else if (ts.isTypeQueryNode(node) && ts.isIdentifier(node.exprName)) {
+            refs.add(node.exprName.getText(sourceFile));
         }
-        ts.forEachChild(n, visit);
+
+        ts.forEachChild(node, visitor);
+    };
+
+    try {
+        visitor(node);
+
+        if (selfName) {
+            refs.delete(selfName);
+        }
+
+        return Array.from(refs);
+    } catch (error) {
+        console.error("Error in getTypesReferences:", error);
+        return [];
     }
-
-    visit(node);
-    if (selfName) refs.delete(selfName);
-    return Array.from(refs);
-}
-
-function isDeclarationName(node: ts.Node): boolean {
-    const parent = node.parent;
-    if (!parent) return false;
-
-    const declarationTypes = [
-        ts.isInterfaceDeclaration,
-        ts.isTypeAliasDeclaration,
-        ts.isClassDeclaration,
-        ts.isFunctionDeclaration,
-        ts.isMethodDeclaration,
-        ts.isPropertyDeclaration,
-        ts.isParameter,
-        ts.isEnumDeclaration,
-        ts.isModuleDeclaration,
-    ];
-
-    return declarationTypes.some(
-        (check) => check(parent) && "name" in parent && parent.name === node,
-    );
 }
 
 function shouldExport(node: ts.Node): boolean {
@@ -140,14 +149,7 @@ function shouldExport(node: ts.Node): boolean {
     const modifiers = ts.getModifiers(node);
     if (!modifiers) return false;
 
-    const hasExport = modifiers.some(
-        (m) => m.kind === ts.SyntaxKind.ExportKeyword,
-    );
-    const hasDeclare = modifiers.some(
-        (m) => m.kind === ts.SyntaxKind.DeclareKeyword,
-    );
-
-    return hasExport || (hasDeclare && !ts.isVariableStatement(node));
+    return modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
 }
 
 export function fakeJsToDts(content: string): string {
