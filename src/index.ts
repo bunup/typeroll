@@ -1,10 +1,11 @@
 import {
     type IsolatedDeclarationsOptions,
-    type IsolatedDeclarationsResult,
     isolatedDeclaration,
 } from "oxc-transform";
 import { resolveTsImportPath } from "ts-import-resolver";
 import { dtsToFakeJs, fakeJsToDts } from "./fake";
+import { createResolver } from "./resolver";
+import { loadTsConfig } from "./utils";
 
 export type Resolve = boolean | (string | RegExp)[];
 
@@ -55,7 +56,18 @@ export type GenerateDtsResult = string;
  */
 export async function generateDts(
     entryFilePath: string,
+    options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult> {
+    const { rootDir = process.cwd(), preferredTsConfigPath, resolve } = options;
+
+    const tsconfig = await loadTsConfig(rootDir, preferredTsConfigPath);
+
+    const resolver = createResolver({
+        tsconfig: tsconfig.filepath,
+        cwd: rootDir,
+        resolveOption: resolve,
+    });
+
     await Bun.build({
         entrypoints: [entryFilePath],
         outdir: "./dist",
@@ -73,11 +85,16 @@ export async function generateDts(
                             tsconfig: null,
                         });
 
-                        if (!resolved)
-                            return {
-                                path: args.path,
-                                external: true,
-                            };
+                        if (!resolved) {
+                            const resolved = resolver(args.path, args.importer);
+                            if (!resolved) {
+                                return {
+                                    path: args.path,
+                                    external: true,
+                                };
+                            }
+                            return { path: resolved };
+                        }
 
                         return { path: resolved };
                     });
