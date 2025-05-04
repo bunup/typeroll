@@ -2,10 +2,7 @@ import {
     type IsolatedDeclarationsOptions,
     isolatedDeclaration,
 } from "oxc-transform";
-import {
-    type ResolveTsImportPathOptions,
-    resolveTsImportPath,
-} from "ts-import-resolver";
+import { resolveTsImportPath } from "ts-import-resolver";
 import { dtsToFakeJs, fakeJsToDts } from "./fake";
 import { createResolver } from "./resolver";
 import { loadTsConfig } from "./utils";
@@ -119,16 +116,3 @@ export async function generateDts(
 
     return fakeJsToDts(result);
 }
-
-function kaka(a: string, b: string): ResolveTsImportPathOptions {
-    return {
-        importer: a,
-        path: b,
-        rootDir: process.cwd(),
-        tsconfig: null,
-    };
-}
-
-export type { Alternative } from "oxc-parser";
-
-export { kaka };

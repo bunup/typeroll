@@ -3,9 +3,7 @@ import { generateDts } from "../src";
 
 const start = performance.now();
 
-const result = await generateDts("src/index.ts", {
-    resolve: true,
-});
+const result = await generateDts("src/index.ts");
 
 const end = performance.now();
 

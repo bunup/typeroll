@@ -1,9 +1,11 @@
 import { isolatedDeclaration } from "oxc-transform";
 import ts from "typescript";
+import { builtInTypes } from "./constants";
 
 const DUMMY_DTS_PATH = "file.d.ts";
 const DUMMY_JS_PATH = "file.js";
 
+// DTS to Fake JS conversion
 export function dtsToFakeJs(content: string): string {
     const sourceFile = ts.createSourceFile(
         DUMMY_DTS_PATH,
@@ -13,19 +15,17 @@ export function dtsToFakeJs(content: string): string {
         ts.ScriptKind.TS,
     );
     return sourceFile.statements
-        .map((node) => processNode(node, sourceFile))
+        .map((node) => {
+            if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+                return jsifyImportExport(node, sourceFile);
+            }
+            return convertDeclarationToFakeJs(node, sourceFile);
+        })
         .filter(Boolean)
         .join("\n\n");
 }
 
-function processNode(node: ts.Node, sourceFile: ts.SourceFile): string | null {
-    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-        return cleanImportExport(node, sourceFile);
-    }
-    return encodeDeclaration(node, sourceFile);
-}
-
-function cleanImportExport(node: ts.Node, sourceFile: ts.SourceFile): string {
+function jsifyImportExport(node: ts.Node, sourceFile: ts.SourceFile): string {
     let text = node.getText(sourceFile);
     text = text.replace(/import\s+type\s+/, "import ");
     text = text.replace(/export\s+type\s+/, "export ");
@@ -35,7 +35,10 @@ function cleanImportExport(node: ts.Node, sourceFile: ts.SourceFile): string {
     );
 }
 
-function encodeDeclaration(node: ts.Node, sourceFile: ts.SourceFile): string {
+function convertDeclarationToFakeJs(
+    node: ts.Node,
+    sourceFile: ts.SourceFile,
+): string {
     const nodeText = sourceFile.text.substring(
         node.getFullStart(),
         node.getEnd(),
@@ -43,10 +46,17 @@ function encodeDeclaration(node: ts.Node, sourceFile: ts.SourceFile): string {
     const escapedText = escapeString(removeExport(nodeText));
     const name = getName(node, sourceFile);
     const refs = getTypesReferences(node, sourceFile, name);
-    const exportPrefix = shouldExport(node) ? "export " : "";
+    const isDefault = isDefaultExported(node);
+    const exportPrefix = isExported(node) && !isDefault ? "export " : "";
     const varName = name || `__decl_${Math.random().toString(36).slice(2, 8)}`;
 
-    return `${exportPrefix}var ${varName} = ["${escapedText}"${refs.length ? `, ${refs.join(", ")}` : ""}];`;
+    const declaration = `${exportPrefix}var ${varName} = ["${escapedText}"${refs.length ? `, ${refs.join(", ")}` : ""}];`;
+
+    if (isDefault && name) {
+        return `${declaration}\nexport { ${name} as default };`;
+    }
+
+    return declaration;
 }
 
 function escapeString(str: string): string {
@@ -79,29 +89,33 @@ function getName(node: ts.Node, sourceFile: ts.SourceFile): string | null {
     return null;
 }
 
+function isExported(node: ts.Node): boolean {
+    if (!ts.canHaveModifiers(node)) return false;
+
+    const modifiers = ts.getModifiers(node);
+    if (!modifiers) return false;
+
+    return modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+}
+
+function isDefaultExported(node: ts.Node): boolean {
+    if (!ts.canHaveModifiers(node)) return false;
+
+    const modifiers = ts.getModifiers(node);
+    if (!modifiers) return false;
+
+    return (
+        modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) &&
+        modifiers.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword)
+    );
+}
+
 function getTypesReferences(
     node: ts.Node,
     sourceFile: ts.SourceFile,
     selfName: string | null,
 ): string[] {
     const refs = new Set<string>();
-    const builtInTypes = new Set([
-        "string",
-        "number",
-        "boolean",
-        "any",
-        "unknown",
-        "never",
-        "object",
-        "void",
-        "undefined",
-        "null",
-        "this",
-        "true",
-        "false",
-        "bigint",
-        "symbol",
-    ]);
 
     const visitor = (node: ts.Node): void => {
         if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
@@ -143,15 +157,7 @@ function getTypesReferences(
     }
 }
 
-function shouldExport(node: ts.Node): boolean {
-    if (!ts.canHaveModifiers(node)) return false;
-
-    const modifiers = ts.getModifiers(node);
-    if (!modifiers) return false;
-
-    return modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
-}
-
+// Fake JS to DTS conversion
 export function fakeJsToDts(content: string): string {
     try {
         const sourceFile = ts.createSourceFile(
@@ -175,7 +181,6 @@ export function fakeJsToDts(content: string): string {
             .filter(Boolean);
 
         const dts = fragments.join("\n").trim();
-        // final treeshaking using oxc isolatedDeclaration, even though bun will do it
         const treeShaken = isolatedDeclaration(DUMMY_DTS_PATH, dts).code;
 
         return treeShaken;
