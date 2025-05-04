@@ -3,10 +3,10 @@ import { generateDts } from "../src";
 
 const start = performance.now();
 
-const result = await generateDts("test/project/index.ts");
+const result = await generateDts("src/index.ts");
 
 const end = performance.now();
 
-fs.writeFileSync("test/result.d.ts", result.code);
+fs.writeFileSync("test/dist/index.d.ts", result);
 
 console.log(`Time taken: ${end - start} milliseconds`);

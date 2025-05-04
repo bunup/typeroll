@@ -40,7 +40,7 @@ export function createResolver({
 
         let shouldResolve = false;
 
-        if (resolveOption) {
+        if (resolveOption !== undefined) {
             // e.g., if oxc-resolver re-exports @oxc-project/types, we'll resolve it without needing to explicitly specify @oxc-project/types in the resolve option
             if (isImportSourceReExportedFromImporter(importSource, importer)) {
                 shouldResolve = true;

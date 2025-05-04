@@ -3,7 +3,8 @@ import {
     type IsolatedDeclarationsResult,
     isolatedDeclaration,
 } from "oxc-transform";
-import { bundleTs } from "./bundle";
+import { resolveTsImportPath } from "ts-import-resolver";
+import { dtsToFakeJs, fakeJsToDts } from "./fake";
 
 export type Resolve = boolean | (string | RegExp)[];
 
@@ -33,7 +34,7 @@ export type GenerateDtsOptions = {
 /**
  * Result of the declaration file generation
  */
-export type GenerateDtsResult = IsolatedDeclarationsResult;
+export type GenerateDtsResult = string;
 
 /**
  * Generates TypeScript declaration files (.d.ts) from TypeScript source files
@@ -54,28 +55,47 @@ export type GenerateDtsResult = IsolatedDeclarationsResult;
  */
 export async function generateDts(
     entryFilePath: string,
-    options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult> {
-    const {
-        rootDir = process.cwd(),
-        preferredTsConfigPath,
-        resolve,
-        ...isolatedDeclarationOptions
-    } = options;
+    await Bun.build({
+        entrypoints: [entryFilePath],
+        outdir: "./dist",
+        format: "esm",
+        splitting: false,
+        plugins: [
+            {
+                name: "bun-plugin-typescript",
+                setup(build) {
+                    build.onResolve({ filter: /.*/ }, (args) => {
+                        const resolved = resolveTsImportPath({
+                            importer: args.importer,
+                            path: args.path,
+                            rootDir: args.resolveDir,
+                            tsconfig: null,
+                        });
 
-    const bundle = await bundleTs(entryFilePath, {
-        rootDir,
-        preferredTsConfigPath: options.preferredTsConfigPath,
-        resolve: options.resolve,
+                        if (!resolved)
+                            return {
+                                path: args.path,
+                                external: true,
+                            };
+
+                        return { path: resolved };
+                    });
+
+                    build.onLoad({ filter: /\.ts$/ }, async (args) => {
+                        const text = await Bun.file(args.path).text();
+                        const dts = isolatedDeclaration(args.path, text);
+                        return {
+                            loader: "js",
+                            contents: dtsToFakeJs(dts.code),
+                        };
+                    });
+                },
+            },
+        ],
     });
 
-    const result = isolatedDeclaration(
-        entryFilePath,
-        bundle,
-        isolatedDeclarationOptions,
-    );
+    const result = await Bun.file("./dist/index.js").text();
 
-    return result;
+    return fakeJsToDts(result);
 }
-
-export default generateDts;
