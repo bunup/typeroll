@@ -1,41 +1,10 @@
-import {
-    type IsolatedDeclarationsOptions,
-    isolatedDeclaration,
-} from "oxc-transform";
+import { isolatedDeclaration } from "oxc-transform";
 import { resolveTsImportPath } from "ts-import-resolver";
-import { dtsToFakeJs, fakeJsToDts } from "./fake";
+import { dtsToFakeJs } from "./fake/dts-to-fake-js";
+import { fakeJsToDts } from "./fake/fake-js-to-dts";
 import { createResolver } from "./resolver";
+import type { GenerateDtsOptions, GenerateDtsResult } from "./types";
 import { loadTsConfig } from "./utils";
-
-export type Resolve = boolean | (string | RegExp)[];
-
-/**
- * Options for generating declaration files
- */
-export type GenerateDtsOptions = {
-    /**
-     * Root directory of the project
-     * @default process.cwd()
-     */
-    rootDir?: string;
-    /**
-     * Path to the preferred tsconfig.json file
-     * By default, the closest tsconfig.json file will be used
-     */
-    preferredTsConfigPath?: string;
-    /**
-     * Controls which external modules should be resolved
-     * - `true` to resolve all external modules
-     * - Array of strings or RegExp to match specific modules
-     * - `false` or `undefined` to disable external resolution
-     */
-    resolve?: Resolve;
-} & IsolatedDeclarationsOptions;
-
-/**
- * Result of the declaration file generation
- */
-export type GenerateDtsResult = string;
 
 /**
  * Generates TypeScript declaration files (.d.ts) from TypeScript source files
@@ -73,6 +42,7 @@ export async function generateDts(
         outdir: "./dist",
         format: "esm",
         splitting: false,
+        packages: "external",
         plugins: [
             {
                 name: "core",

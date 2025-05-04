@@ -65,5 +65,13 @@
         "url": "git+https://github.com/arshad-yaseen/lightning-dts.git"
     },
     "workspaces": ["benchmarks"],
-    "homepage": "https://github.com/arshad-yaseen/lightning-dts#readme"
+    "homepage": "https://github.com/arshad-yaseen/lightning-dts#readme",
+    "peerDependencies": {
+        "typescript": ">=4.5.0"
+    },
+    "peerDependenciesMeta": {
+        "typescript": {
+            "optional": true
+        }
+    }
 }

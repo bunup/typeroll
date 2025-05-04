@@ -2,7 +2,7 @@ import { extname } from "node:path";
 import process from "node:process";
 import { ResolverFactory } from "oxc-resolver";
 import { dirname } from "pathe";
-import type { Resolve } from ".";
+import type { Resolve } from "./types";
 
 export interface Options {
     cwd?: string;
