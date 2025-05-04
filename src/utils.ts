@@ -13,9 +13,3 @@ export async function loadTsConfig(
 
     return config;
 }
-
-export const something = "something";
-
-export interface Something {
-    something: string;
-}

@@ -1,4 +1,8 @@
-import type { IsolatedDeclarationsOptions } from "oxc-transform";
+import type _Bun from "bun";
+
+type Bun = typeof _Bun;
+export type BuildOptions = Parameters<Bun["build"]>[0];
+export type BunPlugin = Exclude<BuildOptions["plugins"], undefined>[number];
 
 export type Resolve = boolean | (string | RegExp)[];
 
@@ -6,11 +10,6 @@ export type Resolve = boolean | (string | RegExp)[];
  * Options for generating declaration files
  */
 export type GenerateDtsOptions = {
-    /**
-     * Root directory of the project
-     * @default process.cwd()
-     */
-    rootDir?: string;
     /**
      * Path to the preferred tsconfig.json file
      * By default, the closest tsconfig.json file will be used
@@ -23,7 +22,11 @@ export type GenerateDtsOptions = {
      * - `false` or `undefined` to disable external resolution
      */
     resolve?: Resolve;
-} & IsolatedDeclarationsOptions;
+    /**
+     * Custom entry points to use instead of the ones from the build config
+     */
+    entry?: string[];
+};
 
 /**
  * Result of the declaration file generation

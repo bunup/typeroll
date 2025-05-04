@@ -1,12 +1,18 @@
 import fs from "node:fs";
-import { generateDts } from "../src";
+import { dts } from "../src";
 
 const start = performance.now();
 
-const result = await generateDts("src/index.ts");
-
-const end = performance.now();
-
-fs.writeFileSync("test/dist/index.d.ts", result);
-
-console.log(`Time taken: ${end - start} milliseconds`);
+await Bun.build({
+    entrypoints: ["src/index.ts"],
+    plugins: [dts()],
+    target: "node",
+    external: [
+        "oxc-transform",
+        "ts-import-resolver",
+        "typescript",
+        "coffi",
+        "oxc-resolver",
+    ],
+    outdir: "test/dist",
+});
