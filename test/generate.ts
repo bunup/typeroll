@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { dts } from "../src";
 
 const start = performance.now();
@@ -16,3 +15,5 @@ await Bun.build({
     ],
     outdir: "test/dist",
 });
+
+console.log(`Time taken: ${performance.now() - start}ms`);

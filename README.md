@@ -1,97 +1,59 @@
-# ⚡️ lightning-dts
+# bun-dts
 
-Lightning-fast TypeScript .d.ts generator and bundler with sourcemap support and ability to resolve types from node_modules, all at blazing speed.
+A Bun plugin to generate and bundle TypeScript declaration files (.d.ts) into a single file for your projects.
 
-## Benchmarks
-
-| Tool                 | Execution Time | Comparison      |
-| -------------------- | -------------- | --------------- |
-| **lightning-dts**    | **0.64ms** ⚡️ | baseline        |
-| rolldown-plugin-dts  | 49.51ms        | 77.74x slower   |
-| rollup-plugin-dts    | 84.43ms        | 132.55x slower  |
-| dts-bundle-generator | 833.71ms       | 1308.90x slower |
-
-_Benchmarks run on identical code with sourcemap generation enabled_
-
-## Features
-
-- **Ultra-Fast**: Generate TypeScript declaration files at lightning speed
-- **Bundling**: Not just generation, bundles all declarations into a single `.d.ts` file ready to ship
-- **Sourcemaps**: Full sourcemap support for better debugging with the same speed
-- **Node Module Resolution**: Seamlessly resolves types from node_modules
-- **Configurable**: Customize with TSConfig options
+[![npm version](https://img.shields.io/npm/v/bun-dts.svg)](https://www.npmjs.com/package/bun-dts)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/arshad-yaseen/bun-dts/blob/main/LICENSE)
 
 ## Installation
 
 ```bash
-# npm
-npm install lightning-dts --save-dev
-
-# bun
-bun add lightning-dts --dev
-
-# pnpm
-pnpm add lightning-dts -D
+bun add -d bun-dts
 ```
 
 ## Usage
 
-```typescript
-import { generateDts } from 'lightning-dts';
+### Basic Usage
 
-// Basic usage
-const result = generateDts('./src/index.ts');
+Add the plugin to your build configuration:
 
-// With options
-const result = generateDts('./src/index.ts', {
-	rootDir: './src',
-	sourcemap: true,
-	stripInternal: true,
-	preferredTsConfigPath: './tsconfig.build.json',
-	resolve: true, // resolve all external modules from node_modules
+```ts
+import { dts } from 'bun-dts';
+
+await Bun.build({
+	entrypoints: ['./src/index.ts'],
+	outdir: './dist',
+	plugins: [dts()],
 });
-
-// Access the generated declaration
-console.log(result.code);
-
-// Access sourcemap if enabled
-console.log(result.map);
-
-// Handle any errors
-if (result.errors.length > 0) {
-	console.error(result.errors);
-}
 ```
 
-## API
+This will generate a `index.d.ts` file alongside your `index.js` in the output directory (`./dist`).
 
-### `generateDts(entryFilePath, options?)`
+### Advanced Usage
 
-Generates and bundles TypeScript declaration files.
+```ts
+import { dts } from 'bun-dts';
 
-#### Parameters
-
-- `entryFilePath`: Path to the entry TypeScript file
-- `options`: (Optional) Configuration options
-  - `rootDir`: Root directory of the project (default: `process.cwd()`)
-  - `preferredTsConfigPath`: Path to the preferred tsconfig.json file (by default, the closest tsconfig.json will be used)
-  - `resolve`: Controls which external modules should be resolved:
-    - `true` to resolve all external modules
-    - Array of strings or RegExp to match specific modules
-    - `false` or `undefined` to disable external resolution
-  - `sourcemap`: Generate sourcemap (default: `false`)
-  - `stripInternal`: Remove declarations marked as `@internal` (default: `false`)
-
-#### Returns
-
-```typescript
-{
-  code: string;     // The generated .d.ts content
-  errors: OxcError[];  // Any errors encountered during generation
-  map?: SourceMap;  // Sourcemap (if enabled)
-}
+await Bun.build({
+	entrypoints: ['./src/index.ts'],
+	outdir: './dist',
+	plugins: [
+		dts({
+			preferredTsConfigPath: './tsconfig.build.json',
+			resolve: ['react', 'react-dom', /^@myorg\/.*/],
+		}),
+	],
+});
 ```
 
-## Contributing
+## Options
 
-For guidelines on contributing, please read the [contributing guide](../../CONTRIBUTING.md).
+| Option                  | Type                              | Description                                                                                                                                                                                     |
+| ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preferredTsConfigPath` | `string`                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
+| `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
+| `entry`                 | `string[]`                        | Custom entry points to use instead of the ones from the build config.                                                                                                                           |
+
+## License
+
+[MIT](https://github.com/arshad-yaseen/bun-dts/blob/main/LICENSE) © [Arshad Yaseen](https://arshadyaseen.com)

@@ -6,7 +6,7 @@ import {
     isDefaultExported,
     isExported,
     removeExport,
-} from "./utils";
+} from "./ast";
 
 const DUMMY_DTS_PATH = "file.d.ts";
 

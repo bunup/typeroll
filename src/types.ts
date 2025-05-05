@@ -27,8 +27,3 @@ export type GenerateDtsOptions = {
      */
     entry?: string[];
 };
-
-/**
- * Result of the declaration file generation
- */
-export type GenerateDtsResult = string;

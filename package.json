@@ -1,7 +1,7 @@
 {
-    "name": "lightning-dts",
+    "name": "bun-dts",
     "version": "0.1.2",
-    "description": "Lightning-fast TypeScript .d.ts generator and bundler ⚡️",
+    "description": "A Bun plugin to generate and bundle typescript declaration files.",
     "type": "module",
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
@@ -21,8 +21,7 @@
         "test:coverage": "bun test --coverage",
         "release": "bumpp --commit --push --tag",
         "publish:ci": "bun publish --access public --no-git-checks",
-        "prepare": "husky",
-        "benchmark": "bun run benchmarks/benchmarks.ts"
+        "prepare": "husky"
     },
     "dependencies": {
         "coffi": "^0.1.28",
@@ -62,10 +61,9 @@
     "funding": "https://github.com/sponsors/arshad-yaseen",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/arshad-yaseen/lightning-dts.git"
+        "url": "git+https://github.com/arshad-yaseen/bun-dts.git"
     },
-    "workspaces": ["benchmarks"],
-    "homepage": "https://github.com/arshad-yaseen/lightning-dts#readme",
+    "homepage": "https://github.com/arshad-yaseen/bun-dts#readme",
     "peerDependencies": {
         "typescript": ">=4.5.0"
     },

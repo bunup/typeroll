@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "lightning-dts",
+      "name": "bun-dts",
       "dependencies": {
         "coffi": "^0.1.28",
         "magic-string": "^0.30.17",
