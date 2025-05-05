@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to our project! This guide will help you get started with the development process.
 
+📖 **[Learn how bun-dts works under the hood](./HOW_IT_WORKS.md)**
+
 ## Development Setup
 
 ### Prerequisites
