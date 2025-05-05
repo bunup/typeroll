@@ -52,8 +52,8 @@ export async function generateDts(
                         const resolved = resolveTsImportPath({
                             importer: args.importer,
                             path: args.path,
-                            rootDir: args.resolveDir,
-                            tsconfig: null,
+                            rootDir,
+                            tsconfig: tsconfig.config,
                         });
 
                         if (resolved) {
@@ -64,6 +64,7 @@ export async function generateDts(
                             args.path,
                             args.importer,
                         );
+
                         if (resolvedByCustomResolver) {
                             return { path: resolvedByCustomResolver };
                         }
