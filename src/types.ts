@@ -33,4 +33,13 @@ export type GenerateDtsOptions = {
      * @default false
      */
     warnInsteadOfError?: boolean;
+    /**
+     * Callback function that is called when a declaration file is generated
+     * @param filePath The path to the generated declaration file
+     * @param content The content of the generated declaration file
+     */
+    onDeclarationGenerated?: (
+        filePath: string,
+        content: string,
+    ) => void | Promise<void>;
 };

@@ -133,5 +133,9 @@ export async function generateDts(
         getDeclarationExtension(ext),
     );
 
+    if (options.onDeclarationGenerated) {
+        await options.onDeclarationGenerated(finalDtsPath, dtsContent);
+    }
+
     await Bun.write(finalDtsPath, dtsContent);
 }

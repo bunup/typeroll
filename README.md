@@ -63,6 +63,7 @@ await Bun.build({
 | `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
 | `entry`                 | `string[]`                        | Custom entry points to use instead of the ones from the build config.                                                                                                                           |
 | `warnInsteadOfError`    | `boolean`                         | Show warnings instead of errors for isolatedDeclarations issues. When true, the build will not fail on isolatedDeclarations errors. Defaults to `false`.                                        |
+| `onDeclarationGenerated`| `(filePath: string, content: string) => void \| Promise<void>` | Callback function that is called when a declaration file is generated with the path and content of the file. |
 
 ## Understanding isolatedDeclarations
 

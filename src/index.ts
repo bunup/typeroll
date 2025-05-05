@@ -11,5 +11,3 @@ export function dts(options: GenerateDtsOptions = {}): BunPlugin {
 }
 
 export type { GenerateDtsOptions } from "./types";
-
-export * from "@/core";
