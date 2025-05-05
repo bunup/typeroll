@@ -23,3 +23,9 @@ export function getDeclarationExtension(ext: string): string {
     if (ext === "cjs") return ".d.cts";
     return ".d.ts";
 }
+
+export function getShortFilePath(filePath: string, maxLength = 3): string {
+    const fileParts = filePath.split("/");
+    const shortPath = fileParts.slice(-maxLength).join("/");
+    return shortPath;
+}

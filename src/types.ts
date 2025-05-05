@@ -27,4 +27,10 @@ export type GenerateDtsOptions = {
      * Custom entry points to use instead of the ones from the build config
      */
     entry?: string[];
+    /**
+     * Show warnings instead of errors for isolatedDeclarations issues
+     * When true, the build will not fail on isolatedDeclarations errors
+     * @default false
+     */
+    warnInsteadOfError?: boolean;
 };
