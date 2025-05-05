@@ -12,12 +12,6 @@ Traditional TypeScript declaration bundling relies on the TypeScript compiler, w
 
 ## Core Technique: Fake JS + Rehydration
 
-### 🔄 The Pipeline
-
-```
-.d.ts → fake JS (vars + refs) → [Bun.build → tree-shake + bundle] → fake JS bundle → extract → final .d.ts
-```
-
 ### Phase 1: Transform .d.ts to Fake JavaScript
 
 Using `dtsToFakeJs`, the function:
