@@ -2,8 +2,8 @@
 
 A Bun plugin to generate and bundle TypeScript declaration files (.d.ts) into a single file for your projects.
 
-[![npm version](https://img.shields.io/npm/v/bun-dts.svg)](https://www.npmjs.com/package/bun-dts)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/arshad-yaseen/bun-dts/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
+[![npm downloads](https://img.shields.io/npm/dm/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 
 ## Installation
 
