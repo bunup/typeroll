@@ -11,7 +11,7 @@ A Bun plugin to generate and bundle TypeScript declaration files (.d.ts) into a 
 - 🔍 Selective external module resolution
 - 🚪 Custom entry points support
 - ⚡ Seamless integration with Bun's build pipeline
-- 🚀 Blazing fast performance (100x faster than alternatives)
+- 🚀 Blazing fast performance (upto 100x faster than alternatives)
 
 ## Installation
 
@@ -66,7 +66,7 @@ await Bun.build({
 
 ## Understanding isolatedDeclarations
 
-bun-dts uses TypeScript's isolatedDeclarations feature to generate accurate type declarations. This approach verifies that each file's public API can be described using only its explicit imports and exports, without relying on implicit type relationships.
+bun-dts uses TypeScript's [isolatedDeclarations](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html#isolated-declarations) feature to generate accurate type declarations. This approach verifies that each file's public API can be described using only its explicit imports and exports, without relying on implicit type relationships.
 
 ### Why It Matters
 
@@ -99,7 +99,7 @@ For more details about isolatedDeclarations, refer to [TypeScript's explanation 
 
 ## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
 
-bun-dts is 100x faster than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts can resolve types from node_modules.
+bun-dts is upto 100x faster than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts can resolve types from node_modules.
 
 ## License
 
