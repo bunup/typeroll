@@ -101,6 +101,8 @@ For more details about isolatedDeclarations, refer to [TypeScript's explanation 
 
 bun-dts is upto 100x faster than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts can resolve types from node_modules.
 
-## License
+## ❤️ Contributing
 
-[MIT](https://github.com/arshad-yaseen/bun-dts/blob/main/LICENSE) © [Arshad Yaseen](https://arshadyaseen.com)
+For guidelines on contributing, please read the [contributing guide](../../CONTRIBUTING.md).
+
+We welcome contributions from the community to enhance capabilities and make it even more powerful.
