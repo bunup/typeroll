@@ -54,6 +54,10 @@ await Bun.build({
 | `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
 | `entry`                 | `string[]`                        | Custom entry points to use instead of the ones from the build config.                                                                                                                           |
 
+## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
+
+bun-dts is 10x faster than bun-plugin-dts, significantly reducing your build times.
+
 ## License
 
 [MIT](https://github.com/arshad-yaseen/bun-dts/blob/main/LICENSE) © [Arshad Yaseen](https://arshadyaseen.com)
