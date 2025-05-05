@@ -3,6 +3,7 @@ import type _Bun from "bun";
 type Bun = typeof _Bun;
 export type BuildOptions = Parameters<Bun["build"]>[0];
 export type BunPlugin = Exclude<BuildOptions["plugins"], undefined>[number];
+export type BunPluginBuild = Parameters<BunPlugin["setup"]>[0];
 
 export type Resolve = boolean | (string | RegExp)[];
 
