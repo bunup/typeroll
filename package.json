@@ -25,7 +25,6 @@
     },
     "dependencies": {
         "coffi": "^0.1.28",
-        "magic-string": "^0.30.17",
         "oxc-resolver": "^8.0.0",
         "oxc-transform": "^0.67.0",
         "ts-import-resolver": "^0.1.16"

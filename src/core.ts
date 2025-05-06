@@ -40,8 +40,8 @@ export async function generateDts(
         entrypoints: entry ?? build.config.entrypoints,
         outdir: build.config.outdir,
         format: "esm",
+        external: build.config.external,
         target: "node",
-        packages: "external",
         splitting: false,
         naming: naming.replace(/\.(js|mjs|cjs|\[ext\])/g, `${tempName}.$1`),
         plugins: [

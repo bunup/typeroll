@@ -8,7 +8,7 @@ import {
     removeExport,
 } from "./ast";
 
-const DUMMY_DTS_PATH = "file.d.ts";
+export const DUMMY_DTS_PATH = "file.d.ts";
 
 export function dtsToFakeJs(content: string): string {
     const sourceFile = ts.createSourceFile(

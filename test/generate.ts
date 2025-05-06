@@ -8,10 +8,9 @@ await Bun.build({
     target: "node",
     external: [
         "oxc-transform",
-        "ts-import-resolver",
-        "typescript",
-        "coffi",
         "oxc-resolver",
+        "typescript",
+        "ts-import-resolver",
     ],
     outdir: "test/dist",
 });
