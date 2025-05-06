@@ -6,11 +6,20 @@ bun-dts is a tool for bundling TypeScript declaration files (`.d.ts`) using a cl
 
 Traditional TypeScript declaration bundling relies on the TypeScript compiler, which has limitations for complex projects. bun-dts takes a different approach:
 
-1. Convert `.d.ts` files to fake JavaScript
-2. Let Bun bundle this JavaScript (applying tree-shaking)
-3. Convert the bundled JavaScript back to a single `.d.ts` file
+1. Generate `.d.ts` files from TypeScript source using Oxc's isolatedDeclaration
+2. Convert `.d.ts` files to fake JavaScript
+3. Let Bun bundle this JavaScript (applying tree-shaking)
+4. Convert the bundled JavaScript back to a single `.d.ts` file
 
-## Core Technique: Fake JS + Rehydration
+## Oxc + Fake JS + Rehydration
+
+### Phase 0: Generate .d.ts from TypeScript Source
+
+Using Oxc's `isolatedDeclaration` from "oxc-transform":
+- Processes original TypeScript source files
+- Generates declaration files without using TypeScript compiler
+- Provides accurate type declarations with better performance
+- Reports any type declaration errors during the process
 
 ### Phase 1: Transform .d.ts to Fake JavaScript
 
