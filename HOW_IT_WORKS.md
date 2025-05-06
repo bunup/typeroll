@@ -24,7 +24,7 @@ TypeScript Source Files → .d.ts Files → Fake JavaScript → Bundled JS → S
 
 ```
 src/
-  types.ts      // defines User interface
+  types.ts      // defines User interface and unused Admin interface
   utils.ts      // uses User, exports greet function
   index.ts      // re-exports greet
 ```
@@ -40,6 +40,12 @@ export interface User {
 	name: string;
 }
 
+export interface Admin {  // This interface is never imported or used
+	id: string;
+	name: string;
+	permissions: string[];
+}
+
 // Generated from utils.ts
 import type { User } from './types';
 export declare function greet(user: User): string;
@@ -52,6 +58,7 @@ The clever part - declarations become JS arrays with strings:
 ```js
 // Fake JS for types.ts
 export var User = ['interface User { id: string; name: string; }'];
+export var Admin = ['interface Admin { id: string; name: string; permissions: string[]; }'];
 
 // Fake JS for utils.ts
 import { User } from './types';
@@ -69,7 +76,7 @@ Bun bundles the fake JavaScript:
 var User = ['interface User { id: string; name: string; }'];
 var greet = ['declare function greet(user: User): string;', User];
 export { greet };
-// Note: Unused types are automatically tree-shaken out
+// Note: The Admin interface was tree-shaken out as it's never used
 ```
 
 ### Phase 4: Transform Back to .d.ts
@@ -86,6 +93,7 @@ interface User {
 declare function greet(user: User): string;
 
 export { greet };
+// Admin interface isn't included since it was tree-shaken out
 ```
 
 ## TL;DR — Runtime Process
