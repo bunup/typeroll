@@ -11,6 +11,9 @@ await Bun.build({
         "oxc-resolver",
         "typescript",
         "ts-import-resolver",
+        "oxc-parser",
+        "bun-dts",
+        "elysia",
     ],
     outdir: "test/dist",
 });

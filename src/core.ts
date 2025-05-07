@@ -1,7 +1,7 @@
+import fs from "node:fs";
 import { isolatedDeclaration } from "oxc-transform";
 import { resolveTsImportPath } from "ts-import-resolver";
-import { dtsToFakeJs } from "./fake/dts-to-fake-js";
-import { fakeJsToDts } from "./fake/fake-js-to-dts";
+import { dtsToFakeJs, fakeJsToDts } from "./fake";
 import {
     type IsolatedDeclarationError,
     logIsolatedDeclarationError,
@@ -107,7 +107,9 @@ export async function generateDts(
     const bundledFakeJsPath = result.outputs[0].path;
     const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text();
 
-    await Bun.file(bundledFakeJsPath).delete();
+    try {
+        await Bun.file(bundledFakeJsPath).delete();
+    } catch {}
 
     if (errors.length > 0) {
         let hasSeverityError = false;
