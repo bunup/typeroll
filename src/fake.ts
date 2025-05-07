@@ -10,9 +10,9 @@ import type {
 } from "oxc-parser";
 import { isolatedDeclaration } from "oxc-transform";
 
-export const DUMMY_DTS_PATH = "file.d.ts";
-export const DUMMY_JS_PATH = "file.js";
-export const builtInTypes: Set<string> = new Set([
+const DUMMY_DTS_PATH = "file.d.ts";
+const DUMMY_JS_PATH = "file.js";
+const builtInTypes: Set<string> = new Set([
     "string",
     "number",
     "boolean",
@@ -182,7 +182,7 @@ function extractOriginalDeclaration(statement: Directive | Statement) {
     return null;
 }
 
-export function escapeString(str: string): string {
+function escapeString(str: string): string {
     return str
         .replace(/\\/g, "\\\\")
         .replace(/"/g, '\\"')
@@ -191,11 +191,11 @@ export function escapeString(str: string): string {
         .replace(/\t/g, "\\t");
 }
 
-export function removeExport(text: string): string {
+function removeExport(text: string): string {
     return text.replace(/export\s+default\s+/, "").replace(/export\s+/, "");
 }
 
-export function getName(
+function getName(
     node:
         | Directive
         | Statement
@@ -251,7 +251,7 @@ export function getName(
     return null;
 }
 
-export function isExported(node: Directive | Statement): boolean {
+function isExported(node: Directive | Statement): boolean {
     return (
         node &&
         (node.type === "ExportNamedDeclaration" ||
@@ -259,11 +259,11 @@ export function isExported(node: Directive | Statement): boolean {
     );
 }
 
-export function isDefaultExported(node: Directive | Statement): boolean {
+function isDefaultExported(node: Directive | Statement): boolean {
     return node && node.type === "ExportDefaultDeclaration";
 }
 
-export function getTypesReferences(
+function getTypesReferences(
     node: Directive | Statement,
     selfName?: string,
 ): string[] {
