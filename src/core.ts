@@ -1,6 +1,11 @@
 import { isolatedDeclaration } from "oxc-transform";
 import pc from "picocolors";
 import { resolveTsImportPath } from "ts-import-resolver";
+import {
+    getResolvedNaming,
+    normalizeEntryToProcessableEntries,
+    tempPathToDtsPath,
+} from "./entry";
 import { dtsToFakeJs, fakeJsToDts } from "./fake";
 import {
     type IsolatedDeclarationError,
@@ -8,12 +13,7 @@ import {
 } from "./isolated-decl-error";
 import { createResolver } from "./resolver";
 import type { BunPluginBuild, GenerateDtsOptions } from "./types";
-import {
-    NODE_MODULES_REGEX,
-    getDeclarationExtension,
-    loadTsConfig,
-    randomId,
-} from "./utils";
+import { NODE_MODULES_REGEX, loadTsConfig } from "./utils";
 
 export async function generateDts(
     build: BunPluginBuild,
@@ -30,115 +30,115 @@ export async function generateDts(
         resolveOption: resolve,
     });
 
-    const defaultNaming = "[dir]/[name].js";
-    const configNaming = build.config.naming;
-    const entryNaming =
-        typeof configNaming === "string" ? configNaming : configNaming?.entry;
-    const naming = entryNaming ?? defaultNaming;
-
-    const tempName = `-${randomId()}-dts-fake`;
-    const tempFilePattern = new RegExp(`${tempName}\\.([cm]?js)$`);
-
     const errors: IsolatedDeclarationError[] = [];
 
-    const startTime = performance.now();
-    const result = await Bun.build({
-        entrypoints: entry ?? build.config.entrypoints,
-        outdir: build.config.outdir,
-        format: "esm",
-        external: build.config.external,
-        target: "node",
-        splitting: false,
-        naming: naming.replace(/\.(js|mjs|cjs|\[ext\])/g, `${tempName}.$1`),
-        plugins: [
-            {
-                name: "fake-js",
-                setup(build) {
-                    build.onResolve({ filter: /.*/ }, (args) => {
-                        if (!NODE_MODULES_REGEX.test(args.importer)) {
-                            const resolved = resolveTsImportPath({
-                                importer: args.importer,
-                                path: args.path,
-                                rootDir,
-                                tsconfig: tsconfig.config,
+    const processableEntries = entry
+        ? normalizeEntryToProcessableEntries(entry)
+        : normalizeEntryToProcessableEntries(build.config.entrypoints);
+
+    const buildResults = await Promise.all(
+        processableEntries.map(async (entry) => {
+            return await Bun.build({
+                entrypoints: [entry.fullPath],
+                outdir: build.config.outdir,
+                format: "esm",
+                external: build.config.external,
+                target: "node",
+                splitting: false,
+                naming: getResolvedNaming(
+                    build.config.naming,
+                    entry.customOutputBasePath,
+                ),
+                plugins: [
+                    {
+                        name: "fake-js",
+                        setup(build) {
+                            build.onResolve({ filter: /.*/ }, (args) => {
+                                if (!NODE_MODULES_REGEX.test(args.importer)) {
+                                    const resolved = resolveTsImportPath({
+                                        importer: args.importer,
+                                        path: args.path,
+                                        rootDir,
+                                        tsconfig: tsconfig.config,
+                                    });
+
+                                    if (resolved) {
+                                        return { path: resolved };
+                                    }
+                                }
+
+                                const resolvedByCustomResolver = resolver(
+                                    args.path,
+                                    args.importer,
+                                );
+
+                                if (resolvedByCustomResolver) {
+                                    return { path: resolvedByCustomResolver };
+                                }
+
+                                return {
+                                    path: args.path,
+                                    external: true,
+                                };
                             });
 
-                            if (resolved) {
-                                return { path: resolved };
-                            }
-                        }
+                            build.onLoad({ filter: /\.ts$/ }, async (args) => {
+                                const sourceText = await Bun.file(
+                                    args.path,
+                                ).text();
+                                const declarationResult = isolatedDeclaration(
+                                    args.path,
+                                    sourceText,
+                                );
 
-                        const resolvedByCustomResolver = resolver(
-                            args.path,
-                            args.importer,
-                        );
+                                for (const error of declarationResult.errors) {
+                                    errors.push({
+                                        error,
+                                        file: args.path,
+                                        content: sourceText,
+                                    });
+                                }
 
-                        if (resolvedByCustomResolver) {
-                            return { path: resolvedByCustomResolver };
-                        }
+                                const fakeJsContent = dtsToFakeJs(
+                                    declarationResult.code,
+                                );
 
-                        return {
-                            path: args.path,
-                            external: true,
-                        };
-                    });
-
-                    build.onLoad({ filter: /\.ts$/ }, async (args) => {
-                        const sourceText = await Bun.file(args.path).text();
-                        const declarationResult = isolatedDeclaration(
-                            args.path,
-                            sourceText,
-                        );
-
-                        for (const error of declarationResult.errors) {
-                            errors.push({
-                                error,
-                                file: args.path,
-                                content: sourceText,
+                                return {
+                                    loader: "js",
+                                    contents: fakeJsContent,
+                                };
                             });
-                        }
+                        },
+                    },
+                ],
+            });
+        }),
+    );
 
-                        const fakeJsContent = dtsToFakeJs(
-                            declarationResult.code,
-                        );
+    for (const result of buildResults) {
+        for (const output of result.outputs) {
+            if (output.kind !== "entry-point") {
+                continue;
+            }
 
-                        return {
-                            loader: "js",
-                            contents: fakeJsContent,
-                        };
-                    });
-                },
-            },
-        ],
-    });
+            const bundledFakeJsPath = output.path;
+            const bundledFakeJsContent =
+                await Bun.file(bundledFakeJsPath).text();
 
-    const endTime = performance.now();
-    console.log(`Time taken: ${endTime - startTime} milliseconds`);
+            try {
+                await Bun.file(bundledFakeJsPath).delete();
+            } catch {}
 
-    for (const output of result.outputs) {
-        if (output.kind !== "entry-point" && output.kind !== "chunk") {
-            continue;
+            const dtsContent = fakeJsToDts(bundledFakeJsContent);
+
+            const finalDtsPath = tempPathToDtsPath(bundledFakeJsPath);
+
+            if (options.onDeclarationGenerated) {
+                await options.onDeclarationGenerated(finalDtsPath, dtsContent);
+            }
+
+            await Bun.write(finalDtsPath, dtsContent);
         }
-
-        const bundledFakeJsPath = output.path;
-        const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text();
-
-        try {
-            await Bun.file(bundledFakeJsPath).delete();
-        } catch {}
-
-        const dtsContent = fakeJsToDts(bundledFakeJsContent);
-
-        const finalDtsPath = bundledFakeJsPath.replace(
-            tempFilePattern,
-            (_, ext) => getDeclarationExtension(ext),
-        );
-
-        if (options.onDeclarationGenerated) {
-            await options.onDeclarationGenerated(finalDtsPath, dtsContent);
-        }
-
-        await Bun.write(finalDtsPath, dtsContent);
     }
 
     if (errors.length > 0) {

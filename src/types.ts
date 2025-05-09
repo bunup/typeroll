@@ -1,10 +1,14 @@
 import type _Bun from "bun";
 
+type Arrayable<T> = T | T[];
+
 type Bun = typeof _Bun;
+
 export type BuildOptions = Parameters<Bun["build"]>[0];
 export type BunPlugin = Exclude<BuildOptions["plugins"], undefined>[number];
 export type BunPluginBuild = Parameters<BunPlugin["setup"]>[0];
 
+export type Entry = Arrayable<string> | Record<string, string>;
 export type Resolve = boolean | (string | RegExp)[];
 
 /**
@@ -25,8 +29,24 @@ export type GenerateDtsOptions = {
     resolve?: Resolve;
     /**
      * Custom entry points to use instead of the ones from the build config
+     * Can be a string, array of strings, or an object mapping output names to input paths
+     *
+     * @example
+     * // Single entry point
+     * entry: "src/index.ts"
+     *
+     * @example
+     * // Multiple entry points
+     * entry: ["src/index.ts", "src/other.ts"]
+     *
+     * @example
+     * // Named entry points (custom output paths)
+     * entry: {
+     *   "api": "src/api/v1/index.ts",   // Outputs to dist/api.d.ts
+     *   "nested/types": "src/types.ts"  // Outputs to dist/nested/types.d.ts
+     * }
      */
-    entry?: string[];
+    entry?: Entry;
     /**
      * Show warnings instead of errors for isolatedDeclarations issues
      * When true, the build will not fail on isolatedDeclarations errors

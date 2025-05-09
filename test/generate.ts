@@ -3,7 +3,7 @@ import { dts } from "../src";
 const start = performance.now();
 
 await Bun.build({
-    entrypoints: ["project/index.ts"],
+    entrypoints: ["project/index.ts", "project/a.ts"],
     plugins: [
         dts({
             resolve: true,

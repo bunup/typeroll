@@ -1,2 +1,3 @@
-export * from "oxc-parser";
-export * from "oxc-resolver";
+import { A } from "./a";
+
+export class B extends A {}

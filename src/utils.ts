@@ -27,16 +27,6 @@ export async function loadTsConfig(
     return config;
 }
 
-export function randomId(): string {
-    return Math.random().toString(36).substring(2, 15);
-}
-
-export function getDeclarationExtension(ext: string): string {
-    if (ext === "mjs") return ".d.mts";
-    if (ext === "cjs") return ".d.cts";
-    return ".d.ts";
-}
-
 export function getShortFilePath(filePath: string, maxLength = 3): string {
     const fileParts = filePath.split("/");
     const shortPath = fileParts.slice(-maxLength).join("/");
