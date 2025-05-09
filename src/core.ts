@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { isolatedDeclaration } from "oxc-transform";
 import { resolveTsImportPath } from "ts-import-resolver";
 import { dtsToFakeJs, fakeJsToDts } from "./fake";
@@ -8,7 +7,12 @@ import {
 } from "./isolated-decl-error";
 import { createResolver } from "./resolver";
 import type { BunPluginBuild, GenerateDtsOptions } from "./types";
-import { getDeclarationExtension, loadTsConfig, randomId } from "./utils";
+import {
+    NODE_MODULES_REGEX,
+    getDeclarationExtension,
+    loadTsConfig,
+    randomId,
+} from "./utils";
 
 export async function generateDts(
     build: BunPluginBuild,
@@ -49,15 +53,17 @@ export async function generateDts(
                 name: "fake-js",
                 setup(build) {
                     build.onResolve({ filter: /.*/ }, (args) => {
-                        const resolved = resolveTsImportPath({
-                            importer: args.importer,
-                            path: args.path,
-                            rootDir,
-                            tsconfig: tsconfig.config,
-                        });
+                        if (!NODE_MODULES_REGEX.test(args.importer)) {
+                            const resolved = resolveTsImportPath({
+                                importer: args.importer,
+                                path: args.path,
+                                rootDir,
+                                tsconfig: tsconfig.config,
+                            });
 
-                        if (resolved) {
-                            return { path: resolved };
+                            if (resolved) {
+                                return { path: resolved };
+                            }
                         }
 
                         const resolvedByCustomResolver = resolver(

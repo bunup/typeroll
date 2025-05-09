@@ -3,6 +3,7 @@ import { type LoadConfigResult, loadConfig } from "coffi";
 
 export const JS_REGEX: RegExp = /\.[cm]?js$/;
 export const TS_REGEX: RegExp = /\.[cm]?ts$/;
+export const NODE_MODULES_REGEX: RegExp = /node_modules/;
 
 export function ensureTypeScriptFile(path: string | null): string | null {
     return path && TS_REGEX.test(path) ? path : null;

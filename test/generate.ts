@@ -3,8 +3,12 @@ import { dts } from "../src";
 const start = performance.now();
 
 await Bun.build({
-    entrypoints: ["src/index.ts"],
-    plugins: [dts()],
+    entrypoints: ["project/index.ts"],
+    plugins: [
+        dts({
+            resolve: true,
+        }),
+    ],
     target: "node",
     external: [
         "oxc-transform",
@@ -14,6 +18,9 @@ await Bun.build({
         "oxc-parser",
         "bun-dts",
         "elysia",
+        "bun",
+        "publint",
+        "unplugin-unused",
     ],
     outdir: "test/dist",
 });

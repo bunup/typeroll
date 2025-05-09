@@ -1,310 +1,208 @@
-import { parseSync } from "oxc-parser";
-import type {
-    Declaration,
-    Directive,
-    ExportDefaultDeclaration,
-    ExportNamedDeclaration,
-    ExpressionStatement,
-    Node,
-    Statement,
+import oxc, {
+    type Node,
+    type Directive,
+    type ExpressionStatement,
+    type Statement,
 } from "oxc-parser";
 import { isolatedDeclaration } from "oxc-transform";
+import {
+    getName,
+    hasDefaultExportModifier,
+    hasExportModifier,
+    isDefaultReExport,
+    isExportAllDeclaration,
+    isImportDeclaration,
+    isReExportStatement,
+} from "./ast";
 
-const DUMMY_DTS_PATH = "file.d.ts";
-const DUMMY_JS_PATH = "file.js";
-const builtInTypes: Set<string> = new Set([
-    "string",
-    "number",
-    "boolean",
-    "any",
-    "unknown",
-    "never",
-    "object",
-    "void",
-    "undefined",
-    "null",
-    "this",
-    "true",
-    "false",
-    "bigint",
-    "symbol",
-    "Promise",
-    "Record",
-    "Array",
-    "ReadonlyArray",
-    "Map",
-    "Set",
-    "Date",
-    "RegExp",
-    "Function",
-    "Error",
-]);
+function dtsToFakeJs(dtsContent: string): string {
+    const parseResult = oxc.parseSync("temp.d.ts", dtsContent, {
+        sourceType: "module",
+        lang: "ts",
+    });
 
-export function dtsToFakeJs(content: string): string {
-    try {
-        const { program } = parseSync(DUMMY_DTS_PATH, content, { lang: "ts" });
-        return program.body
-            .map((node) => {
-                if (
-                    node.type === "ImportDeclaration" ||
-                    node.type === "ExportAllDeclaration" ||
-                    (node.type === "ExportNamedDeclaration" &&
-                        !node.declaration)
-                )
-                    return jsifyImportExport(node, content);
-                return convertDeclarationToFakeJs(node, content);
-            })
-            .filter(Boolean)
-            .join("\n\n");
-    } catch (error) {
-        console.error("Error parsing .d.ts:", error);
-        return "";
+    const program = parseResult.program;
+    const result = [];
+
+    for (const statement of program.body) {
+        let statementText = dtsContent.substring(
+            statement.start,
+            statement.end,
+        );
+        const varName = getName(statement, dtsContent);
+        const isDefaultExport = hasDefaultExportModifier(
+            statement,
+            statementText,
+        );
+        const isExported = hasExportModifier(statement, statementText);
+
+        if (isDefaultExport) {
+            result.push(`export { ${varName} as default };`);
+            if (isDefaultReExport(statement)) {
+                continue;
+            }
+        }
+
+        if (
+            isImportDeclaration(statement) ||
+            isExportAllDeclaration(statement) ||
+            isReExportStatement(statement)
+        ) {
+            result.push(jsifyImportExport(statement, dtsContent));
+            continue;
+        }
+
+        if (isExported) {
+            statementText = statementText
+                .replace(/\bexport\s+default\s+/g, "")
+                .replace(/\bexport\s+/g, "");
+        }
+
+        const tokens = tokenizeText(statementText);
+
+        const exportPrefix = isExported && !isDefaultExport ? "export " : "";
+        result.push(`${exportPrefix}var ${varName} = [${tokens.join(", ")}];`);
     }
+
+    return result.join("\n");
 }
 
-export function fakeJsToDts(content: string): string {
-    try {
-        const { program } = parseSync(DUMMY_JS_PATH, content, { lang: "ts" });
-        const fragments = program.body
-            .map((stmt) => {
-                if (
-                    stmt.type === "ImportDeclaration" ||
-                    stmt.type === "ExportAllDeclaration" ||
-                    (stmt.type === "ExportNamedDeclaration" &&
-                        (!stmt.declaration ||
-                            stmt.declaration.type !== "VariableDeclaration"))
-                )
-                    return content.substring(stmt.start, stmt.end);
+function fakeJsToDts(fakeJsContent: string): string {
+    const parseResult = oxc.parseSync("temp.js", fakeJsContent, {
+        sourceType: "module",
+        lang: "js",
+    });
 
-                if (stmt.type === "ExpressionStatement") {
-                    const namespaceDecl = handleNamespace(stmt);
-                    if (namespaceDecl) return namespaceDecl;
+    const program = parseResult.program;
+    const resultParts = [];
+
+    for (const node of program.body) {
+        if (
+            isImportDeclaration(node) ||
+            isExportAllDeclaration(node) ||
+            isReExportStatement(node)
+        ) {
+            resultParts.push(
+                fakeJsContent.substring(node.start, node.end).trim(),
+            );
+            continue;
+        }
+
+        if (node.type === "ExpressionStatement") {
+            const namespaceDecl = handleNamespace(node);
+            if (namespaceDecl) {
+                resultParts.push(namespaceDecl);
+                continue;
+            }
+        }
+
+        if (node.type === "VariableDeclaration") {
+            for (const declaration of node.declarations) {
+                if (declaration.init?.type === "ArrayExpression") {
+                    const dtsContent = processTokenArray(declaration.init);
+                    if (dtsContent) {
+                        resultParts.push(dtsContent);
+                    }
                 }
-
-                return extractOriginalDeclaration(stmt);
-            })
-            .filter(Boolean);
-
-        return isolatedDeclaration(DUMMY_JS_PATH, fragments.join("\n").trim())
-            .code;
-    } catch (error) {
-        console.error("Error parsing JS:", error);
-        return "";
+            }
+        }
     }
+
+    return isolatedDeclaration("final.d.ts", resultParts.join("\n")).code;
 }
 
-function jsifyImportExport(node: Directive | Statement, source: string) {
+function jsifyImportExport(
+    node: Directive | Statement,
+    source: string,
+): string {
     const text = source.substring(node.start, node.end);
     return text
         .replace(/import\s+type\s+/g, "import ")
         .replace(/export\s+type\s+/g, "export ")
         .replace(
             /(import|export)\s*{([^}]*)}/g,
-            (_, kw, names) => `${kw} {${names.replace(/type\s+/g, "")}}`,
+            (_, keyword, names) =>
+                `${keyword} {${names.replace(/type\s+/g, "")}}`,
         );
 }
 
-function convertDeclarationToFakeJs(
-    node: Directive | Statement,
-    source: string,
-) {
-    const nodeText = source.substring(node.start, node.end);
-    const escapedText = escapeString(removeExport(nodeText));
-    const name = getName(node, source);
-    const refs = name ? getTypesReferences(node, name) : [];
-    const isDefault = isDefaultExported(node);
-    const exportPrefix = isExported(node) && !isDefault ? "export " : "";
-    const varName = name || `__decl_${Math.random().toString(36).slice(2, 8)}`;
+function tokenizeText(text: string): string[] {
+    const tokens = [];
+    const tokenRegex =
+        /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
 
-    const declaration = `${exportPrefix}var ${varName} = ["${escapedText}"${refs.length ? `, ${refs.join(", ")}` : ""}];`;
+    let match: RegExpExecArray | null;
+    while (true) {
+        match = tokenRegex.exec(text);
+        if (match === null) break;
 
-    return isDefault && name
-        ? `${declaration}\nexport { ${name} as default };`
-        : declaration;
+        const token = match[0];
+
+        if (token.startsWith("//") || token.startsWith("/*")) {
+            continue;
+        }
+
+        if (/^[A-Z]/.test(token)) {
+            tokens.push(token);
+        } else {
+            const processedToken = token
+                .replace(/\n/g, "\\n")
+                .replace(/\t/g, "\\t");
+            tokens.push(JSON.stringify(processedToken));
+        }
+    }
+
+    return tokens;
 }
 
-function handleNamespace(stmt: Directive | ExpressionStatement) {
+function processTokenArray(arrayLiteral: Node): string | null {
+    if (arrayLiteral.type !== "ArrayExpression") {
+        return null;
+    }
+
+    const tokens = [];
+
+    for (const element of arrayLiteral.elements) {
+        if (element?.type === "Literal" && typeof element.value === "string") {
+            const processedValue = element.value
+                .replace(/\\n/g, "\n")
+                .replace(/\\t/g, "\t")
+                .replace(/\\r/g, "\r");
+            tokens.push(processedValue);
+        } else if (element?.type === "Identifier") {
+            tokens.push(element.name);
+        }
+    }
+
+    return tokens.join("");
+}
+
+function handleNamespace(stmt: Directive | ExpressionStatement): string | null {
     const expr = stmt.expression;
+
     if (
-        expr?.type === "CallExpression" &&
-        expr.callee?.type === "Identifier" &&
-        expr.callee.name === "__export" &&
-        expr.arguments?.length === 2 &&
-        expr.arguments[0].type === "Identifier" &&
-        expr.arguments[1].type === "ObjectExpression"
+        !expr ||
+        expr.type !== "CallExpression" ||
+        expr.callee?.type !== "Identifier" ||
+        expr.callee.name !== "__export" ||
+        expr.arguments?.length !== 2 ||
+        expr.arguments[0].type !== "Identifier" ||
+        expr.arguments[1].type !== "ObjectExpression"
     ) {
-        const namespaceName = expr.arguments[0].name;
-        const properties = expr.arguments[1].properties
-            .filter((prop) => prop.type === "Property")
-            .map((prop) =>
-                prop.key?.type === "Identifier" ? prop.key.name : null,
-            )
-            .filter(Boolean);
-
-        if (properties.length)
-            return `declare namespace ${namespaceName} {\n  export { ${properties.join(", ")} };\n}`;
-    }
-    return null;
-}
-
-function extractOriginalDeclaration(statement: Directive | Statement) {
-    const finalStatement =
-        statement.type === "ExportNamedDeclaration" && statement.declaration
-            ? statement.declaration
-            : statement;
-
-    if (finalStatement.type === "VariableDeclaration") {
-        for (const decl of finalStatement.declarations) {
-            const init = decl.init;
-            if (
-                !init ||
-                init.type !== "ArrayExpression" ||
-                !init.elements?.length
-            )
-                continue;
-
-            const element = init.elements[0];
-            if (!element) continue;
-
-            if (element.type === "Literal" && typeof element.value === "string")
-                return element.value;
-
-            if (
-                element.type === "TemplateLiteral" &&
-                element.quasis?.length > 0
-            )
-                return (
-                    element.quasis[0].value.raw ||
-                    element.quasis[0].value.cooked
-                );
-        }
-    }
-    return null;
-}
-
-function escapeString(str: string): string {
-    return str
-        .replace(/\\/g, "\\\\")
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, "\\n")
-        .replace(/\r/g, "\\r")
-        .replace(/\t/g, "\\t");
-}
-
-function removeExport(text: string): string {
-    return text.replace(/export\s+default\s+/, "").replace(/export\s+/, "");
-}
-
-function getName(
-    node:
-        | Directive
-        | Statement
-        | ExportDefaultDeclaration
-        | ExportNamedDeclaration
-        | Declaration,
-    source: string,
-): string | null {
-    if (!node) return null;
-
-    if (node.type === "ExportNamedDeclaration" && node.declaration)
-        return getName(node.declaration as Declaration, source);
-
-    if (node.type === "ExportDefaultDeclaration" && node.declaration) {
-        if (node.declaration.type === "Identifier")
-            return node.declaration.name;
-        return getName(node.declaration as Declaration, source);
+        return null;
     }
 
-    switch (node.type) {
-        case "TSInterfaceDeclaration":
-        case "TSTypeAliasDeclaration":
-        case "ClassDeclaration":
-        case "TSEnumDeclaration":
-        case "FunctionDeclaration":
-        case "TSDeclareFunction":
-            if (node.id && node.id.type === "Identifier") return node.id.name;
-            break;
+    const namespaceName = expr.arguments[0].name;
+    const properties = expr.arguments[1].properties
+        .filter((prop) => prop.type === "Property")
+        .map((prop) => (prop.key?.type === "Identifier" ? prop.key.name : null))
+        .filter(Boolean);
 
-        case "TSModuleDeclaration":
-            if (node.id) {
-                if (node.id.type === "Identifier") return node.id.name;
-                if (
-                    node.id.type === "Literal" &&
-                    typeof node.id.value === "string"
-                )
-                    return node.id.value;
-            }
-            break;
-
-        case "VariableDeclaration": {
-            const decls = node.declarations;
-            if (
-                decls &&
-                decls.length === 1 &&
-                decls[0].id &&
-                decls[0].id.type === "Identifier"
-            )
-                return decls[0].id.name;
-            break;
-        }
-    }
-    return null;
-}
-
-function isExported(node: Directive | Statement): boolean {
-    return (
-        node &&
-        (node.type === "ExportNamedDeclaration" ||
-            node.type === "ExportDefaultDeclaration")
-    );
-}
-
-function isDefaultExported(node: Directive | Statement): boolean {
-    return node && node.type === "ExportDefaultDeclaration";
-}
-
-function getTypesReferences(
-    node: Directive | Statement,
-    selfName?: string,
-): string[] {
-    const refs = new Set<string>();
-    function visitNode(node: Node) {
-        if (!node || typeof node !== "object") return;
-
-        if (
-            node.type === "TSTypeReference" &&
-            node.typeName &&
-            node.typeName.type === "Identifier"
-        ) {
-            const name = node.typeName.name;
-            if (name && !builtInTypes.has(name)) {
-                refs.add(name);
-            }
-        } else if (node.type === "ClassBody" && node.body) {
-            refs.add(node.body.map((b) => b.type).join(", "));
-        }
-
-        const nodeKeys = Object.keys(node) as Array<keyof Node>;
-        for (const key of nodeKeys) {
-            const value = node[key];
-            if (Array.isArray(value)) {
-                for (const item of value) {
-                    if (item && typeof item === "object") {
-                        visitNode(item as Node);
-                    }
-                }
-            } else if (value && typeof value === "object") {
-                visitNode(value as Node);
-            }
-        }
+    if (properties.length === 0) {
+        return null;
     }
 
-    try {
-        visitNode(node);
-        if (selfName) refs.delete(selfName);
-        return Array.from(refs);
-    } catch (error) {
-        console.error("Error in getTypesReferences:", error);
-        return [];
-    }
+    return `declare namespace ${namespaceName} {\n  export { ${properties.join(", ")} };\n}`;
 }
+
+export { dtsToFakeJs, fakeJsToDts };
