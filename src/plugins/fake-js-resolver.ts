@@ -10,7 +10,7 @@ import { NODE_MODULES_REGEX } from "../utils";
 export interface FakeJsResolverPluginOptions {
     rootDir: string;
     tsconfig: {
-        filepath: string;
+        filepath: string | null;
         config: Record<string, unknown> | null;
     };
     resolveOption?: Resolve;

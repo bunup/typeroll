@@ -33,7 +33,7 @@ export async function generateDts(
             const { fakeJsResolver, getErrors } = createFakeJsResolver({
                 rootDir,
                 tsconfig: {
-                    filepath: tsconfig.filepath ?? "",
+                    filepath: tsconfig.filepath,
                     config: tsconfig.config,
                 },
                 resolveOption: resolve,
