@@ -6,19 +6,23 @@ type ProcessableEntry = {
 };
 
 function getTempNaming(naming: string): string {
-    return naming.replace(/\.(js|mjs|cjs|\[ext\])/g, "-dts-fake.$1");
+    const randomId = Math.random().toString(36).substring(2, 10);
+    return naming.replace(
+        /\.(js|mjs|cjs|\[ext\])/g,
+        `-dts-fake-${randomId}.$1`,
+    );
+}
+
+export function tempPathToDtsPath(tempPath: string): string {
+    return tempPath.replace(/-dts-fake-[a-z0-9]+\.([cm]?js)$/, (_, ext) =>
+        getDeclarationExtension(ext),
+    );
 }
 
 function getDeclarationExtension(ext: string): string {
     if (ext === "mjs") return ".d.mts";
     if (ext === "cjs") return ".d.cts";
     return ".d.ts";
-}
-
-export function tempPathToDtsPath(tempPath: string): string {
-    return tempPath.replace(/-dts-fake\.([cm]?js)$/, (_, ext) =>
-        getDeclarationExtension(ext),
-    );
 }
 
 export function normalizeEntryToProcessableEntries(
