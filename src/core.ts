@@ -1,4 +1,5 @@
 import { isolatedDeclaration } from "oxc-transform";
+import pc from "picocolors";
 import { resolveTsImportPath } from "ts-import-resolver";
 import { dtsToFakeJs, fakeJsToDts } from "./fake";
 import {
@@ -40,6 +41,7 @@ export async function generateDts(
 
     const errors: IsolatedDeclarationError[] = [];
 
+    const startTime = performance.now();
     const result = await Bun.build({
         entrypoints: entry ?? build.config.entrypoints,
         outdir: build.config.outdir,
@@ -110,12 +112,34 @@ export async function generateDts(
         ],
     });
 
-    const bundledFakeJsPath = result.outputs[0].path;
-    const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text();
+    const endTime = performance.now();
+    console.log(`Time taken: ${endTime - startTime} milliseconds`);
 
-    try {
-        await Bun.file(bundledFakeJsPath).delete();
-    } catch {}
+    for (const output of result.outputs) {
+        if (output.kind !== "entry-point" && output.kind !== "chunk") {
+            continue;
+        }
+
+        const bundledFakeJsPath = output.path;
+        const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text();
+
+        try {
+            await Bun.file(bundledFakeJsPath).delete();
+        } catch {}
+
+        const dtsContent = fakeJsToDts(bundledFakeJsContent);
+
+        const finalDtsPath = bundledFakeJsPath.replace(
+            tempFilePattern,
+            (_, ext) => getDeclarationExtension(ext),
+        );
+
+        if (options.onDeclarationGenerated) {
+            await options.onDeclarationGenerated(finalDtsPath, dtsContent);
+        }
+
+        await Bun.write(finalDtsPath, dtsContent);
+    }
 
     if (errors.length > 0) {
         let hasSeverityError = false;
@@ -131,19 +155,10 @@ export async function generateDts(
         }
 
         if (hasSeverityError && !options.warnInsteadOfError) {
+            console.log(
+                `\n\n${pc.cyan("Learn more:")} ${pc.underline("https://github.com/arshad-yaseen/bun-dts?tab=readme-ov-file#understanding-isolateddeclarations")}\n\n`,
+            );
             process.exit(1);
         }
     }
-
-    const dtsContent = fakeJsToDts(bundledFakeJsContent);
-
-    const finalDtsPath = bundledFakeJsPath.replace(tempFilePattern, (_, ext) =>
-        getDeclarationExtension(ext),
-    );
-
-    if (options.onDeclarationGenerated) {
-        await options.onDeclarationGenerated(finalDtsPath, dtsContent);
-    }
-
-    await Bun.write(finalDtsPath, dtsContent);
 }

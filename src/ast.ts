@@ -37,7 +37,6 @@ export function isDefaultReExport(node: Node): boolean {
     );
 }
 
-// Node content extraction
 export function getName(
     node:
         | Directive

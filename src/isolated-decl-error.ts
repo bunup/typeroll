@@ -37,12 +37,8 @@ export function logIsolatedDeclarationError(
         ? `\n${pc.cyan("Help:")} ${error.error.helpMessage}`
         : "";
 
-    const learnMoreLink = !warnInsteadOfError
-        ? `\n\n${pc.cyan("Learn more:")} ${pc.underline("https://github.com/arshad-yaseen/bun-dts?tab=readme-ov-file#understanding-isolateddeclarations")}`
-        : "";
-
     console[warnInsteadOfError ? "warn" : "error"](
-        `\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}${learnMoreLink}\n`,
+        `\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}`,
     );
 }
 

@@ -22,6 +22,7 @@ function dtsToFakeJs(dtsContent: string): string {
     });
 
     const program = parseResult.program;
+    const prevNames = new Set<string>();
     const result = [];
 
     for (const statement of program.body) {
@@ -29,7 +30,13 @@ function dtsToFakeJs(dtsContent: string): string {
             statement.start,
             statement.end,
         );
-        const varName = getName(statement, dtsContent);
+
+        const name = getName(statement, dtsContent);
+
+        if (name) {
+            prevNames.add(name);
+        }
+
         const isDefaultExport = hasDefaultExportModifier(
             statement,
             statementText,
@@ -37,7 +44,7 @@ function dtsToFakeJs(dtsContent: string): string {
         const isExported = hasExportModifier(statement, statementText);
 
         if (isDefaultExport) {
-            result.push(`export { ${varName} as default };`);
+            result.push(`export { ${name} as default };`);
             if (isDefaultReExport(statement)) {
                 continue;
             }
@@ -58,10 +65,10 @@ function dtsToFakeJs(dtsContent: string): string {
                 .replace(/\bexport\s+/g, "");
         }
 
-        const tokens = tokenizeText(statementText);
+        const tokens = tokenizeText(statementText, prevNames);
 
         const exportPrefix = isExported && !isDefaultExport ? "export " : "";
-        result.push(`${exportPrefix}var ${varName} = [${tokens.join(", ")}];`);
+        result.push(`${exportPrefix}var ${name} = [${tokens.join(", ")}];`);
     }
 
     return result.join("\n");
@@ -126,7 +133,7 @@ function jsifyImportExport(
         );
 }
 
-function tokenizeText(text: string): string[] {
+function tokenizeText(text: string, prevNames: Set<string>): string[] {
     const tokens = [];
     const tokenRegex =
         /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
@@ -138,11 +145,7 @@ function tokenizeText(text: string): string[] {
 
         const token = match[0];
 
-        if (token.startsWith("//") || token.startsWith("/*")) {
-            continue;
-        }
-
-        if (/^[A-Z]/.test(token)) {
+        if (/^[A-Z]/.test(token) || prevNames.has(token)) {
             tokens.push(token);
         } else {
             const processedToken = token
