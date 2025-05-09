@@ -1,6 +1,6 @@
 {
     "name": "bun-dts",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "description": "A Bun plugin to generate and bundle typescript declaration files.",
     "type": "module",
     "main": "./dist/index.cjs",
