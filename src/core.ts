@@ -18,7 +18,7 @@ export async function generateDts(
     options: GenerateDtsOptions = {},
 ): Promise<void> {
     const { preferredTsConfigPath, resolve, entry } = options;
-    const rootDir = build.config.root ?? process.cwd();
+    const rootDir = options.cwd ?? build.config.root ?? process.cwd();
 
     const tsconfig = await loadTsConfig(rootDir, preferredTsConfigPath);
 

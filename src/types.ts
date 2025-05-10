@@ -54,6 +54,11 @@ export type GenerateDtsOptions = {
      */
     warnInsteadOfError?: boolean;
     /**
+     * Custom working directory
+     * By default, the current working directory will be used
+     */
+    cwd?: string;
+    /**
      * Callback function that is called when a declaration file is generated
      * @param filePath The path to the generated declaration file
      * @param content The content of the generated declaration file
