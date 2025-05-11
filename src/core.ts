@@ -1,4 +1,5 @@
 import pc from "picocolors";
+import { UNDERSTANDING_ISOLATED_DECLARATIONS_URL } from "./constants";
 import { fakeJsToDts } from "./fake";
 import {
     getResolvedNaming,
@@ -105,7 +106,9 @@ export async function generateDts(
 
         if (hasSeverityError && !options.warnInsteadOfError) {
             console.log(
-                `\n\n${pc.cyan("Learn more:")} ${pc.underline("https://github.com/arshad-yaseen/bun-dts?tab=readme-ov-file#understanding-isolateddeclarations")}\n\n`,
+                `\n\n${pc.cyan("Learn more:")} ${pc.underline(
+                    UNDERSTANDING_ISOLATED_DECLARATIONS_URL,
+                )}\n\n`,
             );
             process.exit(1);
         }

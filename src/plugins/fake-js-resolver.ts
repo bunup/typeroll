@@ -46,13 +46,13 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
                     }
                 }
 
-                const resolvedByCustomResolver = resolver(
+                const resolvedFromNodeModules = resolver(
                     args.path,
                     args.importer,
                 );
 
-                if (resolvedByCustomResolver) {
-                    return { path: resolvedByCustomResolver };
+                if (resolvedFromNodeModules) {
+                    return { path: resolvedFromNodeModules };
                 }
 
                 return {
@@ -61,28 +61,31 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
                 };
             });
 
-            build.onLoad({ filter: /\.ts$/ }, async (args) => {
-                const sourceText = await Bun.file(args.path).text();
-                const declarationResult = isolatedDeclaration(
-                    args.path,
-                    sourceText,
-                );
+            build.onLoad(
+                { filter: /\.(ts|tsx|d\.ts|d\.mts|d\.cts)$/ },
+                async (args) => {
+                    const sourceText = await Bun.file(args.path).text();
+                    const declarationResult = isolatedDeclaration(
+                        args.path,
+                        sourceText,
+                    );
 
-                for (const error of declarationResult.errors) {
-                    collectedErrors.push({
-                        error,
-                        file: args.path,
-                        content: sourceText,
-                    });
-                }
+                    for (const error of declarationResult.errors) {
+                        collectedErrors.push({
+                            error,
+                            file: args.path,
+                            content: sourceText,
+                        });
+                    }
 
-                const fakeJsContent = dtsToFakeJs(declarationResult.code);
+                    const fakeJsContent = dtsToFakeJs(declarationResult.code);
 
-                return {
-                    loader: "js",
-                    contents: fakeJsContent,
-                };
-            });
+                    return {
+                        loader: "js",
+                        contents: fakeJsContent,
+                    };
+                },
+            );
         },
     };
 
