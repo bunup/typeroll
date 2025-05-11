@@ -14,14 +14,14 @@ export function returnPathIfExists(path: string): string | null {
 }
 
 export async function loadTsConfig(
-    rootDir: string,
+    cwd: string,
     preferredPath: string | undefined,
 ): Promise<LoadConfigResult<Record<string, unknown>>> {
     const config = await loadConfig<Record<string, unknown>>({
         name: "tsconfig",
         extensions: [".json"],
         preferredPath,
-        cwd: rootDir,
+        cwd,
     });
 
     return config;

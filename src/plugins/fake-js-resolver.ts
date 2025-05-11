@@ -37,7 +37,7 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
                     const resolved = resolveTsImportPath({
                         importer: args.importer,
                         path: args.path,
-                        rootDir: cwd,
+                        cwd,
                         tsconfig: tsconfig.config,
                     });
 
