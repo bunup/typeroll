@@ -1,16 +1,22 @@
-import type { BuildOptions, Entry } from "./types";
+import type { BuildOptions, Entry } from "../types";
 
 type ProcessableEntry = {
     fullPath: string;
-    customOutputBasePath: string | null;
+    outputBasePath: string | null;
 };
 
 function getTempNaming(naming: string): string {
     const randomId = Math.random().toString(36).substring(2, 10);
-    return naming.replace(
-        /\.(js|mjs|cjs|\[ext\])/g,
-        `-dts-fake-${randomId}.$1`,
-    );
+    const lastExtIndex = naming.lastIndexOf(".");
+    if (lastExtIndex === -1) return naming;
+
+    const beforeExt = naming.substring(0, lastExtIndex);
+    const extension = naming.substring(lastExtIndex);
+
+    const extMatch = extension.match(/\.(js|mjs|cjs|\[ext\])$/);
+    if (!extMatch) return naming;
+
+    return `${beforeExt}-dts-fake-${randomId}${extension}`;
 }
 
 export function tempPathToDtsPath(tempPath: string): string {
@@ -29,30 +35,28 @@ export function normalizeEntryToProcessableEntries(
     entry: Entry,
 ): ProcessableEntry[] {
     if (typeof entry === "string")
-        return [{ fullPath: entry, customOutputBasePath: null }];
+        return [{ fullPath: entry, outputBasePath: null }];
 
     if (typeof entry === "object" && !Array.isArray(entry))
         return Object.entries(entry).map(([name, path]) => ({
             fullPath: path as string,
-            customOutputBasePath: name,
+            outputBasePath: name,
         }));
 
     return entry.map((entry) => ({
         fullPath: entry,
-        customOutputBasePath: null,
+        outputBasePath: null,
     }));
 }
 
 export function getResolvedNaming(
     buildConfigNaming: BuildOptions["naming"],
-    customOutputBasePath: string | null,
+    outputBasePath: string | null,
 ): BuildOptions["naming"] {
     const naming =
         typeof buildConfigNaming === "string"
             ? buildConfigNaming
             : buildConfigNaming?.entry;
 
-    return getTempNaming(
-        naming ?? `[dir]/${customOutputBasePath || "[name]"}.js`,
-    );
+    return getTempNaming(naming ?? `[dir]/${outputBasePath || "[name]"}.js`);
 }

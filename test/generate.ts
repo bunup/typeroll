@@ -2,6 +2,9 @@ import { dts } from "../src";
 
 await Bun.build({
     entrypoints: ["project/index.ts", "project/a.ts"],
+    naming: {
+        entry: "[dir]/[name].cjs.js",
+    },
     plugins: [
         dts({
             resolve: true,

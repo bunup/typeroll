@@ -1,6 +1,6 @@
 import type { OxcError, Severity } from "oxc-transform";
 import pc from "picocolors";
-import { getShortFilePath } from "./utils";
+import { getShortFilePath } from "../utils";
 
 export type IsolatedDeclarationError = {
     error: OxcError;
