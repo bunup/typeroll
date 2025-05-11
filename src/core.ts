@@ -39,10 +39,6 @@ export async function generateDts(
                 resolveOption: resolve,
             });
 
-            console.log(
-                getResolvedNaming(build.config.naming, entry.outputBasePath),
-            );
-
             const result = await Bun.build({
                 entrypoints: [entry.fullPath],
                 outdir: `${rootDir}/${build.config.outdir}`,
