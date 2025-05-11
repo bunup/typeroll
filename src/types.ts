@@ -54,8 +54,8 @@ export type GenerateDtsOptions = {
      */
     warnInsteadOfError?: boolean;
     /**
-     * Custom working directory
-     * By default, the current working directory will be used
+     * The directory where the plugin will look for the `tsconfig.json` file
+     * By default, the build config's root or the current working directory will be used
      */
     cwd?: string;
     /**

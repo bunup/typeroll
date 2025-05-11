@@ -1,7 +1,5 @@
 import { dts } from "../src";
 
-const start = performance.now();
-
 await Bun.build({
     entrypoints: ["project/index.ts", "project/a.ts"],
     plugins: [
@@ -24,5 +22,3 @@ await Bun.build({
     ],
     outdir: "test/dist",
 });
-
-console.log(`Time taken: ${performance.now() - start}ms`);

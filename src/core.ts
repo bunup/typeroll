@@ -1,14 +1,14 @@
 import pc from "picocolors";
-import {
-    getResolvedNaming,
-    normalizeEntryToProcessableEntries,
-    tempPathToDtsPath,
-} from "./entry";
 import { fakeJsToDts } from "./fake";
 import {
     type IsolatedDeclarationError,
     logIsolatedDeclarationError,
 } from "./isolated-decl-error";
+import {
+    getResolvedNaming,
+    normalizeEntryToProcessableEntries,
+    tempPathToDtsPath,
+} from "./path";
 import { createFakeJsResolver } from "./plugins/fake-js-resolver";
 import type { BunPluginBuild, GenerateDtsOptions } from "./types";
 import { loadTsConfig } from "./utils";
@@ -41,7 +41,7 @@ export async function generateDts(
 
             const result = await Bun.build({
                 entrypoints: [entry.fullPath],
-                outdir: build.config.outdir,
+                outdir: `${rootDir}/${build.config.outdir}`,
                 format: "esm",
                 external: build.config.external,
                 target: "node",
