@@ -60,32 +60,33 @@ await Bun.build({
 ```ts
 // Single entry point
 dts({
-  entry: "src/index.ts"
-})
+	entry: 'src/index.ts',
+});
 
 // Multiple entry points
 dts({
-  entry: ["src/index.ts", "src/other.ts"]
-})
+	entry: ['src/index.ts', 'src/other.ts'],
+});
 
 // Named entry points (custom output paths)
 dts({
-  entry: {
-    "api": "src/api/v1/index.ts",     // Outputs to dist/api.d.ts
-    "nested/types": "src/types.ts"    // Outputs to dist/nested/types.d.ts
-  }
-})
+	entry: {
+		api: 'src/api/v1/index.ts', // Outputs to dist/api.d.ts
+		'nested/types': 'src/types.ts', // Outputs to dist/nested/types.d.ts
+	},
+});
 ```
 
 ## Options
 
-| Option                  | Type                              | Description                                                                                                                                                                                     |
-| ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `preferredTsConfigPath` | `string`                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
-| `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
-| `entry`                 | `string \| string[] \| Record<string, string>` | Custom entry points to use instead of the ones from the build config. Can be a single entry point, multiple entry points, or named entry points with custom output paths. |
-| `warnInsteadOfError`    | `boolean`                         | Show warnings instead of errors for isolatedDeclarations issues. When true, the build will not fail on isolatedDeclarations errors. Defaults to `false`.                                        |
-| `onDeclarationGenerated`| `(filePath: string, content: string) => void \| Promise<void>` | Callback function that is called when a declaration file is generated with the path and content of the file. |
+| Option                   | Type                                                           | Description                                                                                                                                                                                     |
+| ------------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preferredTsConfigPath`  | `string`                                                       | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
+| `resolve`                | `boolean \| (string \| RegExp)[]`                              | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
+| `entry`                  | `string \| string[] \| Record<string, string>`                 | Custom entry points to use instead of the ones from the build config. Can be a single entry point, multiple entry points, or named entry points with custom output paths.                       |
+| `warnInsteadOfError`     | `boolean`                                                      | Show warnings instead of errors for isolatedDeclarations issues. When true, the build will not fail on isolatedDeclarations errors. Defaults to `false`.                                        |
+| `cwd`                    | `string`                                                       | The directory where the plugin will look for the `tsconfig.json` file and `node_modules`. By default, the build config's root or the current working directory will be used.                    |
+| `onDeclarationGenerated` | `(filePath: string, content: string) => void \| Promise<void>` | Callback function that is called when a declaration file is generated with the path and content of the file.                                                                                    |
 
 ## Understanding isolatedDeclarations
 
@@ -109,10 +110,10 @@ To catch isolatedDeclarations errors early in your development process (rather t
 
 ```json
 {
-  "compilerOptions": {
-    "declaration": true,
-    "isolatedDeclarations": true
-  }
+	"compilerOptions": {
+		"declaration": true,
+		"isolatedDeclarations": true
+	}
 }
 ```
 
@@ -122,7 +123,7 @@ For more details about isolatedDeclarations, refer to [TypeScript's explanation 
 
 ## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
 
-bun-dts is upto **100x faster** than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts can resolve types from node_modules.
+bun-dts is upto **100x faster** than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts offers many more cool features built-in.
 
 ## ❤️ Contributing
 
