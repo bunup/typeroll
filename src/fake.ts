@@ -68,7 +68,9 @@ function dtsToFakeJs(dtsContent: string): string {
         const tokens = tokenizeText(statementText, prevNames);
 
         const exportPrefix = isExported && !isDefaultExport ? "export " : "";
-        result.push(`${exportPrefix}var ${name} = [${tokens.join(", ")}];`);
+        result.push(
+            `${exportPrefix}var ${name || `_value_${Math.random()}`} = [${tokens.join(", ")}];`,
+        );
     }
 
     return result.join("\n");
