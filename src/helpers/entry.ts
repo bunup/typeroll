@@ -39,7 +39,7 @@ export function normalizeEntryToProcessableEntries(
 
     if (typeof entry === "object" && !Array.isArray(entry))
         return Object.entries(entry).map(([name, path]) => ({
-            fullPath: path as string,
+            fullPath: path,
             outputBasePath: name,
         }));
 
