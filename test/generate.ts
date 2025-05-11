@@ -3,7 +3,7 @@ import { dts } from "../src";
 await Bun.build({
     entrypoints: ["project/index.ts", "project/a.ts"],
     naming: {
-        entry: "[dir]/[name].cjs.js",
+        entry: "[dir]/[name].global.js",
     },
     plugins: [
         dts({

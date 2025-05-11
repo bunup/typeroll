@@ -18,9 +18,9 @@ export async function generateDts(
     options: GenerateDtsOptions = {},
 ): Promise<void> {
     const { preferredTsConfigPath, resolve, entry } = options;
-    const rootDir = options.cwd ?? build.config.root ?? process.cwd();
+    const cwd = options.cwd ?? build.config.root ?? process.cwd();
 
-    const tsconfig = await loadTsConfig(rootDir, preferredTsConfigPath);
+    const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath);
 
     const errors: IsolatedDeclarationError[] = [];
 
@@ -31,7 +31,7 @@ export async function generateDts(
     const buildResults = await Promise.all(
         processableEntries.map(async (entry) => {
             const { fakeJsResolver, getErrors } = createFakeJsResolver({
-                rootDir,
+                cwd,
                 tsconfig: {
                     filepath: tsconfig.filepath,
                     config: tsconfig.config,
@@ -39,9 +39,14 @@ export async function generateDts(
                 resolveOption: resolve,
             });
 
+            console.log(
+                getResolvedNaming(build.config.naming, entry.outputBasePath),
+            );
+
             const result = await Bun.build({
+                root: build.config.root,
                 entrypoints: [entry.fullPath],
-                outdir: `${rootDir}/${build.config.outdir}`,
+                outdir: build.config.outdir,
                 format: "esm",
                 external: build.config.external,
                 target: "node",

@@ -8,7 +8,7 @@ import type { Resolve } from "../types";
 import { NODE_MODULES_REGEX } from "../utils";
 
 export interface FakeJsResolverPluginOptions {
-    rootDir: string;
+    cwd: string;
     tsconfig: {
         filepath: string | null;
         config: Record<string, unknown> | null;
@@ -20,12 +20,12 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
     fakeJsResolver: BunPlugin;
     getErrors: () => IsolatedDeclarationError[];
 } {
-    const { rootDir, tsconfig, resolveOption } = options;
+    const { cwd, tsconfig, resolveOption } = options;
     const collectedErrors: IsolatedDeclarationError[] = [];
 
     const resolver = createResolver({
         tsconfig: tsconfig.filepath,
-        cwd: rootDir,
+        cwd,
         resolveOption,
     });
 
@@ -37,7 +37,7 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
                     const resolved = resolveTsImportPath({
                         importer: args.importer,
                         path: args.path,
-                        rootDir,
+                        rootDir: cwd,
                         tsconfig: tsconfig.config,
                     });
 
