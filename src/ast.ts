@@ -1,4 +1,5 @@
 import type {
+    Comment,
     Declaration,
     Directive,
     ExportDefaultDeclaration,
@@ -97,4 +98,23 @@ export function getName(
         }
     }
     return null;
+}
+
+export function getAssociatedComment(
+    statement: Statement,
+    comments: Comment[],
+): string | null {
+    const comment = comments.find(
+        (comment) => comment.end + 1 === statement.start,
+    );
+
+    if (!comment) {
+        return null;
+    }
+
+    return comment.type === "Block"
+        ? `/*${comment.value}*/`
+        : comment.type === "Line"
+          ? `//${comment.value}`
+          : null;
 }

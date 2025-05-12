@@ -17,7 +17,7 @@ type User = {
 };
 
 /**
- * Hello world
+ * @description Sum two numbers
  */
 export const sum = (a: number, b: number): number => a + b;
 
@@ -25,7 +25,3 @@ export const user: User = {
     name: "John",
     age: 20,
 };
-
-export * from "oxc-parser";
-export * from "oxc-resolver";
-export * from "oxc-transform";

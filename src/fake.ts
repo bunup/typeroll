@@ -6,6 +6,7 @@ import oxc, {
 } from "oxc-parser";
 import { isolatedDeclaration } from "oxc-transform";
 import {
+    getAssociatedComment,
     getName,
     hasDefaultExportModifier,
     hasExportModifier,
@@ -16,20 +17,20 @@ import {
 } from "./ast";
 
 function dtsToFakeJs(dtsContent: string): string {
-    const parseResult = oxc.parseSync("temp.d.ts", dtsContent, {
+    const parsed = oxc.parseSync("temp.d.ts", dtsContent, {
         sourceType: "module",
         lang: "ts",
     });
 
-    const program = parseResult.program;
     const prevNames = new Set<string>();
     const result = [];
 
-    for (const statement of program.body) {
-        let statementText = dtsContent.substring(
-            statement.start,
-            statement.end,
-        );
+    for (const statement of parsed.program.body) {
+        const commentText = getAssociatedComment(statement, parsed.comments);
+
+        let statementText = commentText
+            ? `${commentText}\n${dtsContent.substring(statement.start, statement.end)}`
+            : dtsContent.substring(statement.start, statement.end);
 
         const name = getName(statement, dtsContent);
 
@@ -125,6 +126,7 @@ function jsifyImportExport(
     source: string,
 ): string {
     const text = source.substring(node.start, node.end);
+
     return text
         .replace(/import\s+type\s+/g, "import ")
         .replace(/export\s+type\s+/g, "export ")
