@@ -1,10 +1,7 @@
 import { dts } from "../src";
 
 await Bun.build({
-    entrypoints: ["project/index.ts", "project/a.ts"],
-    naming: {
-        entry: "[dir]/[name].global.js",
-    },
+    entrypoints: ["project/index.ts"],
     plugins: [
         dts({
             resolve: true,

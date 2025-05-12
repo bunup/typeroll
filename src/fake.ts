@@ -137,8 +137,7 @@ function jsifyImportExport(
 
 function tokenizeText(text: string, prevNames: Set<string>): string[] {
     const tokens = [];
-    const tokenRegex =
-        /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
+    const tokenRegex = /([a-zA-Z_$][a-zA-Z0-9_$]*|[^a-zA-Z0-9_$])/g;
 
     let match: RegExpExecArray | null;
     while (true) {
