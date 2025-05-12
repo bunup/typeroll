@@ -25,3 +25,7 @@ export const user: User = {
     name: "John",
     age: 20,
 };
+
+export * from "oxc-parser";
+export * from "oxc-resolver";
+export * from "oxc-transform";
