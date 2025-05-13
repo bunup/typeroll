@@ -5,7 +5,7 @@ import { dtsToFakeJs } from "../fake";
 import type { IsolatedDeclarationError } from "../helpers/isolated-decl-error";
 import { createResolver } from "../resolver";
 import type { Resolve } from "../types";
-import { NODE_MODULES_REGEX } from "../utils";
+import { NODE_MODULES_REGEX, isTypeScriptFile } from "../utils";
 
 export interface FakeJsResolverPluginOptions {
     cwd: string;
@@ -41,7 +41,7 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
                         tsconfig: tsconfig.config,
                     });
 
-                    if (resolved) {
+                    if (resolved && isTypeScriptFile(resolved)) {
                         return { path: resolved };
                     }
                 }

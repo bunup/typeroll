@@ -1,9 +1,8 @@
-import fs from "node:fs";
 import { dirname } from "node:path";
 import process from "node:process";
 import { ResolverFactory } from "oxc-resolver";
 import type { Resolve } from "./types";
-import { JS_REGEX, ensureTypeScriptFile, returnPathIfExists } from "./utils";
+import { JS_REGEX, isTypeScriptFile, returnPathIfExists } from "./utils";
 
 export interface Options {
     cwd: string;
@@ -75,12 +74,12 @@ export function createResolver({
                 returnPathIfExists(resolved.replace(JS_REGEX, ".d.mts")) ||
                 returnPathIfExists(resolved.replace(JS_REGEX, ".d.cts"));
 
-            const result = ensureTypeScriptFile(dts);
+            const result = isTypeScriptFile(dts) ? dts : null;
             resolutionCache.set(cacheKey, result);
             return result;
         }
 
-        const result = ensureTypeScriptFile(resolved);
+        const result = isTypeScriptFile(resolved) ? resolved : null;
         resolutionCache.set(cacheKey, result);
         return result;
     };

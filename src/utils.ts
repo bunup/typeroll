@@ -1,12 +1,13 @@
 import { existsSync } from "node:fs";
 import { type LoadConfigResult, loadConfig } from "coffi";
 
-export const JS_REGEX: RegExp = /\.[cm]?js$/;
-export const TS_REGEX: RegExp = /\.[cm]?ts$/;
+export const JS_REGEX: RegExp = /\.[cm]?jsx?$/;
+export const TS_REGEX: RegExp = /\.[cm]?tsx?$|\.d\.[cm]?ts$/;
 export const NODE_MODULES_REGEX: RegExp = /node_modules/;
 
-export function ensureTypeScriptFile(path: string | null): string | null {
-    return path && TS_REGEX.test(path) ? path : null;
+export function isTypeScriptFile(path: string | null): boolean {
+    if (!path) return false;
+    return TS_REGEX.test(path);
 }
 
 export function returnPathIfExists(path: string): string | null {
