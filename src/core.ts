@@ -10,7 +10,7 @@ import {
     type IsolatedDeclarationError,
     logIsolatedDeclarationError,
 } from "./helpers/isolated-decl-error";
-import { createFakeJsResolver } from "./plugins/fake-js-resolver";
+import { createFakeJsPlugin } from "./plugins/fake-js";
 import type { BunPluginBuild, GenerateDtsOptions } from "./types";
 import { loadTsConfig } from "./utils";
 
@@ -31,7 +31,7 @@ export async function generateDts(
 
     const buildResults = await Promise.all(
         processableEntries.map(async (entry) => {
-            const { fakeJsResolver, getErrors } = createFakeJsResolver({
+            const { fakeJsPlugin, getErrors } = createFakeJsPlugin({
                 cwd,
                 tsconfig: {
                     filepath: tsconfig.filepath,
@@ -52,7 +52,7 @@ export async function generateDts(
                     build.config.naming,
                     entry.outputBasePath,
                 ),
-                plugins: [fakeJsResolver],
+                plugins: [fakeJsPlugin],
             });
 
             const pluginErrors = getErrors();

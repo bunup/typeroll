@@ -7,7 +7,7 @@ import { createResolver } from "../resolver";
 import type { Resolve } from "../types";
 import { NODE_MODULES_REGEX, isTypeScriptFile } from "../utils";
 
-export interface FakeJsResolverPluginOptions {
+export interface FakeJsPluginOptions {
     cwd: string;
     tsconfig: {
         filepath: string | null;
@@ -16,8 +16,8 @@ export interface FakeJsResolverPluginOptions {
     resolveOption?: Resolve;
 }
 
-export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
-    fakeJsResolver: BunPlugin;
+export function createFakeJsPlugin(options: FakeJsPluginOptions): {
+    fakeJsPlugin: BunPlugin;
     getErrors: () => IsolatedDeclarationError[];
 } {
     const { cwd, tsconfig, resolveOption } = options;
@@ -29,7 +29,7 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
         resolveOption,
     });
 
-    const fakeJsResolver: BunPlugin = {
+    const fakeJsPlugin: BunPlugin = {
         name: "fake-js",
         setup(build) {
             build.onResolve({ filter: /.*/ }, (args) => {
@@ -90,7 +90,7 @@ export function createFakeJsResolver(options: FakeJsResolverPluginOptions): {
     };
 
     return {
-        fakeJsResolver,
+        fakeJsPlugin,
         getErrors: () => collectedErrors,
     };
 }

@@ -1,24 +1,8 @@
-import { dts } from "../src";
+import { generateJsonSchema } from "../jc";
+import path from "node:path";
 
-await Bun.build({
-    entrypoints: ["project/index.ts"],
-    plugins: [
-        dts({
-            resolve: true,
-        }),
-    ],
-    target: "node",
-    external: [
-        "oxc-transform",
-        "oxc-resolver",
-        "typescript",
-        "ts-import-resolver",
-        "oxc-parser",
-        "bun-dts",
-        "elysia",
-        "bun",
-        "publint",
-        "unplugin-unused",
-    ],
-    outdir: "test/dist",
-});
+const sourceFile = path.join(__dirname, "../src/types.ts");
+const sourceContent = await Bun.file(sourceFile).text();
+const typeName = "GenerateDtsOptions";
+
+console.log(generateJsonSchema(sourceFile, sourceContent, typeName));

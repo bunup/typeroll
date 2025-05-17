@@ -137,14 +137,15 @@ function jsifyImportExport(
         );
 }
 
+const TOKENIZE_REGEX =
+    /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
+
 function tokenizeText(text: string, prevNames: Set<string>): string[] {
     const tokens = [];
-    const tokenRegex =
-        /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
 
     let match: RegExpExecArray | null;
     while (true) {
-        match = tokenRegex.exec(text);
+        match = TOKENIZE_REGEX.exec(text);
         if (match === null) break;
 
         const token = match[0];
