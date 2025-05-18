@@ -3,15 +3,37 @@ import pc from "picocolors";
 import { UNDERSTANDING_ISOLATED_DECLARATIONS_URL } from "./constants";
 import { getShortFilePath } from "./utils";
 
+/**
+ * An isolated declaration error
+ */
 export type IsolatedDeclarationError = {
     error: OxcError;
     file: string;
     content: string;
 };
 
-export function logIsolatedDeclErrors(
+/**
+ * Options for logging isolated declaration errors
+ */
+export type LogIsolatedDeclarationErrorsOptions = {
+    /**
+     * Whether to log as a warning instead of an error
+     */
+    warnInsteadOfError?: boolean;
+    /**
+     * Whether to exit the process after logging the errors
+     */
+    shouldExit?: boolean;
+};
+
+/**
+ * Log isolated declaration errors to the console that returned by the `generateDts` function
+ * @param errors - The errors to log
+ * @param options - The options for logging the errors
+ */
+export function logIsolatedDeclarationErrors(
     errors: IsolatedDeclarationError[],
-    warnInsteadOfError: boolean,
+    options: LogIsolatedDeclarationErrorsOptions = {},
 ): void {
     let hasSeverityError = false;
     for (const error of errors) {
@@ -19,22 +41,25 @@ export function logIsolatedDeclErrors(
             hasSeverityError = true;
         }
 
-        logSingle(error, warnInsteadOfError ?? false);
+        logSingle(error, options);
     }
 
-    if (hasSeverityError && !warnInsteadOfError) {
+    if (hasSeverityError && !options.warnInsteadOfError) {
         console.log(
             `\n\n${pc.cyan("Learn more:")} ${pc.underline(
                 UNDERSTANDING_ISOLATED_DECLARATIONS_URL,
             )}\n\n`,
         );
-        process.exit(1);
+
+        if (options.shouldExit) {
+            process.exit(1);
+        }
     }
 }
 
 export function logSingle(
     error: IsolatedDeclarationError,
-    warnInsteadOfError: boolean,
+    options: LogIsolatedDeclarationErrorsOptions = {},
 ): void {
     const label = error.error.labels[0];
     const position = label
@@ -46,7 +71,7 @@ export function logSingle(
 
     const { color, prefix } = getSeverityFormatting(
         error.error.severity,
-        warnInsteadOfError,
+        options.warnInsteadOfError ?? false,
     );
 
     const formattedMessage = `${color(prefix)} ${errorMessage}`;
@@ -61,7 +86,7 @@ export function logSingle(
         ? `\n${pc.cyan("Help:")} ${error.error.helpMessage}`
         : "";
 
-    console[warnInsteadOfError ? "warn" : "error"](
+    console[(options.warnInsteadOfError ?? false) ? "warn" : "error"](
         `\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}`,
     );
 }

@@ -27,26 +27,30 @@ Use the `generateDts` function to create declaration files:
 ```ts
 import { generateDts } from 'bun-dts';
 
-// Generate a declaration file from an entry point
-const dts = await generateDts('./src/index.ts');
+const { dts, errors } = await generateDts('./src/index.ts');
 
-// Write the generated declarations to a file
-await Bun.write('./dist/index.d.ts', dts);
+if (errors.length > 0) {
+  console.error('Error generating declaration files');
+} else {
+  await Bun.write('./dist/index.d.ts', dts);
+}
 ```
 
-### Advanced Usage
+### Error Handling
+
+The library provides a utility function to log isolated declaration errors:
 
 ```ts
-import { generateDts } from 'bun-dts';
+import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
 
-const dts = await generateDts('./src/index.ts', {
-	preferredTsConfigPath: './tsconfig.build.json',
-	resolve: ['react', 'react-dom', /^@myorg\/.*/],
-	warnInsteadOfError: true,
-	cwd: process.cwd(),
-});
+const { dts, errors } = await generateDts('./src/index.ts');
 
-await Bun.write('./dist/index.d.ts', dts);
+if (errors.length > 0) {
+  logIsolatedDeclarationErrors(errors);
+  process.exit(1);
+} else {
+  await Bun.write('./dist/index.d.ts', dts);
+}
 ```
 
 ## Options
@@ -55,7 +59,6 @@ await Bun.write('./dist/index.d.ts', dts);
 | ------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `preferredTsConfigPath`  | `string`                    | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
 | `resolve`                | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
-| `warnInsteadOfError`     | `boolean`                   | Show warnings instead of errors for isolatedDeclarations issues. When true, the build will not fail on isolatedDeclarations errors. Defaults to `false`.                                        |
 | `cwd`                    | `string`                    | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                    |
 
 ## Understanding isolatedDeclarations

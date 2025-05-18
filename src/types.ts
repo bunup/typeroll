@@ -1,3 +1,5 @@
+import type { IsolatedDeclarationError } from "./isolated-decl-error";
+
 export type Resolve = boolean | (string | RegExp)[];
 
 /**
@@ -17,14 +19,22 @@ export type GenerateDtsOptions = {
      */
     resolve?: Resolve;
     /**
-     * Show warnings instead of errors for isolatedDeclarations issues
-     * When true, the build will not fail on isolatedDeclarations errors
-     * @default false
-     */
-    warnInsteadOfError?: boolean;
-    /**
      * The directory where the plugin will look for the `tsconfig.json` file and `node_modules`
      * By default, the current working directory will be used
      */
     cwd?: string;
+};
+
+/**
+ * Result of the generateDts function
+ */
+export type GenerateDtsResult = {
+    /**
+     * The generated declaration file
+     */
+    dts: string;
+    /**
+     * The errors that occurred during the generation
+     */
+    errors: IsolatedDeclarationError[];
 };

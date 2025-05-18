@@ -1,20 +1,23 @@
 import fs from "node:fs/promises";
 import { createFakeJsPlugin } from "./fakejs-plugin";
 import { fakeJsToDts } from "./fakejs-utils";
-import {
-    type IsolatedDeclarationError,
-    logIsolatedDeclErrors,
-} from "./isolated-decl-error";
-import type { GenerateDtsOptions } from "./types";
+import type { IsolatedDeclarationError } from "./isolated-decl-error";
+import type { GenerateDtsOptions, GenerateDtsResult } from "./types";
 import { loadTsConfig } from "./utils";
 
 const TEMP_DIR = ".bun-dts";
 
+/**
+ * Generate a declaration file for a given entry point
+ * @param entry - The entry point to generate a declaration file for
+ * @param options - The options for generating the declaration file
+ * @returns The generated declaration file and any errors that occurred
+ */
 export async function generateDts(
     entry: string,
     options: GenerateDtsOptions = {},
-): Promise<string> {
-    const { preferredTsConfigPath, resolve, warnInsteadOfError } = options;
+): Promise<GenerateDtsResult> {
+    const { preferredTsConfigPath, resolve } = options;
     const cwd = options.cwd ?? process.cwd();
 
     const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath);
@@ -56,11 +59,12 @@ export async function generateDts(
 
     const dtsContent = fakeJsToDts(bundledFakeJsContent);
 
-    if (errors.length > 0) {
-        logIsolatedDeclErrors(errors, warnInsteadOfError ?? false);
-    }
-
-    return dtsContent;
+    return { dts: dtsContent, errors };
 }
 
-export type { GenerateDtsOptions };
+export {
+    logIsolatedDeclarationErrors,
+    type LogIsolatedDeclarationErrorsOptions,
+    type IsolatedDeclarationError,
+} from "./isolated-decl-error";
+export type { GenerateDtsOptions, GenerateDtsResult };
