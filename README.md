@@ -38,7 +38,7 @@ if (errors.length > 0) {
 
 ### Error Handling
 
-The library provides a utility function to log isolated declaration errors:
+The library provides a utility function to log isolated declaration errors in readable format:
 
 ```ts
 import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
