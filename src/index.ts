@@ -3,9 +3,7 @@ import { createFakeJsPlugin } from "./fakejs-plugin";
 import { fakeJsToDts } from "./fakejs-utils";
 import type { IsolatedDeclarationError } from "./isolated-decl-error";
 import type { GenerateDtsOptions, GenerateDtsResult } from "./types";
-import { loadTsConfig } from "./utils";
-
-const TEMP_DIR = ".bun-dts";
+import { generateRandomString, loadTsConfig } from "./utils";
 
 /**
  * Generate a declaration file for a given entry point
@@ -19,6 +17,8 @@ export async function generateDts(
 ): Promise<GenerateDtsResult> {
     const { preferredTsConfigPath, resolve } = options;
     const cwd = options.cwd ?? process.cwd();
+
+    const tempOutDir = `${cwd}/.bun-dts-${generateRandomString()}`;
 
     const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath);
 
@@ -35,7 +35,7 @@ export async function generateDts(
 
     const result = await Bun.build({
         entrypoints: [`${cwd}/${entry}`],
-        outdir: TEMP_DIR,
+        outdir: tempOutDir,
         format: "esm",
         target: "node",
         splitting: false,
@@ -54,7 +54,7 @@ export async function generateDts(
     const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text();
 
     try {
-        await fs.rm(TEMP_DIR, { recursive: true, force: true });
+        await fs.rm(tempOutDir, { recursive: true, force: true });
     } catch {}
 
     const dtsContent = fakeJsToDts(bundledFakeJsContent);
