@@ -1,11 +1,11 @@
 import type { BunPlugin } from "bun";
 import { isolatedDeclaration } from "oxc-transform";
 import { resolveTsImportPath } from "ts-import-resolver";
-import { dtsToFakeJs } from "../fake";
-import type { IsolatedDeclarationError } from "../helpers/isolated-decl-error";
-import { createResolver } from "../resolver";
-import type { Resolve } from "../types";
-import { NODE_MODULES_REGEX, isTypeScriptFile } from "../utils";
+import { dtsToFakeJs } from "./fakejs-utils";
+import type { IsolatedDeclarationError } from "./isolated-decl-error";
+import { createResolver } from "./resolver";
+import type { Resolve } from "./types";
+import { NODE_MODULES_REGEX, isTypeScriptFile } from "./utils";
 
 export interface FakeJsPluginOptions {
     cwd: string;

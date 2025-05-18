@@ -1,24 +1,7 @@
-import { dts } from "../src";
+import { generateDts } from "../src";
 
-await Bun.build({
-    entrypoints: ["project/index.ts"],
-    plugins: [
-        dts({
-            resolve: true,
-        }),
-    ],
-    target: "node",
-    external: [
-        "oxc-transform",
-        "oxc-resolver",
-        "typescript",
-        "ts-import-resolver",
-        "oxc-parser",
-        "bun-dts",
-        "elysia",
-        "bun",
-        "publint",
-        "unplugin-unused",
-    ],
-    outdir: "test/dist",
-});
+console.time("generateDts");
+const dts = await generateDts("project/index.ts");
+console.timeEnd("generateDts");
+
+await Bun.write("test/dist/index.d.ts", dts);

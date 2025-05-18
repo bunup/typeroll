@@ -1,27 +1,6 @@
-import { AbstractWorker } from "bun";
-import { A } from "./a";
-
-export class B extends A {}
-
-export { AbstractWorker };
-
-type User = {
-    /**
-     * @description The name of the user
-     */
+export type User = {
     name: string;
-    /**
-     * @description The age of the user
-     */
     age: number;
 };
 
-/**
- * @description Sum two numbers
- */
-export const sum = (a: number, b: number): number => a + b;
-
-export const user: User = {
-    name: "John",
-    age: 20,
-};
+export * from "./a";

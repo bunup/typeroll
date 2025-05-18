@@ -1,6 +1,7 @@
 import type { OxcError, Severity } from "oxc-transform";
 import pc from "picocolors";
-import { getShortFilePath } from "../utils";
+import { UNDERSTANDING_ISOLATED_DECLARATIONS_URL } from "./constants";
+import { getShortFilePath } from "./utils";
 
 export type IsolatedDeclarationError = {
     error: OxcError;
@@ -8,7 +9,30 @@ export type IsolatedDeclarationError = {
     content: string;
 };
 
-export function logIsolatedDeclarationError(
+export function logIsolatedDeclErrors(
+    errors: IsolatedDeclarationError[],
+    warnInsteadOfError: boolean,
+): void {
+    let hasSeverityError = false;
+    for (const error of errors) {
+        if (error.error.severity === "Error") {
+            hasSeverityError = true;
+        }
+
+        logSingle(error, warnInsteadOfError ?? false);
+    }
+
+    if (hasSeverityError && !warnInsteadOfError) {
+        console.log(
+            `\n\n${pc.cyan("Learn more:")} ${pc.underline(
+                UNDERSTANDING_ISOLATED_DECLARATIONS_URL,
+            )}\n\n`,
+        );
+        process.exit(1);
+    }
+}
+
+export function logSingle(
     error: IsolatedDeclarationError,
     warnInsteadOfError: boolean,
 ): void {
