@@ -1,6 +1,6 @@
 {
     "name": "bun-dts",
-    "version": "0.1.26",
+    "version": "0.1.27",
     "description": "An extremely fast dts bundler for Bun",
     "type": "module",
     "main": "./dist/index.cjs",
