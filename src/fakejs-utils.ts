@@ -22,8 +22,16 @@ function dtsToFakeJs(dtsContent: string): string {
         lang: "ts",
     });
 
-    const prevNames = new Set<string>();
+    const referencedNames = new Set<string>();
     const result = [];
+
+    const importNames = parsed.module.staticImports.flatMap((i) =>
+        i.entries.map((e) => e.localName.value ?? e.importName.name),
+    );
+
+    for (const name of importNames) {
+        referencedNames.add(name);
+    }
 
     for (const statement of parsed.program.body) {
         const commentText = getAssociatedComment(statement, parsed.comments);
@@ -35,7 +43,7 @@ function dtsToFakeJs(dtsContent: string): string {
         const name = getName(statement, dtsContent);
 
         if (name) {
-            prevNames.add(name);
+            referencedNames.add(name);
         }
 
         const isDefaultExport = hasDefaultExportModifier(
@@ -66,7 +74,7 @@ function dtsToFakeJs(dtsContent: string): string {
                 .replace(/\bexport\s+/g, "");
         }
 
-        const tokens = tokenizeText(statementText, prevNames);
+        const tokens = tokenizeText(statementText, referencedNames);
 
         const exportPrefix = isExported && !isDefaultExport ? "export " : "";
         result.push(
@@ -140,7 +148,7 @@ function jsifyImportExport(
 const TOKENIZE_REGEX =
     /(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g;
 
-function tokenizeText(text: string, prevNames: Set<string>): string[] {
+function tokenizeText(text: string, referencedNames: Set<string>): string[] {
     const tokens = [];
 
     let match: RegExpExecArray | null;
@@ -150,7 +158,7 @@ function tokenizeText(text: string, prevNames: Set<string>): string[] {
 
         const token = match[0];
 
-        if (/^[A-Z]/.test(token) || prevNames.has(token)) {
+        if (/^[A-Z]/.test(token) || referencedNames.has(token)) {
             tokens.push(token);
         } else {
             const processedToken = token
