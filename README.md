@@ -27,13 +27,9 @@ Use the `generateDts` function to create declaration files:
 ```ts
 import { generateDts } from 'bun-dts';
 
-const { dts, errors } = await generateDts('./src/index.ts');
+const { dts } = await generateDts('./src/index.ts');
 
-if (errors.length > 0) {
-  console.error('Error generating declaration files');
-} else {
-  await Bun.write('./dist/index.d.ts', dts);
-}
+await Bun.write('./dist/index.d.ts', dts);
 ```
 
 ### Error Handling
