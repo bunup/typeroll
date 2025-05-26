@@ -1,4 +1,4 @@
-# How bun-dts Works
+# How `bun-dts` Works
 
 bun-dts generates TypeScript declaration files by transforming `.d.ts` files into fake JavaScript that preserves type dependencies as real variables, enabling Bun's bundler to apply tree-shaking and name mangling.
 
@@ -88,16 +88,6 @@ declare function greet2(user: User2): string;
 
 export { greet2 as greet };
 ```
-
-## Why This Works
-
-| Traditional Approach | bun-dts Approach |
-|---------------------|------------------|
-| String manipulation | Real JS variables |
-| Manual dependency tracking | Bundler handles dependencies |
-| No tree-shaking | Automatic tree-shaking |
-| Name conflicts possible | Bundler prevents conflicts |
-| Slow | Fast (bundler-optimized) |
 
 ## Benefits
 
