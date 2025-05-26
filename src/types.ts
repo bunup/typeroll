@@ -1,5 +1,7 @@
 import type { IsolatedDeclarationError } from "./isolated-decl-error";
 
+type Arrayable<T> = T | T[];
+
 export type Resolve = boolean | (string | RegExp)[];
 
 /**
@@ -38,3 +40,37 @@ export type GenerateDtsResult = {
      */
     errors: IsolatedDeclarationError[];
 };
+
+export type Entry = Arrayable<string> | Record<string, string>;
+
+/**
+ * Options for the dts plugin
+ */
+export type DtsPluginOptions = {
+    /**
+     * Custom entry points to use instead of the ones from the build config
+     * Can be a string, array of strings, or an object mapping output names to input paths
+     *
+     * @example
+     * // Single entry point
+     * entry: "src/index.ts"
+     *
+     * @example
+     * // Multiple entry points
+     * entry: ["src/index.ts", "src/other.ts"]
+     *
+     * @example
+     * // Named entry points (custom output paths)
+     * entry: {
+     *   "api": "src/api/v1/index.ts",   // Outputs to dist/api.d.ts
+     *   "nested/types": "src/types.ts"  // Outputs to dist/nested/types.d.ts
+     * }
+     */
+    entry?: Entry;
+    /**
+     * Show warnings instead of errors for isolatedDeclarations issues
+     * When true, the build will not fail on isolatedDeclarations errors
+     * @default false
+     */
+    warnInsteadOfError?: boolean;
+} & GenerateDtsOptions;

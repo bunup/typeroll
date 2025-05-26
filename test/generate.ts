@@ -1,12 +1,11 @@
-import { generateDts, logIsolatedDeclarationErrors } from "../src";
+import { dts } from "../src";
 
-console.time("generateDts");
-const { dts, errors } = await generateDts("project/index.ts");
-console.timeEnd("generateDts");
+console.time("build");
 
-if (errors.length > 0) {
-    logIsolatedDeclarationErrors(errors);
-    process.exit(1);
-}
+await Bun.build({
+    entrypoints: ["project/index.ts"],
+    outdir: "test/dist",
+    plugins: [dts()],
+});
 
-await Bun.write("test/dist/index.d.ts", dts);
+console.timeEnd("build");
