@@ -15,7 +15,7 @@ TypeScript Source → .d.ts Files → Fake JavaScript → Bundled JS → Final .
 
 ## The Token Magic
 
-The key insight: type references become real JavaScript variables, not strings. This allows Bun's bundler to:
+Type references become real JavaScript variables. This allows Bun's bundler to:
 - Tree-shake unused types
 - Rename types to avoid conflicts  
 - Update all references consistently
