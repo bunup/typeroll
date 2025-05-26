@@ -1,13 +1,13 @@
 # bun-dts
 
-An extremely fast Bun plugin for generating TypeScript declaration files (.d.ts) in **under 10 milliseconds**.
+An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts) in **under 10 milliseconds**.
 
 [![npm version](https://img.shields.io/npm/v/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 [![npm downloads](https://img.shields.io/npm/dm/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 
 ## Features
 
-- 📦 Bundles TypeScript declaration files (.d.ts) into a single file
+- 📦 Generates and bundles TypeScript declaration files (.d.ts) into a single file
 - 🔧 Native Bun plugin integration
 - 🔍 Selective external module resolution
 - ⚡ Blazing fast performance (up to **100x faster** than alternatives)
@@ -21,7 +21,7 @@ bun add -d bun-dts
 
 ## Plugin Usage
 
-Use the `dts()` plugin in your Bun build configuration to automatically generate TypeScript declaration files.
+Use the `dts()` plugin in your Bun build configuration to automatically generate and bundle TypeScript declaration files.
 
 ```ts
 import { dts } from 'bun-dts';
