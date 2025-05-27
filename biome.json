@@ -10,12 +10,10 @@
 			"suspicious": {
 				"noExplicitAny": "off"
 			}
-		},
-		"ignore": ["dist", "node_modules"]
+		}
 	},
 	"formatter": {
-		"useEditorconfig": true,
-		"ignore": ["dist", "node_modules"]
+		"useEditorconfig": true
 	},
 	"javascript": {
 		"formatter": {
