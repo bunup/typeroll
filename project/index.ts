@@ -1,8 +1,8 @@
-import type { createClient } from "./utils";
+import type { createClient } from './utils'
 
 export type User = {
-    name: string;
-    age: number;
-};
+	name: string
+	age: number
+}
 
-export type Client = ReturnType<typeof createClient>;
+export type Client = ReturnType<typeof createClient>

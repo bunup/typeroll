@@ -1,74 +1,74 @@
 {
-    "name": "bun-dts",
-    "version": "0.1.28",
-    "description": "An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts)",
-    "type": "module",
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "files": ["dist"],
-    "scripts": {
-        "build": "bunup",
-        "dev": "bunup --watch",
-        "lint": "biome check .",
-        "lint:fix": "biome check --write .",
-        "format": "biome format .",
-        "format:fix": "biome format --write .",
-        "tsc": "tsc --noEmit",
-        "test": "bun test",
-        "generate": "bun test/generate.ts",
-        "test:watch": "bun test --watch",
-        "test:coverage": "bun test --coverage",
-        "release": "bumpp --commit --push --tag",
-        "publish:ci": "bun publish --access public --no-git-checks",
-        "prepare": "husky"
-    },
-    "dependencies": {
-        "coffi": "^0.1.28",
-        "oxc-parser": "^0.68.1",
-        "oxc-resolver": "^8.0.0",
-        "oxc-transform": "^0.67.0",
-        "ts-import-resolver": "^0.1.19"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@commitlint/cli": "^19.8.0",
-        "@commitlint/config-conventional": "^19.8.0",
-        "@types/bun": "^1.2.11",
-        "bumpp": "^10.1.0",
-        "bunup": "^0.8.6",
-        "husky": "^9.1.7",
-        "typescript": "^5.8.3",
-        "vitest": "^3.1.2"
-    },
-    "license": "MIT",
-    "author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
-    "maintainers": [
-        {
-            "name": "Arshad Yaseen",
-            "email": "m@arshadyaseen.com",
-            "url": "https://arshadyaseen.com"
-        }
-    ],
-    "keywords": [
-        "typescript",
-        "dts",
-        "declaration",
-        "declaration map",
-        "declaration map generation"
-    ],
-    "funding": "https://github.com/sponsors/arshad-yaseen",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arshad-yaseen/bun-dts.git"
-    },
-    "homepage": "https://github.com/arshad-yaseen/bun-dts#readme",
-    "peerDependencies": {
-        "typescript": ">=4.5.0"
-    },
-    "peerDependenciesMeta": {
-        "typescript": {
-            "optional": true
-        }
-    }
+	"name": "bun-dts",
+	"version": "0.1.28",
+	"description": "An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts)",
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": ["dist"],
+	"scripts": {
+		"build": "bunup",
+		"dev": "bunup --watch",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format .",
+		"format:fix": "biome format --write .",
+		"tsc": "tsc --noEmit",
+		"test": "bun test",
+		"generate": "bun test/generate.ts",
+		"test:watch": "bun test --watch",
+		"test:coverage": "bun test --coverage",
+		"release": "bumpp --commit --push --tag",
+		"publish:ci": "bun publish --access public --no-git-checks",
+		"prepare": "husky"
+	},
+	"dependencies": {
+		"coffi": "^0.1.28",
+		"oxc-parser": "^0.68.1",
+		"oxc-resolver": "^8.0.0",
+		"oxc-transform": "^0.67.0",
+		"ts-import-resolver": "^0.1.19"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@commitlint/cli": "^19.8.0",
+		"@commitlint/config-conventional": "^19.8.0",
+		"@types/bun": "^1.2.11",
+		"bumpp": "^10.1.0",
+		"bunup": "^0.8.6",
+		"husky": "^9.1.7",
+		"typescript": "^5.8.3",
+		"vitest": "^3.1.2"
+	},
+	"license": "MIT",
+	"author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
+	"maintainers": [
+		{
+			"name": "Arshad Yaseen",
+			"email": "m@arshadyaseen.com",
+			"url": "https://arshadyaseen.com"
+		}
+	],
+	"keywords": [
+		"typescript",
+		"dts",
+		"declaration",
+		"declaration map",
+		"declaration map generation"
+	],
+	"funding": "https://github.com/sponsors/arshad-yaseen",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshad-yaseen/bun-dts.git"
+	},
+	"homepage": "https://github.com/arshad-yaseen/bun-dts#readme",
+	"peerDependencies": {
+		"typescript": ">=4.5.0"
+	},
+	"peerDependenciesMeta": {
+		"typescript": {
+			"optional": true
+		}
+	}
 }

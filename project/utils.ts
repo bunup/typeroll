@@ -1,9 +1,9 @@
 export function createClient(): {
-    name: string;
-    age: number;
+	name: string
+	age: number
 } {
-    return {
-        name: "John",
-        age: 30,
-    };
+	return {
+		name: 'John',
+		age: 30,
+	}
 }
