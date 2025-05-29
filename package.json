@@ -25,7 +25,7 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"coffi": "^0.1.28",
+		"coffi": "^0.1.30",
 		"oxc-parser": "^0.68.1",
 		"oxc-resolver": "^8.0.0",
 		"oxc-transform": "^0.67.0",
