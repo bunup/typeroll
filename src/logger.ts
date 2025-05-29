@@ -59,7 +59,7 @@ Solutions:
 			}
 
 			throw new Error(
-				`Failed to generate declaration file for ${entry}. See above for more details.`,
+				`Failed to generate declaration file for ${entry}. ${log.message}`,
 			)
 		}
 
