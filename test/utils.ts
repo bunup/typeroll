@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { type GenerateDtsOptions, generateDts } from '../src'
 
-const PROJECT_DIR = 'project'
+const PROJECT_DIR = '.project'
 
 interface ProjectTree {
 	[key: string]: string
