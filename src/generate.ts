@@ -2,6 +2,7 @@ import fs from 'node:fs/promises'
 import { createFakeJsPlugin } from './fakejs-plugin'
 import { fakeJsToDts } from './fakejs-utils'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
+import { handleBunBuildLogs, logger } from './logger'
 import type { GenerateDtsOptions, GenerateDtsResult } from './types'
 import { generateRandomString, loadTsConfig } from './utils'
 
@@ -40,7 +41,10 @@ export async function generateDts(
 		target: 'node',
 		splitting: false,
 		plugins: [fakeJsPlugin],
+		throw: false,
 	})
+
+	handleBunBuildLogs(result.logs, entry)
 
 	const pluginErrors = getErrors()
 
