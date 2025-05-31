@@ -14,26 +14,27 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 		name: 'dts',
 		async setup(build) {
 			const { entry, warnInsteadOfError, ...generateDtsOptions } = options
-
 			const entries = normalizeEntry(entry ?? build.config.entrypoints)
 
-			for (const entry of entries) {
-				const { dts, errors } = await generateDts(entry.fullPath, {
-					cwd: build.config.root,
-					...generateDtsOptions,
-				})
-
-				if (errors.length > 0) {
-					logIsolatedDeclarationErrors(errors, {
-						shouldExit: true,
-						warnInsteadOfError,
+			build.onStart(async () => {
+				for (const entry of entries) {
+					const { dts, errors } = await generateDts(entry.fullPath, {
+						cwd: build.config.root,
+						...generateDtsOptions,
 					})
+
+					if (errors.length > 0) {
+						logIsolatedDeclarationErrors(errors, {
+							shouldExit: true,
+							warnInsteadOfError,
+						})
+					}
+
+					const outputPath = await getOutputDtsPath(entry, build.config)
+
+					await Bun.write(outputPath, dts)
 				}
-
-				const outputPath = await getOutputDtsPath(entry, build.config)
-
-				await Bun.write(outputPath, dts)
-			}
+			})
 		},
 	}
 }

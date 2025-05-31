@@ -61,6 +61,8 @@ export async function getOutputDtsPath(
 		outdir: buildConfig.outdir,
 		format: buildConfig.format,
 		entrypoints: [fullPath],
+		target: 'node',
+		packages: 'external',
 	})
 
 	const output = outputs.find((output) => output.kind === 'entry-point')
