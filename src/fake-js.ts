@@ -4,7 +4,6 @@ import oxc, {
 	type ExpressionStatement,
 	type Statement,
 } from 'oxc-parser'
-import { isolatedDeclaration } from 'oxc-transform'
 import {
 	getAssociatedComment,
 	getName,
@@ -121,7 +120,7 @@ function fakeJsToDts(fakeJsContent: string): string {
 		}
 	}
 
-	return isolatedDeclaration('final.d.ts', resultParts.join('\n')).code
+	return resultParts.join('\n')
 }
 
 function jsifyImportExport(

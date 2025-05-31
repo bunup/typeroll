@@ -41,7 +41,7 @@ export function logIsolatedDeclarationErrors(
 			hasSeverityError = true
 		}
 
-		logSingle(error, options)
+		logSingle(error)
 	}
 
 	if (hasSeverityError && !options.warnInsteadOfError) {
@@ -57,10 +57,7 @@ export function logIsolatedDeclarationErrors(
 	}
 }
 
-export function logSingle(
-	error: IsolatedDeclarationError,
-	options: LogIsolatedDeclarationErrorsOptions = {},
-): void {
+export function logSingle(error: IsolatedDeclarationError): void {
 	const label = error.error.labels[0]
 	const position = label
 		? calculateDtsErrorLineAndColumn(error.content, label.start)
@@ -69,10 +66,7 @@ export function logSingle(
 	const shortPath = getShortFilePath(error.file)
 	const errorMessage = `${shortPath}${position}: ${formatDtsErrorMessage(error.error.message)}`
 
-	const { color, prefix } = getSeverityFormatting(
-		error.error.severity,
-		options.warnInsteadOfError ?? false,
-	)
+	const { color, prefix } = getSeverityFormatting(error.error.severity)
 
 	const formattedMessage = `${color(prefix)} ${errorMessage}`
 
@@ -86,35 +80,27 @@ export function logSingle(
 		? `\n${pc.cyan('Help:')} ${error.error.helpMessage}`
 		: ''
 
-	console[(options.warnInsteadOfError ?? false) ? 'warn' : 'error'](
-		`\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}`,
-	)
+	console.log(`\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}`)
 }
 
-function getSeverityFormatting(
-	severity: Severity,
-	warnInsteadOfError: boolean,
-): {
+function getSeverityFormatting(severity: Severity): {
 	color: (text: string) => string
 	prefix: string
 } {
-	const errorColor = warnInsteadOfError ? pc.yellow : pc.red
-	const errorPrefix = warnInsteadOfError ? 'WARNING' : 'ERROR'
-
 	switch (severity) {
 		case 'Error':
 			return {
-				color: errorColor,
-				prefix: errorPrefix,
+				color: pc.blue,
+				prefix: 'Recommendation',
 			}
 		case 'Warning':
-			return { color: pc.yellow, prefix: 'WARNING' }
+			return { color: pc.yellow, prefix: 'Suggestion' }
 		case 'Advice':
-			return { color: pc.blue, prefix: 'ADVICE' }
+			return { color: pc.blue, prefix: 'Advice' }
 		default:
 			return {
-				color: errorColor,
-				prefix: errorPrefix,
+				color: pc.blue,
+				prefix: 'Suggestion',
 			}
 	}
 }
@@ -153,7 +139,7 @@ function getCodeFrame(sourceText: string, start: number, end: number): string {
 
 	const arrowLine =
 		' '.repeat(startCol) +
-		pc.red(pc.dim('⎯'.repeat(Math.max(1, endCol - startCol))))
+		pc.blue(pc.dim('⎯'.repeat(Math.max(1, endCol - startCol))))
 
 	return `${lineContent}\n${arrowLine}`
 }

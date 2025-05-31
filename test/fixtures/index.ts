@@ -1,9 +1,5 @@
-export const StatusMap = {
-	Continue: 100,
-	'Switching Protocols': 101,
-	Processing: 102,
-	'Early Hints': 103,
-	OK: 200,
-}
+import { sum } from './utils'
 
-export type StatusMap = typeof StatusMap
+export function add(a: number, b: number) {
+	return sum(a, b)
+}
