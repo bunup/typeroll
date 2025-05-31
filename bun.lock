@@ -17,7 +17,7 @@
         "@commitlint/config-conventional": "^19.8.0",
         "@types/bun": "^1.2.11",
         "bumpp": "^10.1.0",
-        "bunup": "^0.8.6",
+        "bunup": "^0.8.19",
         "husky": "^9.1.7",
         "typescript": "^5.8.3",
         "vitest": "^3.1.2",
@@ -311,11 +311,11 @@
 
     "bumpp": ["bumpp@10.1.1", "", { "dependencies": { "ansis": "^4.0.0", "args-tokenizer": "^0.3.0", "c12": "^3.0.3", "cac": "^6.7.14", "escalade": "^3.2.0", "jsonc-parser": "^3.3.1", "package-manager-detector": "^1.3.0", "semver": "^7.7.2", "tinyexec": "^1.0.1", "tinyglobby": "^0.2.13", "yaml": "^2.8.0" }, "bin": { "bumpp": "bin/bumpp.mjs" } }, "sha512-69ejE1J5O5qDN3oRu2jRas1nQmi5zEYepjzbYPpi1znuDnp+zZ9Yezsf/nYauWeoMNALQ5toniNGET05Txj2cQ=="],
 
-    "bun-dts": ["bun-dts@0.1.27", "", { "dependencies": { "coffi": "^0.1.28", "oxc-parser": "^0.68.1", "oxc-resolver": "^8.0.0", "oxc-transform": "^0.67.0", "ts-import-resolver": "^0.1.19" }, "peerDependencies": { "typescript": ">=4.5.0" }, "optionalPeers": ["typescript"] }, "sha512-ophb5WnUa7UdchwYU5y4nQVuT66bEwQFShh0lH+smWRw/z+hO7DffhECiEAW38BaqC008P8sKBUfYBLumuYrkA=="],
+    "bun-dts": ["bun-dts@0.1.35", "", { "dependencies": { "coffi": "^0.1.30", "oxc-parser": "^0.68.1", "oxc-resolver": "^8.0.0", "oxc-transform": "^0.67.0", "picocolors": "^1.1.1", "ts-import-resolver": "^0.1.19" }, "peerDependencies": { "typescript": ">=4.5.0" }, "optionalPeers": ["typescript"] }, "sha512-RSaNb1YAitdIP8cLsqI+6yt3Pr+2/LjNyk5llGnGbjx1zV02sJ6YGCGJkE+zOejHBc5066vZcdytsqiPtLz7ww=="],
 
     "bun-types": ["bun-types@1.2.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-Kuh4Ub28ucMRWeiUUWMHsT9Wcbr4H3kLIO72RZZElSDxSu7vpetRvxIUDUaW6QtaIeixIpm7OXtNnZPf82EzwA=="],
 
-    "bunup": ["bunup@0.8.6", "", { "dependencies": { "@clack/prompts": "^0.10.1", "bun-dts": "^0.1.27", "chokidar": "^4.0.3", "coffi": "^0.1.29", "giget": "^2.0.0", "package-manager-detector": "^1.2.0", "replace-in-file": "^8.3.0", "tinyexec": "^1.0.1" }, "peerDependencies": { "lightningcss": ">=1.17.0", "typescript": ">=4.5.0" }, "optionalPeers": ["lightningcss", "typescript"], "bin": { "bunup": "bin/bunup.mjs" } }, "sha512-MQaJiWN6B+Ka1j5q2QflyuqD2J1Fu1mPh+ZBheljUG7g4fiOQEUbuFZBEUXUpyti8I900lvfdcgMLuJekENuLQ=="],
+    "bunup": ["bunup@0.8.19", "", { "dependencies": { "@clack/prompts": "^0.10.1", "bun-dts": "^0.1.35", "chokidar": "^4.0.3", "coffi": "^0.1.30", "giget": "^2.0.0", "replace-in-file": "^8.3.0", "tinyexec": "^1.0.1" }, "peerDependencies": { "lightningcss": ">=1.17.0", "typescript": ">=4.5.0" }, "optionalPeers": ["lightningcss", "typescript"], "bin": { "bunup": "bin/bunup.mjs" } }, "sha512-WFbw9ygNyKssQNrMMS5tfTKl7oP803caj4bUPt/U/phiJgFSqCHEToY2+2JgGPgcODRilbvBj+VcEyKHApt8Gg=="],
 
     "c12": ["c12@3.0.4", "", { "dependencies": { "chokidar": "^4.0.3", "confbox": "^0.2.2", "defu": "^6.1.4", "dotenv": "^16.5.0", "exsolve": "^1.0.5", "giget": "^2.0.0", "jiti": "^2.4.2", "ohash": "^2.0.11", "pathe": "^2.0.3", "perfect-debounce": "^1.0.0", "pkg-types": "^2.1.0", "rc9": "^2.1.2" }, "peerDependencies": { "magicast": "^0.3.5" }, "optionalPeers": ["magicast"] }, "sha512-t5FaZTYbbCtvxuZq9xxIruYydrAGsJ+8UdP0pZzMiK2xl/gNiSOy0OxhLzHUEEb0m1QXYqfzfvyIFEmz/g9lqg=="],
 
@@ -632,10 +632,6 @@
     "@isaacs/cliui/strip-ansi": ["strip-ansi@7.1.0", "", { "dependencies": { "ansi-regex": "^6.0.1" } }, "sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ=="],
 
     "@isaacs/cliui/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "^6.1.0", "string-width": "^5.0.1", "strip-ansi": "^7.0.1" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
-
-    "bun-dts/coffi": ["coffi@0.1.29", "", { "dependencies": { "strip-json-comments": "^5.0.1" } }, "sha512-KI3keHI1TLA0NVsHypDeCfl7C3ieBNh5rwtpb88WdEGE3o0pe3h8zn1EanVs58Va3kRdLK45CYzSzKu7Xy5TXw=="],
-
-    "bunup/coffi": ["coffi@0.1.29", "", { "dependencies": { "strip-json-comments": "^5.0.1" } }, "sha512-KI3keHI1TLA0NVsHypDeCfl7C3ieBNh5rwtpb88WdEGE3o0pe3h8zn1EanVs58Va3kRdLK45CYzSzKu7Xy5TXw=="],
 
     "import-fresh/resolve-from": ["resolve-from@4.0.0", "", {}, "sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g=="],
 
