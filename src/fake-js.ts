@@ -14,6 +14,7 @@ import {
 	isImportDeclaration,
 	isReExportStatement,
 } from './ast'
+import { generateRandomString } from './utils'
 
 function dtsToFakeJs(dtsContent: string): string {
 	const parsed = oxc.parseSync('temp.d.ts', dtsContent, {
@@ -74,7 +75,7 @@ function dtsToFakeJs(dtsContent: string): string {
 
 		const exportPrefix = isExported && !isDefaultExport ? 'export ' : ''
 		result.push(
-			`${exportPrefix}var ${name || `_value_${Math.random()}`} = [${tokens.join(', ')}];`,
+			`${exportPrefix}var ${name || `_value_${generateRandomString()}`} = [${tokens.join(', ')}];`,
 		)
 	}
 

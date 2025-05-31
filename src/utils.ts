@@ -35,7 +35,7 @@ export function getShortFilePath(filePath: string, maxLength = 3): string {
 }
 
 export function generateRandomString(length = 10): string {
-	return Math.random()
-		.toString(36)
-		.substring(2, 2 + length)
+	return Array.from({ length }, () =>
+		String.fromCharCode(97 + Math.floor(Math.random() * 26)),
+	).join('')
 }
