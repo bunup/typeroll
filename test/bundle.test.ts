@@ -455,4 +455,491 @@ describe('Bundle functionality', () => {
 			`)
 		})
 	})
+
+	describe('TypeScript import/export syntax jsifying', () => {
+		test('should handle type-only imports', async () => {
+			createProject({
+				'src/types.ts': `
+					export interface User {
+						id: number
+						name: string
+					}
+					
+					export interface Product {
+						id: string
+						price: number
+					}
+					
+					export class UserService {
+						getUser(): User | null {
+							return null
+						}
+					}
+				`,
+				'src/index.ts': `
+					import type { User, Product } from './types'
+					import { UserService } from './types'
+					
+					export function createUser(service: UserService): User | null {
+						return service.getUser()
+					}
+					
+					export type { User, Product }
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface User {
+			  	id: number;
+			  	name: string;
+			  }
+			  interface Product {
+			  	id: string;
+			  	price: number;
+			  }
+			  declare class UserService {
+			  	getUser(): User | null;
+			  }
+			  declare function createUser(service: UserService): User | null;
+			  export { createUser, User, Product };
+			  "
+			`)
+		})
+
+		test('should handle mixed type and value imports in destructuring', async () => {
+			createProject({
+				'src/types.ts': `
+					export interface Config {
+						apiUrl: string
+						timeout: number
+					}
+					
+					export type Theme = 'light' | 'dark'
+					
+					export const DEFAULT_CONFIG: Config = {
+						apiUrl: 'https://api.example.com',
+						timeout: 5000
+					}
+					
+					export function validateConfig(config: Config): boolean {
+						return config.timeout > 0
+					}
+				`,
+				'src/index.ts': `
+					import { type Config, type Theme, DEFAULT_CONFIG, validateConfig } from './types'
+					
+					export function useConfig(): Config {
+						return DEFAULT_CONFIG
+					}
+					
+					export function isValidConfig(config: Config): boolean {
+						return validateConfig(config)
+					}
+					
+					export type { Config, Theme }
+					export { DEFAULT_CONFIG }
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface Config {
+			  	apiUrl: string;
+			  	timeout: number;
+			  }
+			  type Theme = "light" | "dark";
+			  declare const DEFAULT_CONFIG: Config;
+			  declare function useConfig(): Config;
+			  declare function isValidConfig(config: Config): boolean;
+			  export { useConfig, isValidConfig, Theme, DEFAULT_CONFIG, Config };
+			  "
+			`)
+		})
+
+		test('should handle type imports with renaming', async () => {
+			createProject({
+				'src/models.ts': `
+					export interface UserModel {
+						id: number
+						username: string
+					}
+					
+					export interface ProductModel {
+						sku: string
+						name: string
+					}
+					
+					export type Status = 'active' | 'inactive'
+				`,
+				'src/index.ts': `
+					import { 
+						type UserModel as User, 
+						type ProductModel as Product,
+						type Status as ItemStatus 
+					} from './models'
+					
+					export interface Order {
+						user: User
+						products: Product[]
+						status: ItemStatus
+					}
+					
+					export type { User, Product, ItemStatus }
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface UserModel {
+			  	id: number;
+			  	username: string;
+			  }
+			  interface ProductModel {
+			  	sku: string;
+			  	name: string;
+			  }
+			  type Status = "active" | "inactive";
+			  interface Order {
+			  	user: UserModel;
+			  	products: ProductModel[];
+			  	status: Status;
+			  }
+			  export { UserModel as User, ProductModel as Product, Order, Status as ItemStatus };
+			  "
+			`)
+		})
+
+		test('should handle type-only re-exports', async () => {
+			createProject({
+				'src/core.ts': `
+					export interface CoreConfig {
+						debug: boolean
+						version: string
+					}
+					
+					export class CoreService {
+						config: CoreConfig
+						constructor(config: CoreConfig) {
+							this.config = config
+						}
+					}
+					
+					export type LogLevel = 'info' | 'warn' | 'error'
+				`,
+				'src/index.ts': `
+					export type { CoreConfig, LogLevel } from './core'
+					export { CoreService } from './core'
+					
+					export function createDefaultConfig(): CoreConfig {
+						return { debug: false, version: '1.0.0' }
+					}
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface CoreConfig2 {
+			  	debug: boolean;
+			  	version: string;
+			  }
+			  declare class CoreService {
+			  	config: CoreConfig2;
+			  	constructor(config: CoreConfig2);
+			  }
+			  type LogLevel = "info" | "warn" | "error";
+			  declare function createDefaultConfig(): CoreConfig;
+			  export { createDefaultConfig, LogLevel, CoreService, CoreConfig2 as CoreConfig };
+			  "
+			`)
+		})
+
+		test('should handle default type imports and exports', async () => {
+			createProject({
+				'src/component.ts': `
+					export default interface Component {
+						render(): void
+						name: string
+					}
+					
+					export interface ComponentProps {
+						className?: string
+					}
+				`,
+				'src/index.ts': `
+					import type Component from './component'
+					import type { ComponentProps } from './component'
+					
+					export default class MyComponent implements Component {
+						name = 'MyComponent'
+						render(): void {
+							console.log('rendering')
+						}
+					}
+					
+					export type { Component, ComponentProps }
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface Component {
+			  	render(): void;
+			  	name: string;
+			  }
+			  interface ComponentProps {
+			  	className?: string;
+			  }
+			  declare class MyComponent implements Component {
+			  	name: string;
+			  	render(): void;
+			  }
+			  export { MyComponent as default, ComponentProps, Component };
+			  "
+			`)
+		})
+
+		test('should handle namespace type imports', async () => {
+			createProject({
+				'src/types.ts': `
+					export interface User {
+						id: number
+						name: string
+					}
+					
+					export interface Post {
+						id: number
+						title: string
+						author: User
+					}
+					
+					export type Permission = 'read' | 'write' | 'admin'
+				`,
+				'src/index.ts': `
+					import type * as Types from './types'
+					
+					export function createPost(author: Types.User): Types.Post {
+						return {
+							id: 1,
+							title: 'New Post',
+							author
+						}
+					}
+					
+					export function hasPermission(user: Types.User, perm: Types.Permission): boolean {
+						return true
+					}
+					
+					export type { Types }
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "declare namespace exports_types {
+			  	export { User, Post, Permission };
+			  }
+			  declare function createPost(author: exports_types.User): exports_types.Post;
+			  declare function hasPermission(user: exports_types.User, perm: exports_types.Permission): boolean;
+			  export { hasPermission, createPost, exports_types as Types };
+			  "
+			`)
+		})
+
+		test('should handle type imports in export statements', async () => {
+			createProject({
+				'src/base.ts': `
+					export interface BaseEntity {
+						id: string
+						createdAt: Date
+					}
+					
+					export interface Timestamped {
+						updatedAt: Date
+					}
+				`,
+				'src/user.ts': `
+					import type { BaseEntity, Timestamped } from './base'
+					
+					export interface User extends BaseEntity, Timestamped {
+						email: string
+					}
+				`,
+				'src/index.ts': `
+					export { type User } from './user'
+					export { type BaseEntity, type Timestamped } from './base'
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface BaseEntity {
+			  	id: string;
+			  	createdAt: Date;
+			  }
+			  interface Timestamped {
+			  	updatedAt: Date;
+			  }
+			  interface User extends BaseEntity, Timestamped {
+			  	email: string;
+			  }
+			  export { User, Timestamped, BaseEntity };
+			  "
+			`)
+		})
+
+		test('should handle complex mixed imports with default and named imports', async () => {
+			createProject({
+				'src/framework.ts': `
+					export default class Framework {
+						name = 'MyFramework'
+					}
+					
+					export interface FrameworkConfig {
+						plugins: string[]
+					}
+					
+					export type FrameworkHook = () => void
+					
+					export const VERSION = '1.0.0'
+				`,
+				'src/index.ts': `
+					import Framework, { 
+						type FrameworkConfig, 
+						type FrameworkHook as Hook,
+						VERSION 
+					} from './framework'
+					
+					export { Framework as default, VERSION }
+					export type { FrameworkConfig, Hook }
+					
+					export function createFramework(config: FrameworkConfig): Framework {
+						return new Framework()
+					}
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "declare class Framework {
+			  	name: string;
+			  }
+			  interface FrameworkConfig {
+			  	plugins: string[];
+			  }
+			  type FrameworkHook = () => void;
+			  declare const VERSION = "1.0.0";
+			  declare function createFramework(config: FrameworkConfig): Framework;
+			  export { Framework as default, createFramework, VERSION, FrameworkHook as Hook, FrameworkConfig };
+			  "
+			`)
+		})
+
+		test('should handle type-only exports with all variations', async () => {
+			createProject({
+				'src/models.ts': `
+					export interface Model {
+						id: string
+					}
+					
+					export type ModelType = 'user' | 'post' | 'comment'
+					
+					export class ModelFactory {
+						create(type: ModelType): Model {
+							return { id: '1' }
+						}
+					}
+					
+					export const MODEL_VERSION = 2
+				`,
+				'src/services.ts': `
+					import { Model, ModelType, ModelFactory } from './models'
+					
+					export class Service {
+						factory: ModelFactory = new ModelFactory()
+						
+						getModel(type: ModelType): Model {
+							return this.factory.create(type)
+						}
+					}
+				`,
+				'src/index.ts': `
+					// Re-export everything with type annotations
+					export { type Model, type ModelType, ModelFactory, MODEL_VERSION } from './models'
+					export { Service } from './services'
+					
+					// Type-only re-export
+					export type { Model as BaseModel } from './models'
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "interface Model {
+			  	id: string;
+			  }
+			  type ModelType = "user" | "post" | "comment";
+			  declare class ModelFactory {
+			  	create(type: ModelType): Model;
+			  }
+			  declare const MODEL_VERSION = 2;
+			  declare class Service {
+			  	factory: ModelFactory;
+			  	getModel(type: ModelType): Model;
+			  }
+			  export { Service, ModelType, ModelFactory, Model, MODEL_VERSION, Model as BaseModel };
+			  "
+			`)
+		})
+
+		test('should handle import equals syntax', async () => {
+			createProject({
+				'src/legacy.ts': `
+					export = {
+						legacyFunction(): string {
+							return 'legacy'
+						},
+						LEGACY_CONSTANT: 42
+					}
+				`,
+				'src/index.ts': `
+					import legacy = require('./legacy')
+					
+					export function useLegacy(): string {
+						return legacy.legacyFunction()
+					}
+					
+					export const constant: number = legacy.LEGACY_CONSTANT
+				`,
+			})
+
+			const result = await runGenerateDts('src/index.ts')
+
+			expect(result.errors).toHaveLength(0)
+			expect(result.dts).toMatchInlineSnapshot(`
+			  "declare function useLegacy(): string;
+			  declare const constant: number;
+			  export { useLegacy, constant };
+			  "
+			`)
+		})
+	})
 })

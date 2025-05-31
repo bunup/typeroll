@@ -130,13 +130,23 @@ function jsifyImportExport(
 ): string {
 	const text = source.substring(node.start, node.end)
 
-	return text
+	let result = text
 		.replace(/import\s+type\s+/g, 'import ')
 		.replace(/export\s+type\s+/g, 'export ')
 		.replace(
 			/(import|export)\s*{([^}]*)}/g,
 			(_, keyword, names) => `${keyword} {${names.replace(/type\s+/g, '')}}`,
 		)
+
+	result = result.replace(
+		/(import|export)(\s+[^{,]+,)?\s*{([^}]*)}/g,
+		(_, keyword, defaultPart = '', names = '') => {
+			const cleanedNames = names.replace(/\btype\s+/g, '')
+			return `${keyword}${defaultPart}{${cleanedNames}}`
+		},
+	)
+
+	return result
 }
 
 const TOKENIZE_REGEX =
