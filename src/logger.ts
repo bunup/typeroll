@@ -13,7 +13,7 @@ class Logger {
 
 	public info(message: string): void {
 		console.log()
-		console.info(pc.blue(message))
+		console.info(pc.gray(message))
 		console.log()
 	}
 
@@ -40,17 +40,16 @@ export function handleBunBuildLogs(
 		if (log.level === 'error') {
 			if (log.message.includes('Multiple exports with the same name')) {
 				logger.info(
-					`Found multiple exports with the same name in ${pc.underline(entry)}.
+					`Found multiple exports with the same name in ${pc.underline(log.position?.file)}.
 
 You cannot have a type export and a value export with the same name in the same file.
 
 For example, this is not allowed:
-export const User = { name: 'John' }
-export type User = typeof User
 
-Solutions:
-- Rename the type export to a different name
-- Move the type export to a different file (e.g., types.ts)`,
+export const ${log.position?.lineText.split(' ')[2]} = ...
+export type ${log.position?.lineText.split(' ')[2]} = ...
+
+Consider renaming the type export to a different name or moving the type export to a separate file (e.g., types.ts) to resolve this naming conflict.`,
 				)
 
 				throw new Error(

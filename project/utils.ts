@@ -1,3 +1,2 @@
-export function sum(a: number, b: number): number {
-	return a + b
-}
+export const User = { name: 'John' }
+export type User = typeof User
