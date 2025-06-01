@@ -23,6 +23,7 @@ function dtsToFakeJs(dtsContent: string): string {
 	})
 
 	const referencedNames = new Set<string>()
+	const exportedNames = new Set<string>()
 	const result = []
 
 	const importNames = parsed.module.staticImports.flatMap((i) =>
@@ -73,10 +74,14 @@ function dtsToFakeJs(dtsContent: string): string {
 
 		const tokens = tokenizeText(statementText, referencedNames)
 
-		const exportPrefix = isExported && !isDefaultExport ? 'export ' : ''
-		result.push(
-			`${exportPrefix}var ${name || `_value_${generateRandomString()}`} = [${tokens.join(', ')}];`,
-		)
+		const varName = name || generateRandomString()
+
+		result.push(`var ${varName} = [${tokens.join(', ')}];`)
+
+		if (isExported && !isDefaultExport && !exportedNames.has(varName)) {
+			result.push(`export { ${varName} };`)
+			exportedNames.add(varName)
+		}
 	}
 
 	return result.join('\n')
