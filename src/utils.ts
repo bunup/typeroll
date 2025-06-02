@@ -39,3 +39,10 @@ export function generateRandomString(length = 10): string {
 		String.fromCharCode(97 + Math.floor(Math.random() * 26)),
 	).join('')
 }
+
+export function isDev(): boolean {
+	const ciEnv = process.env.CI || ''
+	const isCI = /^true$/i.test(ciEnv)
+
+	return !isCI
+}

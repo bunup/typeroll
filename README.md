@@ -100,7 +100,6 @@ dts({
 | Option               | Type                                           | Description                                                                                                                                                |
 | -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `entry`              | `string \| string[] \| Record<string, string>` | Custom entry points to use instead of the ones from the build config. Can be a single file, array of files, or object mapping output names to input paths. |
-| `warnInsteadOfError` | `boolean`                                      | Show warnings instead of errors for isolatedDeclarations issues. When true, the build will not fail on isolatedDeclarations errors. Default: `false`       |
 
 ## Understanding isolatedDeclarations
 

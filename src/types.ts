@@ -67,10 +67,4 @@ export type DtsPluginOptions = {
 	 * }
 	 */
 	entry?: Entry
-	/**
-	 * Show warnings instead of errors for isolatedDeclarations issues
-	 * When true, the build will not fail on isolatedDeclarations errors
-	 * @default false
-	 */
-	warnInsteadOfError?: boolean
 } & GenerateDtsOptions

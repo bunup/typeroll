@@ -1,7 +1,7 @@
 import type { OxcError, Severity } from 'oxc-transform'
 import pc from 'picocolors'
 import { UNDERSTANDING_ISOLATED_DECLARATIONS_URL } from './constants'
-import { getShortFilePath } from './utils'
+import { getShortFilePath, isDev } from './utils'
 
 /**
  * An isolated declaration error
@@ -16,10 +16,6 @@ export type IsolatedDeclarationError = {
  * Options for logging isolated declaration errors
  */
 export type LogIsolatedDeclarationErrorsOptions = {
-	/**
-	 * Whether to log as a warning instead of an error
-	 */
-	warnInsteadOfError?: boolean
 	/**
 	 * Whether to exit the process after logging the errors
 	 */
@@ -44,14 +40,20 @@ export function logIsolatedDeclarationErrors(
 		logSingle(error)
 	}
 
-	if (hasSeverityError && !options.warnInsteadOfError) {
+	if (hasSeverityError) {
+		if (isDev()) {
+			console.log(
+				`\n${pc.yellow('Please address the suggestions above before publishing your package.')}\n`,
+			)
+		}
+
 		console.log(
-			`\n\n${pc.cyan('Learn more:')} ${pc.underline(
+			`${pc.cyan('Learn more:')} ${pc.underline(
 				UNDERSTANDING_ISOLATED_DECLARATIONS_URL,
-			)}\n\n`,
+			)}\n`,
 		)
 
-		if (options.shouldExit) {
+		if (options.shouldExit && !isDev()) {
 			process.exit(1)
 		}
 	}
@@ -87,20 +89,39 @@ function getSeverityFormatting(severity: Severity): {
 	color: (text: string) => string
 	prefix: string
 } {
+	if (isDev()) {
+		switch (severity) {
+			case 'Error':
+				return {
+					color: pc.blue,
+					prefix: 'Suggestion',
+				}
+			case 'Warning':
+				return { color: pc.yellow, prefix: 'Suggestion' }
+			case 'Advice':
+				return { color: pc.blue, prefix: 'Advice' }
+			default:
+				return {
+					color: pc.blue,
+					prefix: 'Suggestion',
+				}
+		}
+	}
+
 	switch (severity) {
 		case 'Error':
 			return {
-				color: pc.blue,
-				prefix: 'Recommendation',
+				color: pc.red,
+				prefix: 'ERROR',
 			}
 		case 'Warning':
-			return { color: pc.yellow, prefix: 'Suggestion' }
+			return { color: pc.yellow, prefix: 'WARNING' }
 		case 'Advice':
-			return { color: pc.blue, prefix: 'Advice' }
+			return { color: pc.blue, prefix: 'ADVICE' }
 		default:
 			return {
-				color: pc.blue,
-				prefix: 'Suggestion',
+				color: pc.red,
+				prefix: 'ERROR',
 			}
 	}
 }
@@ -139,7 +160,9 @@ function getCodeFrame(sourceText: string, start: number, end: number): string {
 
 	const arrowLine =
 		' '.repeat(startCol) +
-		pc.blue(pc.dim('⎯'.repeat(Math.max(1, endCol - startCol))))
+		pc[isDev() ? 'blue' : 'red'](
+			pc.dim('⎯'.repeat(Math.max(1, endCol - startCol))),
+		)
 
 	return `${lineContent}\n${arrowLine}`
 }
