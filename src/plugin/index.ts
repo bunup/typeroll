@@ -13,7 +13,7 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 	return {
 		name: 'dts',
 		async setup(build) {
-			const { entry, warnInsteadOfError, ...generateDtsOptions } = options
+			const { entry, ...generateDtsOptions } = options
 			const entries = normalizeEntry(entry ?? build.config.entrypoints)
 
 			build.onStart(async () => {
@@ -26,7 +26,6 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					if (errors.length > 0) {
 						logIsolatedDeclarationErrors(errors, {
 							shouldExit: true,
-							warnInsteadOfError,
 						})
 					}
 
