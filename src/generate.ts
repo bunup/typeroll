@@ -82,7 +82,7 @@ export async function generateDts(
 						})
 					}
 
-					const fakeJsContent = dtsToFakeJs(declarationResult.code)
+					const fakeJsContent = await dtsToFakeJs(declarationResult.code)
 
 					return {
 						loader: 'js',
@@ -116,7 +116,7 @@ export async function generateDts(
 
 	const dtsContent = isolatedDeclaration(
 		'treeshake.d.ts',
-		fakeJsToDts(bundledFakeJsContent),
+		await fakeJsToDts(bundledFakeJsContent),
 	)
 
 	return { dts: dtsContent.code, errors: collectedErrors }

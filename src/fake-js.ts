@@ -1,8 +1,9 @@
-import oxc, {
-	type Node,
+import {
 	type Directive,
 	type ExpressionStatement,
+	type Node,
 	type Statement,
+	parseAsync,
 } from 'oxc-parser'
 import {
 	getAssociatedComment,
@@ -14,10 +15,21 @@ import {
 	isImportDeclaration,
 	isReExportStatement,
 } from './ast'
+import {
+	CAPITAL_LETTER_RE,
+	EXPORT_DEFAULT_RE,
+	EXPORT_RE,
+	EXPORT_TYPE_RE,
+	IMPORT_EXPORT_NAMES_RE,
+	IMPORT_EXPORT_WITH_DEFAULT_RE,
+	IMPORT_TYPE_RE,
+	TOKENIZE_RE,
+	TYPE_WORD_RE,
+} from './re'
 import { generateRandomString } from './utils'
 
-function dtsToFakeJs(dtsContent: string): string {
-	const parsed = oxc.parseSync('temp.d.ts', dtsContent, {
+async function dtsToFakeJs(dtsContent: string): Promise<string> {
+	const parsed = await parseAsync('temp.d.ts', dtsContent, {
 		sourceType: 'module',
 		lang: 'ts',
 	})
@@ -68,8 +80,8 @@ function dtsToFakeJs(dtsContent: string): string {
 
 		if (isExported) {
 			statementText = statementText
-				.replace(/\bexport\s+default\s+/g, '')
-				.replace(/\bexport\s+/g, '')
+				.replace(EXPORT_DEFAULT_RE, '')
+				.replace(EXPORT_RE, '')
 		}
 
 		const tokens = tokenizeText(statementText, referencedNames)
@@ -87,8 +99,8 @@ function dtsToFakeJs(dtsContent: string): string {
 	return result.join('\n')
 }
 
-function fakeJsToDts(fakeJsContent: string): string {
-	const parseResult = oxc.parseSync('temp.js', fakeJsContent, {
+async function fakeJsToDts(fakeJsContent: string): Promise<string> {
+	const parseResult = await parseAsync('temp.js', fakeJsContent, {
 		sourceType: 'module',
 		lang: 'js',
 	})
@@ -136,17 +148,17 @@ function jsifyImportExport(
 	const text = source.substring(node.start, node.end)
 
 	let result = text
-		.replace(/import\s+type\s+/g, 'import ')
-		.replace(/export\s+type\s+/g, 'export ')
+		.replace(IMPORT_TYPE_RE, 'import ')
+		.replace(EXPORT_TYPE_RE, 'export ')
 		.replace(
-			/(import|export)\s*{([^}]*)}/g,
-			(_, keyword, names) => `${keyword} {${names.replace(/type\s+/g, '')}}`,
+			IMPORT_EXPORT_NAMES_RE,
+			(_, keyword, names) => `${keyword} {${names.replace(TYPE_WORD_RE, '')}}`,
 		)
 
 	result = result.replace(
-		/(import|export)(\s+[^{,]+,)?\s*{([^}]*)}/g,
+		IMPORT_EXPORT_WITH_DEFAULT_RE,
 		(_, keyword, defaultPart = '', names = '') => {
-			const cleanedNames = names.replace(/\btype\s+/g, '')
+			const cleanedNames = names.replace(TYPE_WORD_RE, '')
 			return `${keyword}${defaultPart}{${cleanedNames}}`
 		},
 	)
@@ -154,20 +166,17 @@ function jsifyImportExport(
 	return result
 }
 
-const TOKENIZE_REGEX =
-	/(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g
-
 function tokenizeText(text: string, referencedNames: Set<string>): string[] {
 	const tokens = []
 
 	let match: RegExpExecArray | null
 	while (true) {
-		match = TOKENIZE_REGEX.exec(text)
+		match = TOKENIZE_RE.exec(text)
 		if (match === null) break
 
 		const token = match[0]
 
-		if (/^[A-Z]/.test(token) || referencedNames.has(token)) {
+		if (CAPITAL_LETTER_RE.test(token) || referencedNames.has(token)) {
 			tokens.push(token)
 		} else {
 			const processedToken = token.replace(/\n/g, '\\n').replace(/\t/g, '\\t')

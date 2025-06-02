@@ -1,14 +1,7 @@
-import { dts } from '../src'
+import { generateDts } from '../src'
 
-console.time('build')
+console.time('bun-dts')
 
-await Bun.build({
-	entrypoints: ['project/index.ts'],
-	outdir: 'test/dist',
-	plugins: [dts()],
-	target: 'node',
-	throw: false,
-	packages: 'external',
-})
+await generateDts('project/index.ts')
 
-console.timeEnd('build')
+console.timeEnd('bun-dts')
