@@ -1,9 +1,21 @@
+import { build } from 'tsdown'
 import { dts } from '../src'
 
-Bun.build({
-	entrypoints: ['project/index.ts'],
+console.time('build')
+await Bun.build({
+	entrypoints: ['funcs/index.ts'],
 	format: 'esm',
 	outdir: 'test/dist',
 	packages: 'external',
 	plugins: [dts()],
 })
+console.timeEnd('build')
+
+console.time('tsdown')
+await build({
+	entry: 'funcs/index.ts',
+	format: 'esm',
+	outDir: 'test/dist',
+	dts: true,
+})
+console.timeEnd('tsdown')

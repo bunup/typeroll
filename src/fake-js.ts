@@ -1,12 +1,13 @@
+import { parse } from '@babel/parser'
+import type {
+	Directive,
+	ExpressionStatement,
+	Node,
+	Statement,
+} from '@babel/types'
 import {
-	type Directive,
-	type ExpressionStatement,
-	type Node,
-	type Statement,
-	parseAsync,
-} from 'oxc-parser'
-import {
-	getAssociatedComment,
+	getAllImportNames,
+	getCommentText,
 	getName,
 	hasDefaultExportModifier,
 	hasExportModifier,
@@ -26,32 +27,33 @@ import {
 	TOKENIZE_RE,
 	TYPE_WORD_RE,
 } from './re'
-import { generateRandomString } from './utils'
+import { generateRandomString, isNullOrUndefined } from './utils'
 
 async function dtsToFakeJs(dtsContent: string): Promise<string> {
-	const parsed = await parseAsync('temp.d.ts', dtsContent, {
+	const parsed = parse(dtsContent, {
 		sourceType: 'module',
-		lang: 'ts',
+		plugins: ['typescript'],
 	})
 
 	const referencedNames = new Set<string>()
 	const exportedNames = new Set<string>()
 	const result = []
 
-	const importNames = parsed.module.staticImports.flatMap((i) =>
-		i.entries.map((e) => e.localName.value ?? e.importName.name),
-	)
-
-	for (const name of importNames) {
+	for (const name of getAllImportNames(parsed.program.body)) {
 		referencedNames.add(name)
 	}
 
 	for (const statement of parsed.program.body) {
-		const commentText = getAssociatedComment(statement, parsed.comments)
+		if (
+			isNullOrUndefined(statement.start) ||
+			isNullOrUndefined(statement.end)
+		) {
+			continue
+		}
 
-		let statementText = commentText
-			? `${commentText}\n${dtsContent.substring(statement.start, statement.end)}`
-			: dtsContent.substring(statement.start, statement.end)
+		const leadingComment = getCommentText(statement.leadingComments)
+
+		let statementText = `${leadingComment ? `${leadingComment}\n` : ''}${dtsContent.substring(statement.start, statement.end)}`
 
 		const name = getName(statement, dtsContent)
 
@@ -100,15 +102,19 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 }
 
 async function fakeJsToDts(fakeJsContent: string): Promise<string> {
-	const parseResult = await parseAsync('temp.js', fakeJsContent, {
+	const parseResult = parse(fakeJsContent, {
 		sourceType: 'module',
-		lang: 'js',
+		plugins: ['typescript'],
 	})
 
 	const program = parseResult.program
 	const resultParts = []
 
 	for (const node of program.body) {
+		if (isNullOrUndefined(node.start) || isNullOrUndefined(node.end)) {
+			continue
+		}
+
 		if (
 			isImportDeclaration(node) ||
 			isExportAllDeclaration(node) ||
@@ -145,6 +151,10 @@ function jsifyImportExport(
 	node: Directive | Statement,
 	source: string,
 ): string {
+	if (isNullOrUndefined(node.start) || isNullOrUndefined(node.end)) {
+		return ''
+	}
+
 	const text = source.substring(node.start, node.end)
 
 	let result = text
@@ -195,7 +205,10 @@ function processTokenArray(arrayLiteral: Node): string | null {
 	const tokens = []
 
 	for (const element of arrayLiteral.elements) {
-		if (element?.type === 'Literal' && typeof element.value === 'string') {
+		if (
+			element?.type === 'StringLiteral' &&
+			typeof element.value === 'string'
+		) {
 			const processedValue = element.value
 				.replace(/\\n/g, '\n')
 				.replace(/\\t/g, '\t')
@@ -209,7 +222,7 @@ function processTokenArray(arrayLiteral: Node): string | null {
 	return tokens.join('')
 }
 
-function handleNamespace(stmt: Directive | ExpressionStatement): string | null {
+function handleNamespace(stmt: ExpressionStatement): string | null {
 	const expr = stmt.expression
 
 	if (
@@ -226,7 +239,7 @@ function handleNamespace(stmt: Directive | ExpressionStatement): string | null {
 
 	const namespaceName = expr.arguments[0].name
 	const properties = expr.arguments[1].properties
-		.filter((prop) => prop.type === 'Property')
+		.filter((prop) => prop.type === 'ObjectProperty')
 		.map((prop) => (prop.key?.type === 'Identifier' ? prop.key.name : null))
 		.filter(Boolean)
 

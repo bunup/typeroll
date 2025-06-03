@@ -1,12 +1,14 @@
 import type {
-	Comment,
+	CommentBlock,
+	CommentLine,
 	Declaration,
 	Directive,
 	ExportDefaultDeclaration,
 	ExportNamedDeclaration,
+	ImportDeclaration,
 	Node,
 	Statement,
-} from 'oxc-parser'
+} from '@babel/types'
 
 export function isImportDeclaration(node: Node): boolean {
 	return node.type === 'ImportDeclaration'
@@ -77,7 +79,10 @@ export function getName(
 				if (node.id.type === 'Identifier') {
 					return node.id.name
 				}
-				if (node.id.type === 'Literal' && typeof node.id.value === 'string') {
+				if (
+					node.id.type === 'StringLiteral' &&
+					typeof node.id.value === 'string'
+				) {
 					return node.id.value
 				}
 			}
@@ -97,21 +102,41 @@ export function getName(
 	return null
 }
 
-export function getAssociatedComment(
-	statement: Statement,
-	comments: Comment[],
+export function getCommentText(
+	comments: (CommentBlock | CommentLine)[] | undefined | null,
 ): string | null {
-	const comment = comments.find(
-		(comment) => comment.end + 1 === statement.start,
-	)
+	if (!comments) return null
+	return comments
+		.map((comment) => {
+			return comment.type === 'CommentBlock'
+				? `/*${comment.value}*/`
+				: comment.type === 'CommentLine'
+					? `//${comment.value}`
+					: null
+		})
+		.join('\n')
+}
 
-	if (!comment) {
-		return null
+export function getAllImportNames(body: Statement[]): string[] {
+	const importNames: string[] = []
+
+	for (const statement of body) {
+		if (isImportDeclaration(statement)) {
+			const importDecl = statement as ImportDeclaration
+
+			if (importDecl.specifiers) {
+				for (const specifier of importDecl.specifiers) {
+					if (specifier.type === 'ImportDefaultSpecifier') {
+						importNames.push(specifier.local.name)
+					} else if (specifier.type === 'ImportSpecifier') {
+						importNames.push(specifier.local.name)
+					} else if (specifier.type === 'ImportNamespaceSpecifier') {
+						importNames.push(specifier.local.name)
+					}
+				}
+			}
+		}
 	}
 
-	return comment.type === 'Block'
-		? `/*${comment.value}*/`
-		: comment.type === 'Line'
-			? `//${comment.value}`
-			: null
+	return importNames
 }
