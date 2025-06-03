@@ -102,6 +102,10 @@ export async function generateDts(
 		plugins: [fakeJsPlugin],
 		throw: false,
 		packages: 'external',
+		minify: {
+			whitespace: true,
+			syntax: true,
+		},
 	})
 
 	handleBunBuildLogs(result.logs, entry)

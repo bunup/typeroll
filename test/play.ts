@@ -2,14 +2,10 @@ import { dts } from '../src'
 
 console.time('build')
 await Bun.build({
-	entrypoints: ['project/index.ts'],
+	entrypoints: ['funcs/index.ts'],
 	format: 'esm',
 	outdir: 'test/dist',
 	packages: 'external',
-	plugins: [
-		dts({
-			resolve: true,
-		}),
-	],
+	plugins: [dts()],
 })
 console.timeEnd('build')
