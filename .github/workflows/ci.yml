@@ -29,6 +29,9 @@ jobs:
                   - name: Install dependencies
                     run: bun install
 
+                  - name: Run play
+                    run: bun run play
+
                   - name: Run validation
                     run: bun run tsc && bun run lint && bun run format
 
