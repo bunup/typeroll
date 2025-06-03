@@ -48,7 +48,7 @@ export function logIsolatedDeclarationErrors(
 		}
 
 		console.log(
-			`${pc.cyan('Learn more:')} ${pc.underline(
+			`${pc.cyan('Why?')} ${pc.underline(
 				UNDERSTANDING_ISOLATED_DECLARATIONS_URL,
 			)}\n`,
 		)

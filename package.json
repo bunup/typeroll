@@ -36,6 +36,7 @@
 		"oxc-resolver": "^8.0.0",
 		"oxc-transform": "^0.67.0",
 		"picocolors": "^1.1.1",
+		"std-env": "^3.9.0",
 		"ts-import-resolver": "^0.1.22"
 	},
 	"devDependencies": {

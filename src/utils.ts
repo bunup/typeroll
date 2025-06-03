@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { type LoadConfigResult, loadConfig } from 'coffi'
+import { isCI, isDevelopment } from 'std-env'
 
 export const JS_REGEX: RegExp = /\.[cm]?jsx?$/
 export const TS_REGEX: RegExp = /\.[cm]?tsx?$|\.d\.[cm]?ts$/
@@ -41,10 +42,7 @@ export function generateRandomString(length = 10): string {
 }
 
 export function isDev(): boolean {
-	const ciEnv = process.env.CI || ''
-	const isCI = /^true$/i.test(ciEnv)
-
-	return !isCI
+	return isDevelopment || !isCI
 }
 
 export function isNullOrUndefined(value: unknown): value is undefined | null {
