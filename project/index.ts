@@ -23,6 +23,6 @@ type SumOptions = {
  * @param b - The second number
  * @returns The sum of the two numbers
  */
-export function sum({ a, b }: SumOptions): number {
+export function sum({ a, b }: SumOptions) {
 	return a + b
 }
