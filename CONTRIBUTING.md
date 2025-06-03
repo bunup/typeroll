@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to our project! This guide will help you get started with the development process.
 
-📖 **[Learn how bun-dts works under the hood](./HOW_IT_WORKS.md)**
+📖 **[Learn how bun-dts works under the hood](./guides/how-it-works.md)**
 
 ## Development Setup
 
@@ -17,8 +17,6 @@ Thank you for your interest in contributing to our project! This guide will help
 3. Navigate to the project directory: `cd bun-dts`
 4. Install dependencies: `bun install`
 5. Start development: `bun run dev`
-
-
 
 ## Development Workflow
 
