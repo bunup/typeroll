@@ -112,7 +112,7 @@ export async function generateDts(
 	const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
 
 	try {
-		// await fs.rm(tempOutDir, { recursive: true, force: true })
+		await fs.rm(tempOutDir, { recursive: true, force: true })
 	} catch {}
 
 	const dtsContent = isolatedDeclaration(
