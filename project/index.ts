@@ -1,3 +1,6 @@
+export * from 'oxc-resolver'
+export * from 'oxc-transform'
+
 export * as utils from './utils'
 
 /**
