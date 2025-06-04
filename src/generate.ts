@@ -140,9 +140,11 @@ export async function generateDts(
 				output.kind === 'chunk'
 					? path.basename(output.path).replace('.js', '.d.ts')
 					: undefined,
-			outputPath: replaceExtension(
-				cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
-				getDeclarationExtension(getExtension(output.path)),
+			outputPath: cleanPath(
+				replaceExtension(
+					cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
+					getDeclarationExtension(getExtension(output.path)),
+				),
 			),
 			dts: dtsContent.code,
 			errors: collectedErrors,
