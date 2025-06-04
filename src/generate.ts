@@ -59,7 +59,7 @@ export async function generateDts(
 					const resolved = resolveTsImportPath({
 						importer: args.importer,
 						path: args.path,
-						cwd: args.resolveDir,
+						cwd,
 						tsconfig: tsconfig.config,
 					})
 
@@ -107,7 +107,7 @@ export async function generateDts(
 
 	const result = await Bun.build({
 		entrypoints: resolvedEntrypoints.map((entry) =>
-			path.isAbsolute(entry) ? entry : path.join(cwd, entry),
+			path.isAbsolute(entry) ? entry : path.resolve(path.join(cwd, entry)),
 		),
 		outdir: tempOutDir,
 		format: 'esm',
