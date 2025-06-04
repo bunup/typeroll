@@ -1,3 +1,4 @@
+import type { BuildConfig } from 'bun'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
 
 export type Resolve = boolean | (string | RegExp)[]
@@ -117,6 +118,20 @@ export type GenerateDtsResult = {
 }
 
 /**
+ * Result object passed to the onDeclarationsGenerated callback
+ */
+export type OnDeclarationsGeneratedResult = {
+	/**
+	 * The Bun build configuration at the time of generation
+	 */
+	buildConfig: BuildConfig
+	/**
+	 * The generated declaration files with their relevant information
+	 */
+	results: GenerateDtsResult[]
+}
+
+/**
  * Options for the dts plugin
  */
 export type DtsPluginOptions = {
@@ -131,5 +146,5 @@ export type DtsPluginOptions = {
 	 *
 	 * @param results The array of generated declaration results
 	 */
-	onDeclarationsGenerated?: (results: GenerateDtsResult[]) => void
+	onDeclarationsGenerated?: (result: OnDeclarationsGeneratedResult) => void
 } & GenerateDtsOptions

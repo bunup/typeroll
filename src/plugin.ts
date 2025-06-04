@@ -26,7 +26,10 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					},
 				)
 
-				options.onDeclarationsGenerated?.(results)
+				options.onDeclarationsGenerated?.({
+					buildConfig: build.config,
+					results,
+				})
 
 				for (const result of results) {
 					if (result.errors.length > 0) {
