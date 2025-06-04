@@ -1,14 +1,16 @@
 import { existsSync } from 'node:fs'
+import { basename, dirname, extname, join } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
 import { isCI, isDevelopment } from 'std-env'
+import { TS_RE } from './re'
 
-export const JS_REGEX: RegExp = /\.[cm]?jsx?$/
-export const TS_REGEX: RegExp = /\.[cm]?tsx?$|\.d\.[cm]?ts$/
-export const NODE_MODULES_REGEX: RegExp = /node_modules/
+export function ensureArray<T>(value: T | T[]): T[] {
+	return Array.isArray(value) ? value : [value]
+}
 
 export function isTypeScriptFile(path: string | null): boolean {
 	if (!path) return false
-	return TS_REGEX.test(path)
+	return TS_RE.test(path)
 }
 
 export function returnPathIfExists(path: string): string | null {
@@ -47,4 +49,34 @@ export function isDev(): boolean {
 
 export function isNullOrUndefined(value: unknown): value is undefined | null {
 	return value === undefined || value === null
+}
+
+export function replaceExtension(path: string, extension: string): string {
+	if (!path) return path
+
+	const normalizedExtension = extension.startsWith('.')
+		? extension
+		: `.${extension}`
+
+	if (!path.includes('.')) {
+		return `${path}${normalizedExtension}`
+	}
+
+	const dir = dirname(path)
+	const fileNameWithoutExt = basename(path, extname(path))
+
+	return join(dir, `${fileNameWithoutExt}${normalizedExtension}`)
+}
+
+export function getDeclarationExtension(ext: string): string {
+	if (ext === '.mjs') return '.d.mts'
+	if (ext === '.cjs') return '.d.cts'
+	return '.d.ts'
+}
+
+export function getExtension(filePath: string): string {
+	if (!filePath) return ''
+
+	const ext = extname(filePath)
+	return ext
 }

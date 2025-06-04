@@ -9,3 +9,6 @@ export const EXPORT_RE: RegExp = /\bexport\s+/g
 export const TOKENIZE_RE: RegExp =
 	/(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g
 export const CAPITAL_LETTER_RE: RegExp = /^[A-Z]/
+export const JS_RE: RegExp = /\.[cm]?jsx?$/
+export const TS_RE: RegExp = /\.[cm]?tsx?$|\.d\.[cm]?ts$/
+export const NODE_MODULES_RE: RegExp = /node_modules/

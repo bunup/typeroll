@@ -34,12 +34,11 @@ export const logger: Logger = Logger.getInstance()
 
 export function handleBunBuildLogs(
 	logs: Array<BuildMessage | ResolveMessage>,
-	entry: string,
 ): void {
 	for (const log of logs) {
 		if (log.level === 'error') {
 			logger.error(`${log.message} in ${log.position?.file}`)
-			throw new Error(`Failed to generate declaration file for ${entry}`)
+			throw new Error('Failed to generate declaration file')
 		}
 
 		if (log.level === 'warning') {

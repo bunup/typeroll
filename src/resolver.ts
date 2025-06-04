@@ -1,8 +1,9 @@
 import { dirname } from 'node:path'
 import process from 'node:process'
 import { ResolverFactory } from 'oxc-resolver'
+import { JS_RE } from './re'
 import type { Resolve } from './types'
-import { JS_REGEX, isTypeScriptFile, returnPathIfExists } from './utils'
+import { isTypeScriptFile, returnPathIfExists } from './utils'
 
 export interface Options {
 	cwd: string
@@ -68,11 +69,11 @@ export function createResolver({
 		const resolved = resolution.path
 
 		// if the resolved path is a js file, check for corresponding d.ts files
-		if (JS_REGEX.test(resolved)) {
+		if (JS_RE.test(resolved)) {
 			const dts =
-				returnPathIfExists(resolved.replace(JS_REGEX, '.d.ts')) ||
-				returnPathIfExists(resolved.replace(JS_REGEX, '.d.mts')) ||
-				returnPathIfExists(resolved.replace(JS_REGEX, '.d.cts'))
+				returnPathIfExists(resolved.replace(JS_RE, '.d.ts')) ||
+				returnPathIfExists(resolved.replace(JS_RE, '.d.mts')) ||
+				returnPathIfExists(resolved.replace(JS_RE, '.d.cts'))
 
 			const result = isTypeScriptFile(dts) ? dts : null
 			resolutionCache.set(cacheKey, result)

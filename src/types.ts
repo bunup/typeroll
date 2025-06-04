@@ -1,8 +1,13 @@
 import type { IsolatedDeclarationError } from './isolated-decl-error'
 
-type Arrayable<T> = T | T[]
-
 export type Resolve = boolean | (string | RegExp)[]
+
+export type Naming =
+	| string
+	| {
+			entry: string
+			chunk: string
+	  }
 
 /**
  * Options for generating declaration file
@@ -25,12 +30,78 @@ export type GenerateDtsOptions = {
 	 * By default, the current working directory will be used
 	 */
 	cwd?: string
+	/**
+	 * Customizes the generated file names
+	 * Defaults to './[dir]/[name].[ext]'
+	 *
+	 * Supports the following tokens:
+	 * - [name] - The name of the entrypoint file, without the extension
+	 * - [ext] - The extension of the generated bundle
+	 * - [hash] - A hash of the bundle contents
+	 *
+	 * Can be a string template or an object with separate templates for entry points and chunks
+	 *
+	 * @example
+	 * naming: "[dir]/[name]-[hash].[ext]"
+	 *
+	 * @example
+	 * naming: {
+	 *   entry: "[dir]/[name].[ext]",
+	 *   chunk: "[name]-[hash].[ext]",
+	 * }
+	 */
+	naming?: Naming
+	/**
+	 * Whether to split declaration files when multiple entrypoints import the same files,
+	 * modules, or share types. When enabled, shared types will be extracted to separate
+	 * .d.ts files, and other declaration files will import these shared files.
+	 *
+	 * This helps reduce bundle size by preventing duplication of type definitions
+	 * across multiple entrypoints.
+	 *
+	 * This option is enabled by default if splitting is enabled in the Bun build config.
+	 */
+	splitting?: boolean
 }
 
 /**
  * Result of the generateDts function
  */
 export type GenerateDtsResult = {
+	/**
+	 * The kind of declaration file.
+	 * - 'entry-point': The declaration file for an entry point
+	 * - 'chunk': A declaration file created when code splitting is enabled
+	 */
+	kind: 'entry-point' | 'chunk'
+	/**
+	 * The entry point that was used to generate the declaration file.
+	 *
+	 * This will only be available if the kind is 'entry-point' and not for chunk declaration files.
+	 */
+	entry: string | undefined
+	/**
+	 * If the kind is 'chunk', this is the name of the chunk file.
+	 */
+	chunkFileName: string | undefined
+
+	/**
+	 * The output path of the declaration file relative to the output directory.
+	 * This is the directory where you want to save the declaration file.
+	 * When saving the declaration file, you should use this path to save it
+	 * in the output directory you decide.
+	 *
+	 * This is particularly useful when splitting is enabled, as some declaration
+	 * files import chunk files. Saving to this path ensures the import paths
+	 * are correct.
+	 *
+	 * This is the recommended approach when saving declaration files to the
+	 * output directory.
+	 *
+	 * @example
+	 * await Bun.write(`dist/${result.outputPath}`, result.dts)
+	 */
+	outputPath: string
 	/**
 	 * The generated declaration file
 	 */
@@ -41,30 +112,13 @@ export type GenerateDtsResult = {
 	errors: IsolatedDeclarationError[]
 }
 
-export type Entry = Arrayable<string> | Record<string, string>
-
 /**
  * Options for the dts plugin
  */
 export type DtsPluginOptions = {
 	/**
-	 * Custom entry points to use instead of the ones from the build config
-	 * Can be a string, array of strings, or an object mapping output names to input paths
-	 *
-	 * @example
-	 * // Single entry point
-	 * entry: "src/index.ts"
-	 *
-	 * @example
-	 * // Multiple entry points
-	 * entry: ["src/index.ts", "src/other.ts"]
-	 *
-	 * @example
-	 * // Named entry points (custom output paths)
-	 * entry: {
-	 *   "api": "src/api/v1/index.ts",   // Outputs to dist/api.d.ts
-	 *   "nested/types": "src/types.ts"  // Outputs to dist/nested/types.d.ts
-	 * }
+	 * The entry points to generate declaration files for
+	 * Can be a string, array of strings
 	 */
-	entry?: Entry
+	entry?: string | string[]
 } & GenerateDtsOptions

@@ -119,7 +119,15 @@ async function fakeJsToDts(fakeJsContent: string): Promise<string> {
 			isExportAllDeclaration(node) ||
 			isReExportStatement(node)
 		) {
-			resultParts.push(fakeJsContent.substring(node.start, node.end).trim())
+			resultParts.push(
+				// This is important when `splitting` is enabled, as
+				// the import paths would be referencing chunk files with .js extensions
+				// that need to be removed for proper type declarations
+				fakeJsContent
+					.substring(node.start, node.end)
+					.trim()
+					.replace('.js', ''),
+			)
 			continue
 		}
 

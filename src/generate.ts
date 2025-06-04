@@ -1,33 +1,37 @@
 import fs from 'node:fs/promises'
+import { basename, join } from 'node:path'
 import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
 import { handleBunBuildLogs } from './logger'
+import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
 import type { GenerateDtsOptions, GenerateDtsResult } from './types'
 import {
-	NODE_MODULES_REGEX,
 	generateRandomString,
+	getDeclarationExtension,
+	getExtension,
 	isTypeScriptFile,
 	loadTsConfig,
+	replaceExtension,
 } from './utils'
 
 /**
  * Generate a declaration file for a given entry point
- * @param entry - The entry point to generate a declaration file for
+ * @param entrypoints - The entry points to generate a declaration file for
  * @param options - The options for generating the declaration file
  * @returns The generated declaration file and any errors that occurred
  */
 export async function generateDts(
-	entry: string,
+	entrypoints: string[],
 	options: GenerateDtsOptions = {},
-): Promise<GenerateDtsResult> {
+): Promise<GenerateDtsResult[]> {
 	const { preferredTsConfigPath, resolve } = options
 	const cwd = options.cwd ?? process.cwd()
 
-	const tempOutDir = `${cwd}/.bun-dts-${generateRandomString()}`
+	const tempOutDir = join(cwd, `.bun-dts-${generateRandomString()}`)
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
@@ -43,7 +47,7 @@ export async function generateDts(
 		name: 'fake-js',
 		setup(build) {
 			build.onResolve({ filter: /.*/ }, (args) => {
-				if (!NODE_MODULES_REGEX.test(args.importer)) {
+				if (!NODE_MODULES_RE.test(args.importer)) {
 					const resolved = resolveTsImportPath({
 						importer: args.importer,
 						path: args.path,
@@ -94,12 +98,14 @@ export async function generateDts(
 	}
 
 	const result = await Bun.build({
-		entrypoints: [`${cwd}/${entry}`],
+		entrypoints,
+		root: options.cwd,
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
-		splitting: false,
+		splitting: options.splitting,
 		plugins: [fakeJsPlugin],
+		naming: options.naming,
 		throw: false,
 		packages: 'external',
 		minify: {
@@ -108,21 +114,42 @@ export async function generateDts(
 		},
 	})
 
-	handleBunBuildLogs(result.logs, entry)
+	handleBunBuildLogs(result.logs)
 
-	const output = result.outputs[0]
+	const outputs = result.outputs.filter(
+		(output) => output.kind === 'chunk' || output.kind === 'entry-point',
+	)
+	const results: GenerateDtsResult[] = []
 
-	const bundledFakeJsPath = output.path
-	const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
+	for (const output of outputs) {
+		const bundledFakeJsPath = output.path
+		const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
+
+		const dtsContent = isolatedDeclaration(
+			'treeshake.d.ts',
+			await fakeJsToDts(bundledFakeJsContent),
+		)
+
+		results.push({
+			kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
+			entry:
+				output.kind === 'entry-point' ? entrypoints[results.length] : undefined,
+			chunkFileName:
+				output.kind === 'chunk'
+					? basename(output.path).replace('.js', '.d.ts')
+					: undefined,
+			outputPath: replaceExtension(
+				output.path.replace(`${tempOutDir}/`, ''),
+				getDeclarationExtension(getExtension(output.path)),
+			),
+			dts: dtsContent.code,
+			errors: collectedErrors,
+		})
+	}
 
 	try {
 		await fs.rm(tempOutDir, { recursive: true, force: true })
 	} catch {}
 
-	const dtsContent = isolatedDeclaration(
-		'treeshake.d.ts',
-		await fakeJsToDts(bundledFakeJsContent),
-	)
-
-	return { dts: dtsContent.code, errors: collectedErrors }
+	return results
 }

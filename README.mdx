@@ -12,6 +12,7 @@ An extremely fast Bun plugin for generating and bundling TypeScript declaration 
 - 🔍 Selective external module resolution
 - ⚡ Blazing fast performance (up to **100x faster** than alternatives)
 - 🚀 Seamless integration with Bun's build system
+- 🎯 Support for code splitting with shared type extraction
 
 ## Installation
 
@@ -48,8 +49,11 @@ Use the `generateDts` function directly for more control:
 ```ts
 import { generateDts } from 'bun-dts';
 
-const { dts } = await generateDts('src/index.ts');
-await Bun.write('dist/index.d.ts', dts);
+const results = await generateDts(['src/index.ts']);
+
+for (const result of results) {
+	await Bun.write(`dist/${result.outputPath}`, result.dts);
+}
 ```
 
 ### Error Handling
@@ -57,49 +61,82 @@ await Bun.write('dist/index.d.ts', dts);
 ```ts
 import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
 
-const { dts, errors } = await generateDts('src/index.ts');
+const results = await generateDts(['src/index.ts']);
 
-if (errors.length > 0) {
-	logIsolatedDeclarationErrors(errors);
-	process.exit(1);
-} else {
-	await Bun.write('dist/index.d.ts', dts);
+for (const result of results) {
+	if (result.errors.length > 0) {
+		logIsolatedDeclarationErrors(result.errors);
+		process.exit(1);
+	} else {
+		await Bun.write(`dist/${result.outputPath}`, result.dts);
+	}
 }
 ```
 
 ## Options
 
+### Plugin Options
+
 | Option                  | Type                              | Description                                                                                                                                                                                     |
 | ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`                 | `string \| string[]`              | Custom entry points to use instead of the ones from the build config. Can be a string, array of strings, or glob patterns that resolve to files.                                               |
 | `preferredTsConfigPath` | `string`                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
 | `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
 | `cwd`                   | `string`                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
+| `splitting`             | `boolean`                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
 
-### Custom Entry Points
+### Entry Points
 
-By default, the plugin uses your build configuration's `entrypoints`. You can override this with the `entry` option:
+The plugin supports flexible entry point configuration:
 
 ```ts
+// Use build config's entrypoints (default)
+dts()
+
 // Single entry
-dts({ entry: 'src/api.ts' });
+dts({ entry: 'src/api.ts' })
 
 // Multiple entries
-dts({ entry: ['src/index.ts', 'src/utils.ts'] });
+dts({ entry: ['src/index.ts', 'src/utils.ts'] })
 
-// Named entries with custom output paths
-dts({
-	entry: {
-		api: 'src/api/index.ts', // → dist/api.d.ts
-		'types/core': 'src/core.ts', // → dist/types/core.d.ts
-	},
-});
+// Glob patterns
+dts({ entry: ['src/**/*.ts', '!src/**/*.test.ts'] })
 ```
 
-### Plugin-Only Options
+### Code Splitting
 
-| Option               | Type                                           | Description                                                                                                                                                |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entry`              | `string \| string[] \| Record<string, string>` | Custom entry points to use instead of the ones from the build config. Can be a single file, array of files, or object mapping output names to input paths. |
+When `splitting` is enabled, shared types across entrypoints are extracted to separate `.d.ts` files to reduce duplication:
+
+```ts
+dts({ splitting: true })
+```
+
+This creates chunk files for shared types, and entry point files import from these chunks as needed. This is enabled by default if `splitting` is enabled in the Bun build config.
+
+## API Reference
+
+### `generateDts(entrypoints, options?)`
+
+**Parameters:**
+- `entrypoints` (`string[]`) - Array of entry point file paths or glob patterns
+- `options` (`GenerateDtsOptions`) - Configuration options
+
+**Returns:** `Promise<GenerateDtsResult[]>`
+
+### `GenerateDtsResult`
+
+Each result object contains:
+
+```ts
+type GenerateDtsResult = {
+	kind: 'entry-point' | 'chunk'
+	entry: string | undefined        // Only for entry-point kind
+	chunkFileName: string | undefined // Only for chunk kind
+	outputPath: string              // Relative path for saving
+	dts: string                     // Generated declaration content
+	errors: IsolatedDeclarationError[]
+}
+```
 
 ## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
 
