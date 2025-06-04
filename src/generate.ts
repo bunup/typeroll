@@ -141,7 +141,7 @@ export async function generateDts(
 					? path.basename(output.path).replace('.js', '.d.ts')
 					: undefined,
 			outputPath: replaceExtension(
-				cleanPath(output.path).replace(`${tempOutDir}/`, ''),
+				cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
 				getDeclarationExtension(getExtension(output.path)),
 			),
 			dts: dtsContent.code,
