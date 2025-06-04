@@ -30,10 +30,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User {
 			  	id: number;
 			  	name: string;
@@ -71,10 +71,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User2 {
 			  	id: number;
 			  	name: string;
@@ -103,10 +103,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function test(): string;
 			  declare const test2 = "test2";
 			  export { test2, test };
@@ -138,10 +138,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User2 {
 			  	id: number;
 			  	name: string;
@@ -172,10 +172,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace exports_utils {
 			  	export { test2, test };
 			  }
@@ -214,10 +214,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function fetchUser(): {
 			  	id: number
 			  	name: string
@@ -254,10 +254,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace exports_utils {
 			  	export { test2, test };
 			  }
@@ -291,10 +291,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace exports_string {
 			  	export { calculate, EMPTY };
 			  }
@@ -332,10 +332,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function process(data: string): string;
 			  declare function validate(input: string): boolean;
 			  declare const CONFIG: {
@@ -383,10 +383,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare class Logger {
 			  	log(message: string): void;
 			  	error(message: string): void;
@@ -437,10 +437,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User {
 			  	id: number;
 			  	name: string;
@@ -488,10 +488,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User {
 			  	id: number;
 			  	name: string;
@@ -544,10 +544,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface Config {
 			  	apiUrl: string;
 			  	timeout: number;
@@ -593,10 +593,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface UserModel {
 			  	id: number;
 			  	username: string;
@@ -643,10 +643,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface CoreConfig2 {
 			  	debug: boolean;
 			  	version: string;
@@ -689,10 +689,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface Component {
 			  	render(): void;
 			  	name: string;
@@ -744,10 +744,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace exports_types {
 			  	export { User, Post, Permission };
 			  }
@@ -783,10 +783,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface BaseEntity {
 			  	id: string;
 			  	createdAt: Date;
@@ -833,10 +833,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare class Framework {
 			  	name: string;
 			  }
@@ -889,10 +889,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface Model {
 			  	id: string;
 			  }
@@ -931,10 +931,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function useLegacy(): string;
 			  declare const constant: number;
 			  export { useLegacy, constant };
@@ -984,10 +984,10 @@ describe('Bundle functionality', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "/**
 			  * Process a string value
 			  * @param value - The string to process

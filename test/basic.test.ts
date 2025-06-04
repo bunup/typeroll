@@ -16,10 +16,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function hello(name: string): string;
 			  export { hello };
 			  "
@@ -43,10 +43,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare class Calculator {
 			  	add(a: number, b: number): number;
 			  	private value;
@@ -69,10 +69,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User {
 			  	id: number;
 			  	name: string;
@@ -97,10 +97,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "type Status = "pending" | "completed" | "failed";
 			  type UserWithStatus = User & {
 			  	status: Status
@@ -132,10 +132,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare enum Color {
 			  	Red = "red",
 			  	Green = "green",
@@ -161,10 +161,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare const API_URL: string;
 			  declare let counter: number;
 			  declare var isEnabled: boolean;
@@ -184,10 +184,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function greet(name: string): string;
 			  export { greet as default };
 			  "
@@ -210,10 +210,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare class Database {
 			  	private connection;
 			  	connect(): void;
@@ -237,10 +237,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface Config {
 			  	apiUrl: string;
 			  	timeout: number;
@@ -281,10 +281,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface User {
 			  	id: number;
 			  	name: string;
@@ -319,10 +319,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function identity<T>(value: T): T;
 			  declare function map<
 			  	T,
@@ -359,10 +359,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare class Container<T> {
 			  	private value;
 			  	constructor(value: T);
@@ -398,10 +398,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "interface Repository<T extends {
 			  	id: string
 			  }> {
@@ -447,10 +447,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace Utils {
 			  	function isString(value: any): value is string;
 			  	function isNumber(value: any): value is number;
@@ -495,10 +495,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "/**
 			  * Calculates the sum of two numbers
 			  * @param a - First number
@@ -535,10 +535,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors.length).toBeGreaterThan(0)
-			expect(result.errors[0].error.message).toContain('return type')
+			expect(result[0].errors.length).toBeGreaterThan(0)
+			expect(result[0].errors[0].error.message).toContain('return type')
 		})
 
 		test('should handle invalid TypeScript syntax gracefully', async () => {
@@ -549,9 +549,9 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors.length).toBeGreaterThan(0)
+			expect(result[0].errors.length).toBeGreaterThan(0)
 		})
 	})
 
@@ -576,10 +576,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "type Optional<T> = T | undefined;
 			  type NonNullable<T> = T extends null | undefined ? never : T;
 			  interface User {
@@ -617,10 +617,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function fetchData(url: string): Promise<string>;
 			  declare function generateNumbers(count: number): AsyncGenerator<number, void, unknown>;
 			  declare function createPromise<T>(value: T): Promise<T>;
@@ -684,10 +684,10 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts')
+			const result = await runGenerateDts(['src/index.ts'])
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare abstract class Animal {
 			  	abstract makeSound(): string;
 			  	getName(): string;
@@ -733,12 +733,12 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('nested/src/index.ts', {
+			const result = await runGenerateDts(['nested/src/index.ts'], {
 				cwd: 'project',
 			})
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function test(): string;
 			  export { test };
 			  "
@@ -761,12 +761,12 @@ describe('generateDts', () => {
 				`,
 			})
 
-			const result = await runGenerateDts('src/index.ts', {
+			const result = await runGenerateDts(['src/index.ts'], {
 				preferredTsConfigPath: 'project/tsconfig.custom.json',
 			})
 
-			expect(result.errors).toHaveLength(0)
-			expect(result.dts).toMatchInlineSnapshot(`
+			expect(result[0].errors).toHaveLength(0)
+			expect(result[0].dts).toMatchInlineSnapshot(`
 			  "declare function test(): string;
 			  export { test };
 			  "

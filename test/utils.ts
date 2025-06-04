@@ -28,7 +28,7 @@ export function createProject(tree: ProjectTree): void {
 }
 
 export function runGenerateDts(
-	entry: string,
+	entry: string[],
 	options: GenerateDtsOptions = {},
 ) {
 	return generateDts(entry, {
