@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { basename, join } from 'node:path'
+import path from 'node:path'
 import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
@@ -31,7 +31,9 @@ export async function generateDts(
 	const { preferredTsConfigPath, resolve } = options
 	const cwd = options.cwd ?? process.cwd()
 
-	const tempOutDir = join(cwd, `.bun-dts-${generateRandomString()}`)
+	const tempOutDir = path.resolve(
+		path.join(cwd, `.bun-dts-${generateRandomString()}`),
+	)
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
@@ -98,8 +100,7 @@ export async function generateDts(
 	}
 
 	const result = await Bun.build({
-		entrypoints: entrypoints.map((entry) => join(cwd, entry)),
-		root: options.cwd,
+		entrypoints: entrypoints.map((entry) => path.join(cwd, entry)),
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
@@ -136,7 +137,7 @@ export async function generateDts(
 				output.kind === 'entry-point' ? entrypoints[results.length] : undefined,
 			chunkFileName:
 				output.kind === 'chunk'
-					? basename(output.path).replace('.js', '.d.ts')
+					? path.basename(output.path).replace('.js', '.d.ts')
 					: undefined,
 			outputPath: replaceExtension(
 				output.path.replace(`${tempOutDir}/`, ''),
