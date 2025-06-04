@@ -100,7 +100,7 @@ dts({ entry: 'src/api.ts' })
 dts({ entry: ['src/index.ts', 'src/utils.ts'] })
 
 // Glob patterns
-dts({ entry: ['src/**/*.ts', '!src/**/*.test.ts'] })
+dts({ allowGlobs: true, entry: ['src/**/*.ts', '!src/**/*.test.ts'] })
 ```
 
 ### Code Splitting

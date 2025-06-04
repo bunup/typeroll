@@ -62,6 +62,10 @@ export type GenerateDtsOptions = {
 	 * This option is enabled by default if splitting is enabled in the Bun build config.
 	 */
 	splitting?: boolean
+	/**
+	 * Whether to allow globs in the entrypoints
+	 */
+	allowGlobs?: boolean
 }
 
 /**

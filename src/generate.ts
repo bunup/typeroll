@@ -37,7 +37,9 @@ export async function generateDts(
 		path.join(cwd, `.bun-dts-${generateRandomString()}`),
 	)
 
-	const resolvedEntrypoints = await getFilesFromGlobs(entrypoints, cwd)
+	const resolvedEntrypoints = options.allowGlobs
+		? await getFilesFromGlobs(entrypoints, cwd)
+		: entrypoints
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
