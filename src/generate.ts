@@ -31,7 +31,7 @@ export async function generateDts(
 	options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult[]> {
 	const { preferredTsConfigPath, resolve } = options
-	const cwd = options.cwd ?? process.cwd()
+	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
 	const tempOutDir = path.resolve(
 		path.join(cwd, `.bun-dts-${generateRandomString()}`),

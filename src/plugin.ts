@@ -13,16 +13,16 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 	return {
 		name: 'dts',
 		setup(build) {
-			const { entry, ...generateDtsOptions } = options
+			const { entry, splitting, ...generateDtsOptions } = options
 
 			build.onStart(async () => {
 				const results = await generateDts(
 					ensureArray(entry ?? build.config.entrypoints),
 					{
 						cwd: build.config.root,
-						splitting: build.config.splitting,
 						naming: build.config.naming as Naming,
 						...generateDtsOptions,
+						splitting: splitting || build.config.splitting,
 					},
 				)
 

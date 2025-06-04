@@ -59,8 +59,6 @@ export type GenerateDtsOptions = {
 	 *
 	 * This helps reduce bundle size by preventing duplication of type definitions
 	 * across multiple entrypoints.
-	 *
-	 * This option is enabled by default if splitting is enabled in the Bun build config.
 	 */
 	splitting?: boolean
 	/**
