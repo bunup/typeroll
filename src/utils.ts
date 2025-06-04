@@ -92,3 +92,33 @@ export function getExtension(filePath: string): string {
 	const ext = extname(filePath)
 	return ext
 }
+
+export async function getFilesFromGlobs(
+	patterns: string[],
+	cwd: string,
+): Promise<string[]> {
+	const includePatterns = patterns.filter((p) => !p.startsWith('!'))
+	const excludePatterns = patterns
+		.filter((p) => p.startsWith('!'))
+		.map((p) => p.slice(1))
+
+	const includedFiles = new Set<string>()
+
+	for (const pattern of includePatterns) {
+		const glob = new Bun.Glob(pattern)
+		for await (const file of glob.scan(cwd)) {
+			includedFiles.add(file)
+		}
+	}
+
+	if (excludePatterns.length > 0) {
+		for (const pattern of excludePatterns) {
+			const glob = new Bun.Glob(pattern)
+			for await (const file of glob.scan(cwd)) {
+				includedFiles.delete(file)
+			}
+		}
+	}
+
+	return Array.from(includedFiles)
+}

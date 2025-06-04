@@ -14,6 +14,7 @@ import {
 	generateRandomString,
 	getDeclarationExtension,
 	getExtension,
+	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
 	replaceExtension,
@@ -35,6 +36,8 @@ export async function generateDts(
 	const tempOutDir = path.resolve(
 		path.join(cwd, `.bun-dts-${generateRandomString()}`),
 	)
+
+	const resolvedEntrypoints = await getFilesFromGlobs(entrypoints, cwd)
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
@@ -101,7 +104,7 @@ export async function generateDts(
 	}
 
 	const result = await Bun.build({
-		entrypoints: entrypoints.map((entry) => path.join(cwd, entry)),
+		entrypoints: resolvedEntrypoints.map((entry) => path.join(cwd, entry)),
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
@@ -138,7 +141,10 @@ export async function generateDts(
 				output.kind === 'entry-point' ? entrypoints[results.length] : undefined,
 			chunkFileName:
 				output.kind === 'chunk'
-					? path.basename(output.path).replace('.js', '.d.ts')
+					? replaceExtension(
+							path.basename(output.path),
+							getDeclarationExtension(getExtension(output.path)),
+						)
 					: undefined,
 			outputPath: cleanPath(
 				replaceExtension(

@@ -9,6 +9,7 @@ await Bun.build({
 	],
 	format: 'esm',
 	outdir: 'test/dist',
+	naming: '[dir]/co/[name].mjs',
 	packages: 'external',
 	splitting: true,
 	plugins: [dts()],
