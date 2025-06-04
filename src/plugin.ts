@@ -25,6 +25,8 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					},
 				)
 
+				options.onDeclarationsGenerated?.(results)
+
 				for (const result of results) {
 					if (result.errors.length > 0) {
 						logIsolatedDeclarationErrors(result.errors, {
