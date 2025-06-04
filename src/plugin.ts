@@ -22,7 +22,7 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 						cwd: build.config.root,
 						naming: build.config.naming as Naming,
 						...generateDtsOptions,
-						splitting: splitting || build.config.splitting,
+						splitting: splitting ?? build.config.splitting,
 					},
 				)
 
