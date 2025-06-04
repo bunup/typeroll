@@ -12,7 +12,7 @@ import { ensureArray } from './utils'
 export function dts(options: DtsPluginOptions = {}): BunPlugin {
 	return {
 		name: 'dts',
-		async setup(build) {
+		setup(build) {
 			const { entry, ...generateDtsOptions } = options
 
 			build.onStart(async () => {
