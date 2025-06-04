@@ -10,6 +10,7 @@ import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
 import type { GenerateDtsOptions, GenerateDtsResult } from './types'
 import {
+	cleanPath,
 	generateRandomString,
 	getDeclarationExtension,
 	getExtension,
@@ -140,7 +141,7 @@ export async function generateDts(
 					? path.basename(output.path).replace('.js', '.d.ts')
 					: undefined,
 			outputPath: replaceExtension(
-				output.path.replace(`${tempOutDir}/`, ''),
+				cleanPath(output.path).replace(`${tempOutDir}/`, ''),
 				getDeclarationExtension(getExtension(output.path)),
 			),
 			dts: dtsContent.code,

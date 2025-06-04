@@ -121,4 +121,11 @@ export type DtsPluginOptions = {
 	 * Can be a string, array of strings
 	 */
 	entry?: string | string[]
+	/**
+	 * Callback function that is invoked when declaration files are generated.
+	 * This function receives the generated declaration results.
+	 *
+	 * @param results The array of generated declaration results
+	 */
+	onDeclarationsGenerated?: (results: GenerateDtsResult[]) => void
 } & GenerateDtsOptions

@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { basename, dirname, extname, join } from 'node:path'
+import { basename, dirname, extname, join, normalize } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
 import { isCI, isDevelopment } from 'std-env'
 import { TS_RE } from './re'
@@ -66,6 +66,18 @@ export function replaceExtension(path: string, extension: string): string {
 	const fileNameWithoutExt = basename(path, extname(path))
 
 	return join(dir, `${fileNameWithoutExt}${normalizedExtension}`)
+}
+
+export function cleanPath(path: string): string {
+	let cleaned = normalize(path).replace(/\\/g, '/')
+
+	cleaned = cleaned.replace(/^[a-zA-Z]:\//, '')
+
+	cleaned = cleaned.replace(/^\/+/, '')
+
+	cleaned = cleaned.replace(/\/+/g, '/')
+
+	return cleaned
 }
 
 export function getDeclarationExtension(ext: string): string {
