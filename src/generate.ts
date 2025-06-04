@@ -106,7 +106,9 @@ export async function generateDts(
 	}
 
 	const result = await Bun.build({
-		entrypoints: resolvedEntrypoints.map((entry) => path.join(cwd, entry)),
+		entrypoints: resolvedEntrypoints.map((entry) =>
+			path.isAbsolute(entry) ? entry : path.join(cwd, entry),
+		),
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
