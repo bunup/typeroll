@@ -59,7 +59,7 @@ export async function generateDts(
 					const resolved = resolveTsImportPath({
 						importer: args.importer,
 						path: args.path,
-						cwd,
+						cwd: args.resolveDir,
 						tsconfig: tsconfig.config,
 					})
 
