@@ -1,6 +1,6 @@
 # bun-dts
 
-An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts) in **under 10 milliseconds**.
+An extremely fast Bun plugin for generating and bundling TypeScript declaration files.
 
 [![npm version](https://img.shields.io/npm/v/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 [![npm downloads](https://img.shields.io/npm/dm/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
@@ -64,20 +64,6 @@ if (result.errors.length > 0) {
 }
 ```
 
-## Options
-
-### Plugin Options
-
-| Option                  | Type                              | Description                                                                                                                                                                                     |
-| ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entry`                 | `string \| string[]`              | Custom entry points to use instead of the ones from the build config. Can be a string, array of strings, or glob patterns that resolve to files.                                               |
-| `preferredTsConfigPath` | `string`                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
-| `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
-| `cwd`                   | `string`                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
-| `splitting`             | `boolean`                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
-| `allowGlobs`            | `boolean`                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                     |
-| `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                     |
-
 ### Entry Points
 
 The plugin supports flexible entry point configuration:
@@ -106,52 +92,17 @@ dts({ splitting: true })
 
 This creates chunk files for shared types, and entry point files import from these chunks as needed. This is enabled by default if `splitting` is enabled in the Bun build config.
 
+## Options
 
-## API Reference
-
-### `generateDts(entrypoints, options?)`
-
-**Parameters:**
-- `entrypoints` (`string[]`) - Array of entry point file paths or glob patterns
-- `options` (`GenerateDtsOptions`) - Configuration options
-
-**Returns:** `Promise<GenerateDtsResult>`
-
-### `GenerateDtsResult`
-
-The result object contains:
-
-```ts
-type GenerateDtsResult = {
-	files: GenerateDtsResultFile[]
-	errors: IsolatedDeclarationError[]
-}
-```
-
-### `GenerateDtsResultFile`
-
-Each file object contains:
-
-```ts
-type GenerateDtsResultFile = {
-	kind: 'entry-point' | 'chunk'
-	entry: string | undefined        // Only for entry-point kind
-	chunkFileName: string | undefined // Only for chunk kind
-	outputPath: string              // Relative path for saving
-	dts: string                     // Generated declaration content
-}
-```
-
-### `OnDeclarationsGeneratedResult`
-
-Result object passed to the onDeclarationsGenerated callback:
-
-```ts
-type OnDeclarationsGeneratedResult = {
-	buildConfig: BuildConfig        // The Bun build configuration at the time of generation
-	result: GenerateDtsResult
-}
-```
+| Option                  | Type                              | Description                                                                                                                                                                                     |
+| ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`                 | `string \| string[]`              | Custom entry points to use instead of the ones from the build config. Can be a string, array of strings, or glob patterns that resolve to files.                                               |
+| `preferredTsConfigPath` | `string`                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
+| `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
+| `cwd`                   | `string`                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
+| `splitting`             | `boolean`                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
+| `allowGlobs`            | `boolean`                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                     |
+| `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                     |
 
 ## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
 
