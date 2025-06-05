@@ -103,7 +103,7 @@ dts({ entry: ['src/index.ts', 'src/utils.ts'] })
 dts({ allowGlobs: true, entry: ['src/**/*.ts', '!src/**/*.test.ts'] })
 ```
 
-### Code Splitting
+### Declaration Splitting
 
 When `splitting` is enabled, shared types across entrypoints are extracted to separate `.d.ts` files to reduce duplication:
 
@@ -112,6 +112,7 @@ dts({ splitting: true })
 ```
 
 This creates chunk files for shared types, and entry point files import from these chunks as needed. This is enabled by default if `splitting` is enabled in the Bun build config.
+
 
 ## API Reference
 
