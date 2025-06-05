@@ -49,10 +49,10 @@ Use the `generateDts` function directly for more control:
 ```ts
 import { generateDts } from 'bun-dts';
 
-const results = await generateDts(['src/index.ts']);
+const result = await generateDts(['src/index.ts']);
 
-for (const result of results) {
-	await Bun.write(`dist/${result.outputPath}`, result.dts);
+for (const file of result.files) {
+	await Bun.write(`dist/${file.outputPath}`, file.dts);
 }
 ```
 
@@ -61,14 +61,14 @@ for (const result of results) {
 ```ts
 import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
 
-const results = await generateDts(['src/index.ts']);
+const result = await generateDts(['src/index.ts']);
 
-for (const result of results) {
-	if (result.errors.length > 0) {
-		logIsolatedDeclarationErrors(result.errors);
-		process.exit(1);
-	} else {
-		await Bun.write(`dist/${result.outputPath}`, result.dts);
+if (result.errors.length > 0) {
+	logIsolatedDeclarationErrors(result.errors);
+	process.exit(1);
+} else {
+	for (const file of result.files) {
+		await Bun.write(`dist/${file.outputPath}`, file.dts);
 	}
 }
 ```
@@ -84,6 +84,8 @@ for (const result of results) {
 | `resolve`               | `boolean \| (string \| RegExp)[]` | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
 | `cwd`                   | `string`                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
 | `splitting`             | `boolean`                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
+| `allowGlobs`            | `boolean`                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                     |
+| `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                     |
 
 ### Entry Points
 
@@ -99,7 +101,7 @@ dts({ entry: 'src/api.ts' })
 // Multiple entries
 dts({ entry: ['src/index.ts', 'src/utils.ts'] })
 
-// Glob patterns
+// Glob patterns (requires allowGlobs option)
 dts({ allowGlobs: true, entry: ['src/**/*.ts', '!src/**/*.test.ts'] })
 ```
 
@@ -122,20 +124,41 @@ This creates chunk files for shared types, and entry point files import from the
 - `entrypoints` (`string[]`) - Array of entry point file paths or glob patterns
 - `options` (`GenerateDtsOptions`) - Configuration options
 
-**Returns:** `Promise<GenerateDtsResult[]>`
+**Returns:** `Promise<GenerateDtsResult>`
 
 ### `GenerateDtsResult`
 
-Each result object contains:
+The result object contains:
 
 ```ts
 type GenerateDtsResult = {
+	files: GenerateDtsResultFile[]
+	errors: IsolatedDeclarationError[]
+}
+```
+
+### `GenerateDtsResultFile`
+
+Each file object contains:
+
+```ts
+type GenerateDtsResultFile = {
 	kind: 'entry-point' | 'chunk'
 	entry: string | undefined        // Only for entry-point kind
 	chunkFileName: string | undefined // Only for chunk kind
 	outputPath: string              // Relative path for saving
 	dts: string                     // Generated declaration content
-	errors: IsolatedDeclarationError[]
+}
+```
+
+### `OnDeclarationsGeneratedResult`
+
+Result object passed to the onDeclarationsGenerated callback:
+
+```ts
+type OnDeclarationsGeneratedResult = {
+	buildConfig: BuildConfig        // The Bun build configuration at the time of generation
+	result: GenerateDtsResult
 }
 ```
 

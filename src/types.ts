@@ -67,10 +67,7 @@ export type GenerateDtsOptions = {
 	allowGlobs?: boolean
 }
 
-/**
- * Result of the generateDts function
- */
-export type GenerateDtsResult = {
+export type GenerateDtsResultFile = {
 	/**
 	 * The kind of declaration file.
 	 * - 'entry-point': The declaration file for an entry point
@@ -109,6 +106,16 @@ export type GenerateDtsResult = {
 	 * The generated declaration file
 	 */
 	dts: string
+}
+
+/**
+ * Result of the generateDts function
+ */
+export type GenerateDtsResult = {
+	/**
+	 * The generated declaration files with their relevant information
+	 */
+	files: GenerateDtsResultFile[]
 	/**
 	 * The errors that occurred during the generation
 	 */
@@ -126,7 +133,7 @@ export type OnDeclarationsGeneratedResult = {
 	/**
 	 * The generated declaration files with their relevant information
 	 */
-	results: GenerateDtsResult[]
+	result: GenerateDtsResult
 }
 
 /**
@@ -139,13 +146,20 @@ export type DtsPluginOptions = {
 	 */
 	entry?: string | string[]
 	/**
-	 * Whether to log isolated declaration warnings to the console.
+	 * Controls the error logging behavior
 	 *
-	 * Can be a boolean or a function that returns a boolean.
+	 * @param boolean - When set to true, all declaration errors will be silenced
+	 * @param function - A filter function that determines which errors to silence
+	 *
+	 * @example
+	 * // Silence all errors
+	 * silent: true
+	 *
+	 * @example
+	 * // Silence only errors containing a specific message
+	 * silent: (error) => error.message.includes('some-error-message')
 	 */
-	shouldLogIsolatedDeclarationWarnings?:
-		| boolean
-		| ((errors: IsolatedDeclarationError[]) => boolean)
+	silent?: boolean | ((error: IsolatedDeclarationError) => boolean)
 	/**
 	 * Callback function that is invoked when declaration files are generated.
 	 * This function receives the generated declaration results.

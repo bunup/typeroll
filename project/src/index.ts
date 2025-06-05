@@ -30,6 +30,6 @@ export function sum({ a, b }: SumOptions): number {
 	return a + b
 }
 
-export function index(): ReturnType {
+export function index() {
 	return cool(1, 2)
 }

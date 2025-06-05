@@ -13,15 +13,10 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 	return {
 		name: 'dts',
 		setup(build) {
-			const {
-				entry,
-				splitting,
-				shouldLogIsolatedDeclarationWarnings = true,
-				...generateDtsOptions
-			} = options
+			const { entry, splitting, silent, ...generateDtsOptions } = options
 
 			build.onStart(async () => {
-				const results = await generateDts(
+				const result = await generateDts(
 					ensureArray(entry ?? build.config.entrypoints),
 					{
 						cwd: build.config.root,
@@ -33,25 +28,22 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 
 				options.onDeclarationsGenerated?.({
 					buildConfig: build.config,
-					results,
+					result,
 				})
 
-				for (const result of results) {
-					if (
-						result.errors.length > 0 &&
-						(typeof shouldLogIsolatedDeclarationWarnings === 'function'
-							? shouldLogIsolatedDeclarationWarnings(result.errors)
-							: shouldLogIsolatedDeclarationWarnings)
-					) {
-						logIsolatedDeclarationErrors(result.errors, {
-							shouldExit: true,
-						})
-					}
+				if (result.errors.length > 0 && !silent) {
+					const errorsToLog =
+						typeof silent === 'function'
+							? result.errors.filter(silent)
+							: result.errors
 
-					await Bun.write(
-						`${build.config.outdir}/${result.outputPath}`,
-						result.dts,
-					)
+					logIsolatedDeclarationErrors(errorsToLog, {
+						shouldExit: true,
+					})
+				}
+
+				for (const file of result.files) {
+					await Bun.write(`${build.config.outdir}/${file.outputPath}`, file.dts)
 				}
 			})
 		},

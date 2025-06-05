@@ -8,7 +8,11 @@ import type { IsolatedDeclarationError } from './isolated-decl-error'
 import { handleBunBuildLogs } from './logger'
 import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
-import type { GenerateDtsOptions, GenerateDtsResult } from './types'
+import type {
+	GenerateDtsOptions,
+	GenerateDtsResult,
+	GenerateDtsResultFile,
+} from './types'
 import {
 	cleanPath,
 	generateRandomString,
@@ -29,7 +33,7 @@ import {
 export async function generateDts(
 	entrypoints: string[],
 	options: GenerateDtsOptions = {},
-): Promise<GenerateDtsResult[]> {
+): Promise<GenerateDtsResult> {
 	const { preferredTsConfigPath, resolve } = options
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
@@ -86,12 +90,14 @@ export async function generateDts(
 					const sourceText = await Bun.file(args.path).text()
 					const declarationResult = isolatedDeclaration(args.path, sourceText)
 
-					for (const error of declarationResult.errors) {
-						collectedErrors.push({
-							error,
-							file: args.path,
-							content: sourceText,
-						})
+					if (!collectedErrors.some((e) => e.file === args.path)) {
+						for (const error of declarationResult.errors) {
+							collectedErrors.push({
+								error,
+								file: args.path,
+								content: sourceText,
+							})
+						}
 					}
 
 					const fakeJsContent = await dtsToFakeJs(declarationResult.code)
@@ -128,7 +134,8 @@ export async function generateDts(
 	const outputs = result.outputs.filter(
 		(output) => output.kind === 'chunk' || output.kind === 'entry-point',
 	)
-	const results: GenerateDtsResult[] = []
+
+	const bundledFiles: GenerateDtsResultFile[] = []
 
 	for (const output of outputs) {
 		const bundledFakeJsPath = output.path
@@ -139,10 +146,12 @@ export async function generateDts(
 			await fakeJsToDts(bundledFakeJsContent),
 		)
 
-		results.push({
+		bundledFiles.push({
 			kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
 			entry:
-				output.kind === 'entry-point' ? entrypoints[results.length] : undefined,
+				output.kind === 'entry-point'
+					? entrypoints[bundledFiles.length]
+					: undefined,
 			chunkFileName:
 				output.kind === 'chunk'
 					? replaceExtension(
@@ -157,7 +166,6 @@ export async function generateDts(
 				),
 			),
 			dts: dtsContent.code,
-			errors: collectedErrors,
 		})
 	}
 
@@ -165,5 +173,8 @@ export async function generateDts(
 		await fs.rm(tempOutDir, { recursive: true, force: true })
 	} catch {}
 
-	return results
+	return {
+		files: bundledFiles,
+		errors: collectedErrors,
+	}
 }

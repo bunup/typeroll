@@ -33,6 +33,8 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 	const parsed = parse(dtsContent, {
 		sourceType: 'module',
 		plugins: ['typescript'],
+		allowImportExportEverywhere: true,
+		allowAwaitOutsideFunction: true,
 	})
 
 	const referencedNames = new Set<string>()
