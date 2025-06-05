@@ -139,6 +139,10 @@ export type DtsPluginOptions = {
 	 */
 	entry?: string | string[]
 	/**
+	 * Whether to log isolated declaration warnings to the console
+	 */
+	logIsolatedDeclarationWarnings?: boolean
+	/**
 	 * Callback function that is invoked when declaration files are generated.
 	 * This function receives the generated declaration results.
 	 *

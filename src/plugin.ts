@@ -13,7 +13,12 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 	return {
 		name: 'dts',
 		setup(build) {
-			const { entry, splitting, ...generateDtsOptions } = options
+			const {
+				entry,
+				splitting,
+				logIsolatedDeclarationWarnings = true,
+				...generateDtsOptions
+			} = options
 
 			build.onStart(async () => {
 				const results = await generateDts(
@@ -32,7 +37,7 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 				})
 
 				for (const result of results) {
-					if (result.errors.length > 0) {
+					if (result.errors.length > 0 && logIsolatedDeclarationWarnings) {
 						logIsolatedDeclarationErrors(result.errors, {
 							shouldExit: true,
 						})
