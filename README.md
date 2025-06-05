@@ -33,37 +33,6 @@ The declaration file extension matches your JavaScript output format:
 - `.mjs` output → `.d.mts` declarations
 - `.cjs` output → `.d.cts` declarations
 
-## Programmatic Usage
-
-Use the `generateDts` function directly for more control:
-
-```ts
-import { generateDts } from 'bun-dts';
-
-const result = await generateDts(['src/index.ts']);
-
-for (const file of result.files) {
-	await Bun.write(`dist/${file.outputPath}`, file.dts);
-}
-```
-
-### Error Handling
-
-```ts
-import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
-
-const result = await generateDts(['src/index.ts']);
-
-if (result.errors.length > 0) {
-	logIsolatedDeclarationErrors(result.errors);
-	process.exit(1);
-} else {
-	for (const file of result.files) {
-		await Bun.write(`dist/${file.outputPath}`, file.dts);
-	}
-}
-```
-
 ### Entry Points
 
 The plugin supports flexible entry point configuration:
@@ -103,6 +72,38 @@ This creates chunk files for shared types, and entry point files import from the
 | `splitting`             | `boolean`                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
 | `allowGlobs`            | `boolean`                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                     |
 | `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                     |
+
+
+## Programmatic Usage
+
+Use the `generateDts` function directly for more control:
+
+```ts
+import { generateDts } from 'bun-dts';
+
+const result = await generateDts(['src/index.ts']);
+
+for (const file of result.files) {
+	await Bun.write(`dist/${file.outputPath}`, file.dts);
+}
+```
+
+### Error Handling
+
+```ts
+import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
+
+const result = await generateDts(['src/index.ts']);
+
+if (result.errors.length > 0) {
+	logIsolatedDeclarationErrors(result.errors);
+	process.exit(1);
+} else {
+	for (const file of result.files) {
+		await Bun.write(`dist/${file.outputPath}`, file.dts);
+	}
+}
+```
 
 ## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
 
