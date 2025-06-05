@@ -16,7 +16,7 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 			const {
 				entry,
 				splitting,
-				logIsolatedDeclarationWarnings = true,
+				shouldLogIsolatedDeclarationWarnings = true,
 				...generateDtsOptions
 			} = options
 
@@ -37,7 +37,12 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 				})
 
 				for (const result of results) {
-					if (result.errors.length > 0 && logIsolatedDeclarationWarnings) {
+					if (
+						result.errors.length > 0 &&
+						(typeof shouldLogIsolatedDeclarationWarnings === 'function'
+							? shouldLogIsolatedDeclarationWarnings(result.errors)
+							: shouldLogIsolatedDeclarationWarnings)
+					) {
 						logIsolatedDeclarationErrors(result.errors, {
 							shouldExit: true,
 						})
