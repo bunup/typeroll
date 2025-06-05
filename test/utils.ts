@@ -27,12 +27,14 @@ export function createProject(tree: ProjectTree): void {
 	}
 }
 
-export function runGenerateDts(
+export async function runGenerateDts(
 	entry: string[],
 	options: GenerateDtsOptions = {},
 ) {
-	return generateDts(entry, {
+	const { files } = await generateDts(entry, {
 		...options,
 		cwd: PROJECT_DIR,
 	})
+
+	return files
 }

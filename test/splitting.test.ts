@@ -40,14 +40,14 @@ describe('Code Splitting Tests', () => {
 			`,
 		})
 
-		const results = await runGenerateDts(['src/client.ts', 'src/server.ts'], {
+		const files = await runGenerateDts(['src/client.ts', 'src/server.ts'], {
 			splitting: true,
 		})
 
-		expect(results).toHaveLength(3)
+		expect(files).toHaveLength(3)
 
-		const entryPoints = results.filter((r) => r.kind === 'entry-point')
-		const chunks = results.filter((r) => r.kind === 'chunk')
+		const entryPoints = files.filter((r) => r.kind === 'entry-point')
+		const chunks = files.filter((r) => r.kind === 'chunk')
 
 		expect(entryPoints).toHaveLength(2)
 		expect(chunks).toHaveLength(1)
@@ -116,14 +116,14 @@ describe('Code Splitting Tests', () => {
 			`,
 		})
 
-		const results = await runGenerateDts(['src/api.ts', 'src/admin.ts'], {
+		const files = await runGenerateDts(['src/api.ts', 'src/admin.ts'], {
 			splitting: true,
 		})
 
-		expect(results.length).toBeGreaterThan(2) // At least 2 entry points, possibly chunks
+		expect(files.length).toBeGreaterThan(2) // At least 2 entry points, possibly chunks
 
-		const entryPoints = results.filter((r) => r.kind === 'entry-point')
-		const chunks = results.filter((r) => r.kind === 'chunk')
+		const entryPoints = files.filter((r) => r.kind === 'entry-point')
+		const chunks = files.filter((r) => r.kind === 'chunk')
 
 		expect(entryPoints).toHaveLength(2)
 		expect(chunks.length).toBeGreaterThan(0)
@@ -158,15 +158,15 @@ describe('Code Splitting Tests', () => {
 			`,
 		})
 
-		const results = await runGenerateDts(['src/client.ts', 'src/server.ts'], {
+		const files = await runGenerateDts(['src/client.ts', 'src/server.ts'], {
 			splitting: false,
 		})
 
-		expect(results).toHaveLength(2) // Only entry points, no chunks
-		expect(results.every((r) => r.kind === 'entry-point')).toBe(true)
+		expect(files).toHaveLength(2) // Only entry points, no chunks
+		expect(files.every((r) => r.kind === 'entry-point')).toBe(true)
 
 		// Each entry point should contain the User interface directly
-		for (const result of results) {
+		for (const result of files) {
 			expect(result.dts).toContain('interface User')
 		}
 	})
@@ -183,12 +183,12 @@ describe('Output Path Tests', () => {
 			'src/utils.ts': `export const util = 'helper';`,
 		})
 
-		const results = await runGenerateDts(['src/index.ts', 'src/utils.ts'])
+		const files = await runGenerateDts(['src/index.ts', 'src/utils.ts'])
 
-		expect(results).toHaveLength(2)
+		expect(files).toHaveLength(2)
 
-		const indexResult = results.find((r) => r.entry?.includes('index.ts'))
-		const utilsResult = results.find((r) => r.entry?.includes('utils.ts'))
+		const indexResult = files.find((r) => r.entry?.includes('index.ts'))
+		const utilsResult = files.find((r) => r.entry?.includes('utils.ts'))
 
 		expect(indexResult?.outputPath).toBe('index.d.ts')
 		expect(utilsResult?.outputPath).toBe('utils.d.ts')
@@ -205,7 +205,7 @@ describe('Output Path Tests', () => {
 			'src/api/v1/users.ts': `export const users = 'api';`,
 		})
 
-		const results = await runGenerateDts([
+		const files = await runGenerateDts([
 			'src/index.ts',
 			'src/client/index.ts',
 			'src/server/index.ts',
@@ -213,9 +213,9 @@ describe('Output Path Tests', () => {
 			'src/api/v1/users.ts',
 		])
 
-		expect(results).toHaveLength(5)
+		expect(files).toHaveLength(5)
 
-		const pathMappings = results.map((r) => ({
+		const pathMappings = files.map((r) => ({
 			entry: r.entry,
 			outputPath: r.outputPath,
 			kind: r.kind,
@@ -259,17 +259,17 @@ describe('Output Path Tests', () => {
 			'src/regular.js': `export const js = 'regular';`,
 		})
 
-		const results = await runGenerateDts([
+		const files = await runGenerateDts([
 			'src/module.mjs',
 			'src/common.cjs',
 			'src/regular.js',
 		])
 
-		expect(results).toHaveLength(3)
+		expect(files).toHaveLength(3)
 
-		const mjsResult = results.find((r) => r.entry?.includes('module.mjs'))
-		const cjsResult = results.find((r) => r.entry?.includes('common.cjs'))
-		const jsResult = results.find((r) => r.entry?.includes('regular.js'))
+		const mjsResult = files.find((r) => r.entry?.includes('module.mjs'))
+		const cjsResult = files.find((r) => r.entry?.includes('common.cjs'))
+		const jsResult = files.find((r) => r.entry?.includes('regular.js'))
 
 		expect(mjsResult?.outputPath).toBe('module.d.ts')
 		expect(cjsResult?.outputPath).toBe('common.d.ts')
@@ -282,17 +282,14 @@ describe('Output Path Tests', () => {
 			'src/client/app.ts': `export const app = 'client';`,
 		})
 
-		const results = await runGenerateDts(
-			['src/index.ts', 'src/client/app.ts'],
-			{
-				naming: '[dir]/[name]-types.[ext]',
-			},
-		)
+		const files = await runGenerateDts(['src/index.ts', 'src/client/app.ts'], {
+			naming: '[dir]/[name]-types.[ext]',
+		})
 
-		expect(results).toHaveLength(2)
+		expect(files).toHaveLength(2)
 
-		const indexResult = results.find((r) => r.entry?.includes('index.ts'))
-		const appResult = results.find((r) => r.entry?.includes('app.ts'))
+		const indexResult = files.find((r) => r.entry?.includes('index.ts'))
+		const appResult = files.find((r) => r.entry?.includes('app.ts'))
 
 		expect(indexResult?.outputPath).toBe('index-types.d.ts')
 		expect(appResult?.outputPath).toBe('client/app-types.d.ts')
@@ -304,7 +301,7 @@ describe('Output Path Tests', () => {
 			'src/shared.ts': `export const shared = 'data';`,
 		})
 
-		const results = await runGenerateDts(['src/index.ts'], {
+		const files = await runGenerateDts(['src/index.ts'], {
 			splitting: true,
 			naming: {
 				entry: '[dir]/[name].types.[ext]',
@@ -312,12 +309,12 @@ describe('Output Path Tests', () => {
 			},
 		})
 
-		const entryResult = results.find((r) => r.kind === 'entry-point')
+		const entryResult = files.find((r) => r.kind === 'entry-point')
 		expect(entryResult?.outputPath).toBe('index.types.d.ts')
 
 		// If there are chunks, they should follow chunk naming pattern
-		const chunkResults = results.filter((r) => r.kind === 'chunk')
-		for (const chunk of chunkResults) {
+		const chunkfiles = files.filter((r) => r.kind === 'chunk')
+		for (const chunk of chunkfiles) {
 			expect(chunk.outputPath).toMatch(/^chunks\/.*-.*\.d\.ts$/)
 		}
 	})
@@ -346,13 +343,13 @@ describe('Output Path Tests', () => {
 			`,
 		})
 
-		const results = await runGenerateDts(
+		const files = await runGenerateDts(
 			['src/client/api.ts', 'src/server/routes.ts', 'src/admin/panel.ts'],
 			{ splitting: true },
 		)
 
-		const entryPoints = results.filter((r) => r.kind === 'entry-point')
-		const chunks = results.filter((r) => r.kind === 'chunk')
+		const entryPoints = files.filter((r) => r.kind === 'entry-point')
+		const chunks = files.filter((r) => r.kind === 'chunk')
 
 		expect(entryPoints).toHaveLength(3)
 		expect(chunks.length).toBeGreaterThan(0)
@@ -380,7 +377,7 @@ describe('Output Path Tests', () => {
 		}
 	})
 
-	test('should ensure entry field is correct for entry-point results', async () => {
+	test('should ensure entry field is correct for entry-point files', async () => {
 		createProject({
 			'src/index.ts': `export const hello = 'world';`,
 			'src/nested/deep/module.ts': `export const deep = 'module';`,
@@ -392,18 +389,18 @@ describe('Output Path Tests', () => {
 			'src/nested/deep/module.ts',
 			'lib/external.ts',
 		]
-		const results = await runGenerateDts(entryPaths)
+		const files = await runGenerateDts(entryPaths)
 
-		expect(results).toHaveLength(3)
-		expect(results.every((r) => r.kind === 'entry-point')).toBe(true)
+		expect(files).toHaveLength(3)
+		expect(files.every((r) => r.kind === 'entry-point')).toBe(true)
 
-		results.forEach((result, index) => {
+		files.forEach((result, index) => {
 			expect(result.entry).toContain(entryPaths[index])
 			expect(result.chunkFileName).toBeUndefined()
 		})
 	})
 
-	test('should ensure chunk results have correct properties', async () => {
+	test('should ensure chunk files have correct properties', async () => {
 		createProject({
 			'src/shared.ts': `
 				export interface SharedType {
@@ -420,11 +417,11 @@ describe('Output Path Tests', () => {
 			`,
 		})
 
-		const results = await runGenerateDts(['src/a.ts', 'src/b.ts'], {
+		const files = await runGenerateDts(['src/a.ts', 'src/b.ts'], {
 			splitting: true,
 		})
 
-		const chunks = results.filter((r) => r.kind === 'chunk')
+		const chunks = files.filter((r) => r.kind === 'chunk')
 
 		if (chunks.length > 0) {
 			for (const chunk of chunks) {
@@ -434,7 +431,6 @@ describe('Output Path Tests', () => {
 				expect(chunk.chunkFileName).toMatch(/^.+\.d\.ts$/)
 				expect(chunk.outputPath).toBeDefined()
 				expect(chunk.dts).toBeDefined()
-				expect(chunk.errors).toBeDefined()
 			}
 		}
 	})
