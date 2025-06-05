@@ -17,16 +17,16 @@
 	"scripts": {
 		"build": "bunup",
 		"dev": "bunup --watch",
-		"play": "bun run test/play.ts",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"format": "biome format .",
 		"format:fix": "biome format --write .",
 		"tsc": "tsc --noEmit",
 		"test": "bun test",
-		"generate": "bun test/generate.ts",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage",
+		"play": "bun run tests/play.ts",
+		"bench": "bun run bench/index.ts",
 		"release": "bumpp --commit --push --tag",
 		"publish:ci": "bun publish --access public --no-git-checks",
 		"prepare": "husky"
@@ -47,7 +47,9 @@
 		"@commitlint/config-conventional": "^19.8.0",
 		"@types/bun": "^1.2.11",
 		"bumpp": "^10.1.0",
+		"bun-plugin-dts": "^0.3.0",
 		"bunup": "^0.8.33",
+		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.7",
 		"typescript": "^5.8.3",
 		"vitest": "^3.1.2"

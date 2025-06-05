@@ -1,7 +1,7 @@
 export * from 'oxc-resolver'
 export * from 'oxc-transform'
 
-import { type ReturnType, cool } from './utils'
+import { cool } from './utils'
 
 /**
  * @description This is a test function
@@ -30,6 +30,6 @@ export function sum({ a, b }: SumOptions): number {
 	return a + b
 }
 
-export function index() {
+export function index(): number {
 	return cool(1, 2)
 }

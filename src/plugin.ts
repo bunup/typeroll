@@ -35,7 +35,7 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					const errorsToLog =
 						typeof silent === 'function'
 							? result.errors.filter(silent)
-							: silent === false
+							: silent === false || silent === undefined
 								? result.errors
 								: []
 

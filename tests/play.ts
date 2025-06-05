@@ -3,12 +3,12 @@ import { dts } from '../src'
 console.time('build')
 await Bun.build({
 	entrypoints: [
-		'project/src/index.ts',
-		'project/src/main.ts',
-		'project/src/client/index.ts',
+		'tests/fixtures/index.ts',
+		'tests/fixtures/main.ts',
+		'tests/fixtures/client/index.ts',
 	],
 	format: 'esm',
-	outdir: 'test/dist',
+	outdir: 'tests/dist',
 	packages: 'external',
 	splitting: true,
 	plugins: [dts()],

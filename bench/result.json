@@ -1,0 +1,14 @@
+[
+	{
+		"name": "bun-dts",
+		"duration": 21.95
+	},
+	{
+		"name": "bun-plugin-dts",
+		"duration": 5285.7
+	},
+	{
+		"name": "dts-bundle-generator",
+		"duration": 4997.74
+	}
+]
