@@ -5,11 +5,11 @@ An extremely fast Bun plugin for generating and bundling TypeScript declaration 
 [![npm version](https://img.shields.io/npm/v/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 [![npm downloads](https://img.shields.io/npm/dm/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
 
-| Name                 | Duration    |
-| -------------------- | ----------- |
-| **bun-dts**          | **21.95ms** |
-| bun-plugin-dts       | 5.28s       |
-| dts-bundle-generator | 4.99s       |
+| Name                 | Duration |
+| -------------------- | -------- |
+| bun-dts              | 21 ms    |
+| bun-plugin-dts       | 5285 ms  |
+| dts-bundle-generator | 4997 ms  |
 
 ## Installation
 
