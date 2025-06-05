@@ -31,11 +31,13 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					result,
 				})
 
-				if (result.errors.length > 0 && !silent) {
+				if (result.errors.length > 0) {
 					const errorsToLog =
 						typeof silent === 'function'
 							? result.errors.filter(silent)
-							: result.errors
+							: silent === false
+								? result.errors
+								: []
 
 					logIsolatedDeclarationErrors(errorsToLog, {
 						shouldExit: true,
