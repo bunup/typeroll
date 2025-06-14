@@ -97,41 +97,27 @@ When enabled, minification will preserve public (exported) API names while minif
 Original:
 
 ```typescript
-interface ComplexType<T extends string> {
-	id: T;
-	metadata: {
-		version: number
-		tags: string[]
-		createdAt: Date
-	};
-	transform: <U>(input: U) => Promise<ComplexType<U extends string ? U : T>>;
+type DeepPartial<T> = { [P in keyof T]? : DeepPartial<T[P]> };
+interface Response<T> {
+	data: T;
+	error?: string;
+	meta?: Record<string, unknown>;
 }
-type UnionType = string | number | ComplexType<"default">;
-declare function processData<T extends UnionType>(input: T, options?: {
-	validate?: boolean
-	timeout?: number
-}): Promise<ComplexType<Extract<T, string>> | null>;
-export { processData, UnionType, ComplexType };
+declare function fetchData<T>(url: string, options?: RequestInit): Promise<Response<T>>;
+export { fetchData, Response, DeepPartial };
 ```
 
 Minified:
 
 ```typescript
-interface t<T extends string> {
-	id: T;
-	metadata: {
-		version: number
-		tags: string[]
-		createdAt: Date
-	};
-	transform: <U>(input: U) => Promise<t<U extends string ? U : T>>;
+type e<T> = { [P in keyof T]? : e<T[P]> };
+interface t<T> {
+	data: T;
+	error?: string;
+	meta?: Record<string, unknown>;
 }
-type n = string | number | t<"default">;
-declare function e<T extends n>(input: T, options?: {
-	validate?: boolean
-	timeout?: number
-}): Promise<t<Extract<T, string>> | null>;
-export { e as processData, n as UnionType, t as ComplexType };
+declare function r<T>(url: string, options?: RequestInit): Promise<t<T>>;
+export { r as fetchData, t as Response, e as DeepPartial };
 ```
 
 ## Options
