@@ -2,11 +2,11 @@ import { dts } from '../src'
 
 console.time('build')
 await Bun.build({
-	entrypoints: ['funcs/index.ts'],
+	entrypoints: ['minify-test-code.ts', 'minify-test-code.ts'],
 	format: 'esm',
 	outdir: 'tests/dist',
 	packages: 'external',
 	splitting: true,
-	plugins: [dts()],
+	plugins: [dts({})],
 })
 console.timeEnd('build')

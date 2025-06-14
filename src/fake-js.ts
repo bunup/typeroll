@@ -23,22 +23,14 @@ import {
 	TOKENIZE_RE,
 	TYPE_WORD_RE,
 } from './re'
-import {
-	generateRandomString,
-	isNullOrUndefined,
-	removeJsDocComments,
-} from './utils'
+import { generateRandomString, isNullOrUndefined } from './utils'
 
-async function dtsToFakeJs(
-	dtsContent: string,
-	excludeJsDoc = false,
-): Promise<string> {
+async function dtsToFakeJs(dtsContent: string): Promise<string> {
 	const parsed = parse(dtsContent, {
 		sourceType: 'module',
 		plugins: ['typescript'],
 		allowImportExportEverywhere: true,
 		allowAwaitOutsideFunction: true,
-		attachComment: !excludeJsDoc,
 	})
 
 	const referencedNames = new Set<string>()
@@ -63,7 +55,7 @@ async function dtsToFakeJs(
 
 		const slicedContent = dtsContent.substring(statement.start, statement.end)
 
-		let statementText = `${leadingComment ? `${leadingComment}\n` : ''}${excludeJsDoc ? removeJsDocComments(slicedContent) : slicedContent}`
+		let statementText = `${leadingComment ? `${leadingComment}\n` : ''}${slicedContent}`
 
 		const name = getName(statement, dtsContent)
 

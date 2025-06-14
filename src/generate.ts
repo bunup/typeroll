@@ -6,11 +6,10 @@ import { resolveTsImportPath } from 'ts-import-resolver'
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
 import { handleBunBuildLogs } from './logger'
-import {
-	type GenerateDtsOptions,
-	type GenerateDtsResult,
-	type GenerateDtsResultFile,
-	getResolvedMinifyOptions,
+import type {
+	GenerateDtsOptions,
+	GenerateDtsResult,
+	GenerateDtsResultFile,
 } from './options'
 import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
@@ -22,7 +21,6 @@ import {
 	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
-	removeWhitespaces,
 	replaceExtension,
 } from './utils'
 
@@ -59,8 +57,6 @@ export async function generateDts(
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
 	const collectedErrors: IsolatedDeclarationError[] = []
-
-	const minifyOptions = getResolvedMinifyOptions(options.minify)
 
 	const resolver = createResolver({
 		tsconfig: tsconfig.filepath,
@@ -113,10 +109,7 @@ export async function generateDts(
 						}
 					}
 
-					const fakeJsContent = await dtsToFakeJs(
-						declarationResult.code,
-						minifyOptions.jsDoc,
-					)
+					const fakeJsContent = await dtsToFakeJs(declarationResult.code)
 
 					return {
 						loader: 'js',
@@ -142,10 +135,7 @@ export async function generateDts(
 		naming: options.naming,
 		throw: false,
 		packages: 'external',
-		minify: {
-			identifiers: minifyOptions.identifiers,
-			syntax: minifyOptions.identifiers,
-		},
+		minify: options.minify,
 	})
 
 	handleBunBuildLogs(result.logs)
@@ -166,10 +156,6 @@ export async function generateDts(
 				await fakeJsToDts(bundledFakeJsContent),
 			)
 
-			const dts = minifyOptions.whitespace
-				? removeWhitespaces(dtsContent.code)
-				: dtsContent.code
-
 			bundledFiles.push({
 				kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
 				entrypoint:
@@ -189,7 +175,7 @@ export async function generateDts(
 						getDeclarationExtension(getExtension(output.path)),
 					),
 				),
-				dts,
+				dts: dtsContent.code,
 			})
 		}
 

@@ -11,35 +11,6 @@ export type Naming =
 			chunk: string
 	  }
 
-export type MinifyOptions = {
-	/**
-	 * Whether to remove JSDoc comments from the generated declaration files.
-	 *
-	 * @remarks
-	 * JSDoc comments provide documentation but increase file size.
-	 * This option is automatically enabled when `minifyWhitespace` is true,
-	 * as JSDoc formatting becomes ineffective without proper whitespace.
-	 */
-	jsDoc?: boolean
-	/**
-	 * Whether to remove unnecessary whitespace from the generated declaration files.
-	 *
-	 * @remarks
-	 * Removes indentation, line breaks, and extra spaces to produce more compact files.
-	 * This significantly reduces file size but makes the declarations less readable for humans.
-	 */
-	whitespace?: boolean
-	/**
-	 * Whether to shorten identifiers in the generated declaration files.
-	 *
-	 * @remarks
-	 * Renames internal type variables to shorter forms while preserving
-	 * public API names. This can further reduce file size without affecting
-	 * compatibility with consuming code.
-	 */
-	identifiers?: boolean
-}
-
 /**
  * Options for generating declaration file
  */
@@ -92,16 +63,9 @@ export type GenerateDtsOptions = {
 	 */
 	splitting?: boolean
 	/**
-	 * Controls the minification of generated declaration files.
-	 *
-	 * @remarks
-	 * When set to `true`, applies all minification strategies to reduce file size.
-	 * When set to `false` or `undefined`, no minification is performed.
-	 * When set to an object, allows fine-grained control over specific minification strategies.
-	 *
-	 * Minification can reduce the size of declaration files.
+	 * Whether to minify the generated declaration files to reduce the size of the declaration file.
 	 */
-	minify?: boolean | MinifyOptions
+	minify?: boolean
 	/**
 	 * Whether to allow globs in the entrypoints
 	 */
@@ -209,22 +173,3 @@ export type DtsPluginOptions = {
 	 */
 	onDeclarationsGenerated?: (result: OnDeclarationsGeneratedResult) => void
 } & GenerateDtsOptions
-
-export function getResolvedMinifyOptions(
-	minify: boolean | MinifyOptions | undefined,
-): MinifyOptions {
-	if (typeof minify === 'boolean' || isNullOrUndefined(minify)) {
-		const useMinify = minify ?? false
-		return {
-			jsDoc: useMinify,
-			whitespace: useMinify,
-			identifiers: useMinify,
-		}
-	}
-
-	return {
-		jsDoc: minify.jsDoc ?? minify.whitespace ?? false,
-		whitespace: minify.whitespace ?? false,
-		identifiers: minify.identifiers ?? false,
-	}
-}

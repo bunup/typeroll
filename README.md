@@ -87,42 +87,50 @@ This creates chunk files for shared types, and entry point files import from the
 You can minify the generated declaration files to reduce their size:
 
 ```ts
-// Enable all minification strategies
 dts({ minify: true });
-
-// Fine-grained control over minification
-dts({
-  minify: {
-    jsDoc: true,      // Remove JSDoc comments
-    whitespace: true, // Remove unnecessary whitespace
-    identifiers: true // Shorten internal identifiers while preserving public API names
-  }
-});
 ```
 
-Example output comparison:
+When enabled, minification will preserve public (exported) API names while minifying internal type names to reduce file size.
+
+Original:
 
 ```typescript
-// Original (6.7KB for example)
-interface ApiClientOptions {
-	/** The base URL for API requests */
-	baseUrl: string;
-	/** Request timeout in milliseconds */
-	timeout?: number;
+interface ComplexType<T extends string> {
+	id: T;
+	metadata: {
+		version: number
+		tags: string[]
+		createdAt: Date
+	};
+	transform: <U>(input: U) => Promise<ComplexType<U extends string ? U : T>>;
 }
-export { ApiClientOptions };
-
-// Minified (807B)
-interface t{baseUrl:string;timeout?:number;}export{t as ApiClientOptions};
+type UnionType = string | number | ComplexType<"default">;
+declare function processData<T extends UnionType>(input: T, options?: {
+	validate?: boolean
+	timeout?: number
+}): Promise<ComplexType<Extract<T, string>> | null>;
+export { processData, UnionType, ComplexType };
 ```
 
-#### Recommended for production
+Minified:
 
-```ts
-dts({ minify: { identifiers: true } });
+```typescript
+interface t<T extends string> {
+	id: T;
+	metadata: {
+		version: number
+		tags: string[]
+		createdAt: Date
+	};
+	transform: <U>(input: U) => Promise<t<U extends string ? U : T>>;
+}
+type n = string | number | t<"default">;
+declare function e<T extends n>(input: T, options?: {
+	validate?: boolean
+	timeout?: number
+}): Promise<t<Extract<T, string>> | null>;
+export { e as processData, n as UnionType, t as ComplexType };
 ```
-
-If you are publishing your package to npm, you can minify only the identifiers to reduce the size of the declaration file. When you minify whitespace, the JSDoc comments become ineffective, and removing JSDoc comments would degrade the developer experience since TypeScript packages typically have JSDoc comments to describe the API.
 
 ## Options
 
@@ -133,7 +141,7 @@ If you are publishing your package to npm, you can minify only the identifiers t
 | `resolve`                 | `boolean \| (string \| RegExp)[]`                 | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
 | `cwd`                     | `string`                                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
 | `splitting`               | `boolean`                                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
-| `minify`                  | `boolean \| MinifyOptions`                        | Controls the minification of generated declaration files. When `true`, applies all minification strategies. When an object, allows fine-grained control over specific minification strategies.  |
+| `minify`                  | `boolean`                                         | Controls the minification of generated declaration files. When `true`, minifies internal type names while preserving public (exported) API names.                                             |
 | `allowGlobs`              | `boolean`                                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                      |
 | `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                                         |
 
