@@ -732,8 +732,18 @@ describe('Bundle functionality', () => {
 
 			expect(files[0].dts).toMatchInlineSnapshot(`
 			  "declare namespace exports_types {
-			  	export { User, Post, Permission };
+			  	export { User2 as User, Post2 as Post, Permission2 as Permission };
 			  }
+			  interface User2 {
+			  	id: number;
+			  	name: string;
+			  }
+			  interface Post2 {
+			  	id: number;
+			  	title: string;
+			  	author: User2;
+			  }
+			  type Permission2 = "read" | "write" | "admin";
 			  declare function createPost(author: exports_types.User): exports_types.Post;
 			  declare function hasPermission(user: exports_types.User, perm: exports_types.Permission): boolean;
 			  export { hasPermission, createPost, exports_types as Types };
@@ -958,7 +968,7 @@ describe('Bundle functionality', () => {
 						if (typeof nameOrId === 'string') {
 							return { name: nameOrId };
 						}
-						return { id: nameOrId, name: name! };
+						return { id: nameOrId, name };
 					}
 				`,
 			})

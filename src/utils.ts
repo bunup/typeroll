@@ -122,3 +122,15 @@ export async function getFilesFromGlobs(
 
 	return Array.from(includedFiles)
 }
+
+export function removeWhitespaces(str: string): string {
+	return str
+		.replace(/\s*([{}();:,<>|=])\s*/g, '$1')
+		.replace(/\s+/g, ' ')
+		.replace(/ ?\n ?/g, '')
+		.trim()
+}
+
+export function removeJsDocComments(str: string): string {
+	return str.replace(/\/\*\*[\s\S]*?\*\/|\/\/.*/g, '')
+}

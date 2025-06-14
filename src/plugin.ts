@@ -1,7 +1,7 @@
 import type { BunPlugin } from 'bun'
 import { generateDts } from './generate'
 import { logIsolatedDeclarationErrors } from './isolated-decl-error'
-import type { DtsPluginOptions, Naming } from './types'
+import type { DtsPluginOptions, Naming } from './options'
 import { ensureArray } from './utils'
 
 /**

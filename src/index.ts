@@ -8,7 +8,7 @@ export type {
 	GenerateDtsOptions,
 	GenerateDtsResult,
 	DtsPluginOptions,
-} from './types'
+} from './options'
 
 export { generateDts } from './generate'
 export { dts } from './plugin'

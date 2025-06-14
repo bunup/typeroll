@@ -6,13 +6,14 @@ import { resolveTsImportPath } from 'ts-import-resolver'
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
 import { handleBunBuildLogs } from './logger'
+import {
+	type GenerateDtsOptions,
+	type GenerateDtsResult,
+	type GenerateDtsResultFile,
+	getResolvedMinifyOptions,
+} from './options'
 import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
-import type {
-	GenerateDtsOptions,
-	GenerateDtsResult,
-	GenerateDtsResultFile,
-} from './types'
 import {
 	cleanPath,
 	generateRandomString,
@@ -21,6 +22,7 @@ import {
 	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
+	removeWhitespaces,
 	replaceExtension,
 } from './utils'
 
@@ -41,13 +43,24 @@ export async function generateDts(
 		path.join(cwd, `.bun-dts-${generateRandomString()}`),
 	)
 
-	const resolvedEntrypoints = options.allowGlobs
-		? await getFilesFromGlobs(entrypoints, cwd)
-		: entrypoints
+	const nonAbsoluteEntrypoints = entrypoints.filter(
+		(entrypoint) => !path.isAbsolute(entrypoint),
+	)
+
+	const resolvedEntrypoints = await getFilesFromGlobs(
+		nonAbsoluteEntrypoints,
+		cwd,
+	)
+
+	const absoluteEntrypoints = entrypoints.filter((entrypoint) =>
+		path.isAbsolute(entrypoint),
+	)
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
 	const collectedErrors: IsolatedDeclarationError[] = []
+
+	const minifyOptions = getResolvedMinifyOptions(options.minify)
 
 	const resolver = createResolver({
 		tsconfig: tsconfig.filepath,
@@ -100,7 +113,10 @@ export async function generateDts(
 						}
 					}
 
-					const fakeJsContent = await dtsToFakeJs(declarationResult.code)
+					const fakeJsContent = await dtsToFakeJs(
+						declarationResult.code,
+						minifyOptions.jsDoc,
+					)
 
 					return {
 						loader: 'js',
@@ -112,9 +128,12 @@ export async function generateDts(
 	}
 
 	const result = await Bun.build({
-		entrypoints: resolvedEntrypoints.map((entry) =>
-			path.isAbsolute(entry) ? entry : path.resolve(path.join(cwd, entry)),
-		),
+		entrypoints: [
+			...resolvedEntrypoints.map((entry) =>
+				path.resolve(path.join(cwd, entry)),
+			),
+			...absoluteEntrypoints,
+		],
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
@@ -124,57 +143,67 @@ export async function generateDts(
 		throw: false,
 		packages: 'external',
 		minify: {
-			whitespace: true,
-			syntax: true,
+			identifiers: minifyOptions.identifiers,
+			syntax: minifyOptions.identifiers,
 		},
 	})
 
 	handleBunBuildLogs(result.logs)
 
-	const outputs = result.outputs.filter(
-		(output) => output.kind === 'chunk' || output.kind === 'entry-point',
-	)
-
-	const bundledFiles: GenerateDtsResultFile[] = []
-
-	for (const output of outputs) {
-		const bundledFakeJsPath = output.path
-		const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
-
-		const dtsContent = isolatedDeclaration(
-			'treeshake.d.ts',
-			await fakeJsToDts(bundledFakeJsContent),
+	try {
+		const outputs = result.outputs.filter(
+			(output) => output.kind === 'chunk' || output.kind === 'entry-point',
 		)
 
-		bundledFiles.push({
-			kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
-			entry:
-				output.kind === 'entry-point'
-					? entrypoints[bundledFiles.length]
-					: undefined,
-			chunkFileName:
-				output.kind === 'chunk'
-					? replaceExtension(
-							path.basename(output.path),
-							getDeclarationExtension(getExtension(output.path)),
-						)
-					: undefined,
-			outputPath: cleanPath(
-				replaceExtension(
-					cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
-					getDeclarationExtension(getExtension(output.path)),
+		const bundledFiles: GenerateDtsResultFile[] = []
+
+		for (const output of outputs) {
+			const bundledFakeJsPath = output.path
+			const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
+
+			const dtsContent = isolatedDeclaration(
+				'treeshake.d.ts',
+				await fakeJsToDts(bundledFakeJsContent),
+			)
+
+			const dts = minifyOptions.whitespace
+				? removeWhitespaces(dtsContent.code)
+				: dtsContent.code
+
+			bundledFiles.push({
+				kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
+				entrypoint:
+					output.kind === 'entry-point'
+						? entrypoints[bundledFiles.length]
+						: undefined,
+				chunkFileName:
+					output.kind === 'chunk'
+						? replaceExtension(
+								path.basename(output.path),
+								getDeclarationExtension(getExtension(output.path)),
+							)
+						: undefined,
+				outputPath: cleanPath(
+					replaceExtension(
+						cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
+						getDeclarationExtension(getExtension(output.path)),
+					),
 				),
-			),
-			dts: dtsContent.code,
-		})
-	}
+				dts,
+			})
+		}
 
-	try {
+		return {
+			files: bundledFiles,
+			errors: collectedErrors,
+		}
+	} catch (error) {
+		console.error(error)
+		return {
+			files: [],
+			errors: collectedErrors,
+		}
+	} finally {
 		await fs.rm(tempOutDir, { recursive: true, force: true })
-	} catch {}
-
-	return {
-		files: bundledFiles,
-		errors: collectedErrors,
 	}
 }

@@ -52,8 +52,12 @@ describe('Code Splitting Tests', () => {
 		expect(entryPoints).toHaveLength(2)
 		expect(chunks).toHaveLength(1)
 
-		const clientResult = entryPoints.find((r) => r.entry?.includes('client.ts'))
-		const serverResult = entryPoints.find((r) => r.entry?.includes('server.ts'))
+		const clientResult = entryPoints.find((r) =>
+			r.entrypoint?.includes('client.ts'),
+		)
+		const serverResult = entryPoints.find((r) =>
+			r.entrypoint?.includes('server.ts'),
+		)
 		const chunkResult = chunks[0]
 
 		expect(clientResult).toBeDefined()
@@ -187,8 +191,8 @@ describe('Output Path Tests', () => {
 
 		expect(files).toHaveLength(2)
 
-		const indexResult = files.find((r) => r.entry?.includes('index.ts'))
-		const utilsResult = files.find((r) => r.entry?.includes('utils.ts'))
+		const indexResult = files.find((r) => r.entrypoint?.includes('index.ts'))
+		const utilsResult = files.find((r) => r.entrypoint?.includes('utils.ts'))
 
 		expect(indexResult?.outputPath).toBe('index.d.ts')
 		expect(utilsResult?.outputPath).toBe('utils.d.ts')
@@ -216,7 +220,7 @@ describe('Output Path Tests', () => {
 		expect(files).toHaveLength(5)
 
 		const pathMappings = files.map((r) => ({
-			entry: r.entry,
+			entrypoint: r.entrypoint,
 			outputPath: r.outputPath,
 			kind: r.kind,
 		}))
@@ -224,27 +228,27 @@ describe('Output Path Tests', () => {
 		expect(pathMappings).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
-					entry: expect.stringContaining('src/index.ts'),
+					entrypoint: expect.stringContaining('src/index.ts'),
 					outputPath: 'index.d.ts',
 					kind: 'entry-point',
 				}),
 				expect.objectContaining({
-					entry: expect.stringContaining('src/client/index.ts'),
+					entrypoint: expect.stringContaining('src/client/index.ts'),
 					outputPath: 'client/index.d.ts',
 					kind: 'entry-point',
 				}),
 				expect.objectContaining({
-					entry: expect.stringContaining('src/server/index.ts'),
+					entrypoint: expect.stringContaining('src/server/index.ts'),
 					outputPath: 'server/index.d.ts',
 					kind: 'entry-point',
 				}),
 				expect.objectContaining({
-					entry: expect.stringContaining('src/utils/helpers.ts'),
+					entrypoint: expect.stringContaining('src/utils/helpers.ts'),
 					outputPath: 'utils/helpers.d.ts',
 					kind: 'entry-point',
 				}),
 				expect.objectContaining({
-					entry: expect.stringContaining('src/api/v1/users.ts'),
+					entrypoint: expect.stringContaining('src/api/v1/users.ts'),
 					outputPath: 'api/v1/users.d.ts',
 					kind: 'entry-point',
 				}),
@@ -267,9 +271,9 @@ describe('Output Path Tests', () => {
 
 		expect(files).toHaveLength(3)
 
-		const mjsResult = files.find((r) => r.entry?.includes('module.mjs'))
-		const cjsResult = files.find((r) => r.entry?.includes('common.cjs'))
-		const jsResult = files.find((r) => r.entry?.includes('regular.js'))
+		const mjsResult = files.find((r) => r.entrypoint?.includes('module.mjs'))
+		const cjsResult = files.find((r) => r.entrypoint?.includes('common.cjs'))
+		const jsResult = files.find((r) => r.entrypoint?.includes('regular.js'))
 
 		expect(mjsResult?.outputPath).toBe('module.d.ts')
 		expect(cjsResult?.outputPath).toBe('common.d.ts')
@@ -288,8 +292,8 @@ describe('Output Path Tests', () => {
 
 		expect(files).toHaveLength(2)
 
-		const indexResult = files.find((r) => r.entry?.includes('index.ts'))
-		const appResult = files.find((r) => r.entry?.includes('app.ts'))
+		const indexResult = files.find((r) => r.entrypoint?.includes('index.ts'))
+		const appResult = files.find((r) => r.entrypoint?.includes('app.ts'))
 
 		expect(indexResult?.outputPath).toBe('index-types.d.ts')
 		expect(appResult?.outputPath).toBe('client/app-types.d.ts')
@@ -356,13 +360,13 @@ describe('Output Path Tests', () => {
 
 		// Check entry point paths
 		const clientResult = entryPoints.find((r) =>
-			r.entry?.includes('client/api.ts'),
+			r.entrypoint?.includes('client/api.ts'),
 		)
 		const serverResult = entryPoints.find((r) =>
-			r.entry?.includes('server/routes.ts'),
+			r.entrypoint?.includes('server/routes.ts'),
 		)
 		const adminResult = entryPoints.find((r) =>
-			r.entry?.includes('admin/panel.ts'),
+			r.entrypoint?.includes('admin/panel.ts'),
 		)
 
 		expect(clientResult?.outputPath).toBe('client/api.d.ts')
@@ -373,7 +377,7 @@ describe('Output Path Tests', () => {
 		for (const chunk of chunks) {
 			expect(chunk.chunkFileName).toMatch(/^.+\.d\.ts$/)
 			expect(chunk.outputPath).toMatch(/^.+\.d\.ts$/)
-			expect(chunk.entry).toBeUndefined()
+			expect(chunk.entrypoint).toBeUndefined()
 		}
 	})
 
@@ -395,7 +399,7 @@ describe('Output Path Tests', () => {
 		expect(files.every((r) => r.kind === 'entry-point')).toBe(true)
 
 		files.forEach((result, index) => {
-			expect(result.entry).toContain(entryPaths[index])
+			expect(result.entrypoint).toContain(entryPaths[index])
 			expect(result.chunkFileName).toBeUndefined()
 		})
 	})
@@ -426,7 +430,7 @@ describe('Output Path Tests', () => {
 		if (chunks.length > 0) {
 			for (const chunk of chunks) {
 				expect(chunk.kind).toBe('chunk')
-				expect(chunk.entry).toBeUndefined()
+				expect(chunk.entrypoint).toBeUndefined()
 				expect(chunk.chunkFileName).toBeDefined()
 				expect(chunk.chunkFileName).toMatch(/^.+\.d\.ts$/)
 				expect(chunk.outputPath).toBeDefined()
