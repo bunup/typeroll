@@ -11,13 +11,13 @@ An extremely fast Bun plugin for generating and bundling TypeScript declaration 
 | bun-plugin-dts       | 5285ms   | 251.7x slower        |
 | dts-bundle-generator | 4997ms   | 237.0x slower        |
 
-## Installation
+## 📦 Installation
 
 ```bash
 bun add -d bun-dts
 ```
 
-## Plugin Usage
+## 🔌 Plugin Usage
 
 Use the `dts()` plugin in your Bun build configuration to automatically generate and bundle TypeScript declaration files.
 
@@ -39,7 +39,7 @@ The declaration file extension matches your JavaScript output format:
 - `.mjs` output → `.d.mts` declarations
 - `.cjs` output → `.d.cts` declarations
 
-### Entry Points
+### 🎯 Entry Points
 
 The plugin supports flexible entry point configuration:
 
@@ -57,7 +57,7 @@ dts({ entry: ['src/index.ts', 'src/utils.ts'] });
 dts({ allowGlobs: true, entry: ['src/**/*.ts', '!src/**/*.test.ts'] });
 ```
 
-### Declaration Splitting
+### ✂️ Declaration Splitting
 
 When `splitting` is enabled, shared types across entrypoints are extracted to separate `.d.ts` files to reduce duplication:
 
@@ -82,7 +82,7 @@ dist/
 
 This creates chunk files for shared types, and entry point files import from these chunks as needed. This is enabled by default if `splitting` is enabled in the Bun build config.
 
-### Minification
+### 🗜️ Minification
 
 You can minify the generated declaration files to reduce their size:
 
@@ -120,7 +120,7 @@ declare function r<T>(url: string, options?: RequestInit): Promise<t<T>>;
 export { r as fetchData, t as Response, e as DeepPartial };
 ```
 
-## Options
+## ⚙️ Options
 
 | Option                    | Type                                              | Description                                                                                                                                                                                     |
 | ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
