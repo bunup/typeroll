@@ -90,7 +90,9 @@ You can minify the generated declaration files to reduce their size:
 dts({ minify: true });
 ```
 
-When enabled, minification will preserve public (exported) API names while minifying internal type names to reduce file size.
+When enabled, minification will preserve public (exported) API names while minifying internal type names to reduce file size. This is particularly useful for large declaration files or multiple medium to large declaration files, which can reduce your bundle size significantly.
+
+#### Example
 
 Original:
 
