@@ -89,14 +89,12 @@ export function getDeclarationExtension(ext: string): string {
 export function getExtension(filePath: string): string {
 	if (!filePath) return ''
 
-	const base = basename(filePath)
-	const parts = base.split('.')
+	const ext = extname(filePath)
+	return ext
+}
 
-	if (parts.length <= 1) return ''
-
-	parts.shift()
-
-	return `.${parts.join('.')}`
+export function removeFullExtension(filename: string): string {
+	return filename.replace(/(\.[^./\\]+)+$/, '')
 }
 
 export async function getFilesFromGlobs(

@@ -21,6 +21,7 @@ import {
 	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
+	removeFullExtension,
 	replaceExtension,
 } from './utils'
 
@@ -189,7 +190,7 @@ export async function generateDts(
 				outputPath,
 				dts: dtsContent.code,
 				pathInfo: {
-					name: path.basename(outputPath, getExtension(outputPath)),
+					outputPathWithoutExtension: removeFullExtension(outputPath),
 					ext: getExtension(outputPath),
 				},
 			})

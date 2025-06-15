@@ -107,8 +107,8 @@ export type GenerateDtsResultFile = {
 	 * This is useful when you need to manipulate the file name or extension separately
 	 */
 	pathInfo: {
-		/** The file name without the extension */
-		name: string
+		/** The output path relative to the output directory without the extension */
+		outputPathWithoutExtension: string
 		/** The file extension including the dot (e.g. '.d.ts') */
 		ext: string
 	}

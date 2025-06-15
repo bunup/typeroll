@@ -27,7 +27,7 @@ describe('utils', () => {
 		})
 
 		it('should return the full extension for files with multiple dots', () => {
-			expect(getExtension('file.d.ts')).toBe('.d.ts')
+			expect(getExtension('file.d.ts')).toBe('.ts')
 		})
 
 		it('should return empty string for files without extension', () => {
