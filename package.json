@@ -1,7 +1,7 @@
 {
 	"name": "bun-dts",
 	"description": "An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts)",
-	"version": "0.1.63",
+	"version": "0.1.64",
 	"type": "module",
 	"files": ["dist"],
 	"types": "./dist/index.d.cts",
