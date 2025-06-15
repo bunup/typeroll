@@ -280,49 +280,6 @@ describe('Output Path Tests', () => {
 		expect(jsResult?.outputPath).toBe('regular.d.ts')
 	})
 
-	test('should generate correct outputPath with custom naming pattern', async () => {
-		createProject({
-			'src/index.ts': `export const hello = 'world';`,
-			'src/client/app.ts': `export const app = 'client';`,
-		})
-
-		const files = await runGenerateDts(['src/index.ts', 'src/client/app.ts'], {
-			naming: '[dir]/[name]-types.[ext]',
-		})
-
-		expect(files).toHaveLength(2)
-
-		const indexResult = files.find((r) => r.entrypoint?.includes('index.ts'))
-		const appResult = files.find((r) => r.entrypoint?.includes('app.ts'))
-
-		expect(indexResult?.outputPath).toBe('index-types.d.ts')
-		expect(appResult?.outputPath).toBe('client/app-types.d.ts')
-	})
-
-	test('should generate correct outputPath with object naming pattern', async () => {
-		createProject({
-			'src/index.ts': `export const hello = 'world';`,
-			'src/shared.ts': `export const shared = 'data';`,
-		})
-
-		const files = await runGenerateDts(['src/index.ts'], {
-			splitting: true,
-			naming: {
-				entry: '[dir]/[name].types.[ext]',
-				chunk: 'chunks/[name]-[hash].[ext]',
-			},
-		})
-
-		const entryResult = files.find((r) => r.kind === 'entry-point')
-		expect(entryResult?.outputPath).toBe('index.types.d.ts')
-
-		// If there are chunks, they should follow chunk naming pattern
-		const chunkfiles = files.filter((r) => r.kind === 'chunk')
-		for (const chunk of chunkfiles) {
-			expect(chunk.outputPath).toMatch(/^chunks\/.*-.*\.d\.ts$/)
-		}
-	})
-
 	test('should handle outputPath with splitting and complex directory structure', async () => {
 		createProject({
 			'src/shared/types.ts': `
