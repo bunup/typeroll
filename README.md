@@ -130,7 +130,6 @@ export { r as fetchData, t as Response, e as DeepPartial };
 | `cwd`                     | `string`                                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
 | `splitting`               | `boolean`                                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
 | `minify`                  | `boolean`                                         | Controls the minification of generated declaration files. When `true`, minifies internal type names while preserving public (exported) API names.                                             |
-| `allowGlobs`              | `boolean`                                         | Whether to allow glob patterns in the entry points. When enabled, you can use patterns like `src/**/*.ts`.                                                                                      |
 | `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                                         |
 
 ## Programmatic Usage
