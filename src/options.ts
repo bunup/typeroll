@@ -66,10 +66,6 @@ export type GenerateDtsOptions = {
 	 * Whether to minify the generated declaration files to reduce the size of the declaration file.
 	 */
 	minify?: boolean
-	/**
-	 * Whether to allow globs in the entrypoints
-	 */
-	allowGlobs?: boolean
 }
 
 export type GenerateDtsResultFile = {
@@ -89,7 +85,6 @@ export type GenerateDtsResultFile = {
 	 * If the kind is 'chunk', this is the name of the chunk file.
 	 */
 	chunkFileName: string | undefined
-
 	/**
 	 * The output path of the declaration file relative to the output directory.
 	 * This is the directory where you want to save the declaration file.
@@ -107,6 +102,16 @@ export type GenerateDtsResultFile = {
 	 * await Bun.write(`dist/${result.outputPath}`, result.dts)
 	 */
 	outputPath: string
+	/**
+	 * The parsed parts of the output path, containing the file name and extension
+	 * This is useful when you need to manipulate the file name or extension separately
+	 */
+	pathInfo: {
+		/** The file name without the extension */
+		name: string
+		/** The file extension including the dot (e.g. '.d.ts') */
+		ext: string
+	}
 	/**
 	 * The generated declaration file
 	 */

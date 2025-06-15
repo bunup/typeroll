@@ -54,6 +54,12 @@ export async function generateDts(
 		path.isAbsolute(entrypoint),
 	)
 
+	if (![...resolvedEntrypoints, ...absoluteEntrypoints].length) {
+		throw new Error(
+			'The dts entrypoints you provided do not exist. Please make sure the entrypoints point to valid files.',
+		)
+	}
+
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
 	const collectedErrors: IsolatedDeclarationError[] = []
@@ -156,26 +162,36 @@ export async function generateDts(
 				await fakeJsToDts(bundledFakeJsContent),
 			)
 
+			const entrypoint =
+				output.kind === 'entry-point'
+					? entrypoints[bundledFiles.length]
+					: undefined
+
+			const chunkFileName =
+				output.kind === 'chunk'
+					? replaceExtension(
+							path.basename(output.path),
+							getDeclarationExtension(getExtension(output.path)),
+						)
+					: undefined
+
+			const outputPath = cleanPath(
+				replaceExtension(
+					cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
+					getDeclarationExtension(getExtension(output.path)),
+				),
+			)
+
 			bundledFiles.push({
 				kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
-				entrypoint:
-					output.kind === 'entry-point'
-						? entrypoints[bundledFiles.length]
-						: undefined,
-				chunkFileName:
-					output.kind === 'chunk'
-						? replaceExtension(
-								path.basename(output.path),
-								getDeclarationExtension(getExtension(output.path)),
-							)
-						: undefined,
-				outputPath: cleanPath(
-					replaceExtension(
-						cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
-						getDeclarationExtension(getExtension(output.path)),
-					),
-				),
+				entrypoint,
+				chunkFileName,
+				outputPath,
 				dts: dtsContent.code,
+				pathInfo: {
+					name: path.basename(outputPath, getExtension(outputPath)),
+					ext: getExtension(outputPath),
+				},
 			})
 		}
 
