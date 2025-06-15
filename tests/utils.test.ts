@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import {
+	cleanPath,
 	getDeclarationExtension,
 	getExtension,
 	replaceExtension,
@@ -48,7 +49,9 @@ describe('utils', () => {
 		})
 
 		it('should work with paths', () => {
-			expect(replaceExtension('path/to/file.js', '.ts')).toBe('path/to/file.ts')
+			expect(cleanPath(replaceExtension('path/to/file.js', '.ts'))).toBe(
+				'path/to/file.ts',
+			)
 		})
 
 		it("should add a dot if extension doesn't have one", () => {
