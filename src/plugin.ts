@@ -1,7 +1,7 @@
 import type { BunPlugin } from 'bun'
 import { generateDts } from './generate'
 import { logIsolatedDeclarationErrors } from './isolated-decl-error'
-import type { DtsPluginOptions, Naming } from './options'
+import type { DtsPluginOptions } from './options'
 import { ensureArray } from './utils'
 
 /**
@@ -20,7 +20,6 @@ export function dts(options: DtsPluginOptions = {}): BunPlugin {
 					ensureArray(entry ?? build.config.entrypoints),
 					{
 						cwd: build.config.root,
-						naming: build.config.naming as Naming,
 						...generateDtsOptions,
 						splitting: splitting ?? build.config.splitting,
 					},

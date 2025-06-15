@@ -33,27 +33,6 @@ export type GenerateDtsOptions = {
 	 */
 	cwd?: string
 	/**
-	 * Customizes the generated file names
-	 * Defaults to './[dir]/[name].[ext]'
-	 *
-	 * Supports the following tokens:
-	 * - [name] - The name of the entrypoint file, without the extension
-	 * - [ext] - The extension of the generated bundle
-	 * - [hash] - A hash of the bundle contents
-	 *
-	 * Can be a string template or an object with separate templates for entry points and chunks
-	 *
-	 * @example
-	 * naming: "[dir]/[name]-[hash].[ext]"
-	 *
-	 * @example
-	 * naming: {
-	 *   entry: "[dir]/[name].[ext]",
-	 *   chunk: "[name]-[hash].[ext]",
-	 * }
-	 */
-	naming?: Naming
-	/**
 	 * Whether to split declaration files when multiple entrypoints import the same files,
 	 * modules, or share types. When enabled, shared types will be extracted to separate
 	 * .d.ts files, and other declaration files will import these shared files.

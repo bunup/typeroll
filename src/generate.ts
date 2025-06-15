@@ -139,7 +139,6 @@ export async function generateDts(
 		target: 'node',
 		splitting: options.splitting,
 		plugins: [fakeJsPlugin],
-		naming: options.naming,
 		throw: false,
 		packages: 'external',
 		minify: options.minify,
