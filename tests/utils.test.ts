@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import {
-	cleanPath,
+	deleteExtension,
 	getDeclarationExtension,
 	getExtension,
 	replaceExtension,
@@ -22,44 +22,45 @@ describe('utils', () => {
 	})
 
 	describe('getExtension', () => {
-		it('should return the extension for a file path', () => {
+		it('should return the extension for a filename', () => {
 			expect(getExtension('file.js')).toBe('.js')
+			expect(getExtension('path/to/file.ts')).toBe('.ts')
+			expect(getExtension('file.d.ts')).toBe('.d.ts')
+			expect(getExtension('file.test.js')).toBe('.js')
 		})
 
-		it('should return the full extension for files with multiple dots', () => {
-			expect(getExtension('file.d.ts')).toBe('.ts')
-		})
-
-		it('should return empty string for files without extension', () => {
+		it('should return an empty string for files without extension', () => {
 			expect(getExtension('file')).toBe('')
-		})
-
-		it('should return empty string for empty input', () => {
-			expect(getExtension('')).toBe('')
+			expect(getExtension('path/to/file')).toBe('')
 		})
 	})
 
 	describe('replaceExtension', () => {
-		it('should replace the extension of a file', () => {
+		it('should replace the extension of a filename', () => {
 			expect(replaceExtension('file.js', '.ts')).toBe('file.ts')
-		})
-
-		it('should add the extension if file has no extension', () => {
-			expect(replaceExtension('file', '.ts')).toBe('file.ts')
-		})
-
-		it('should work with paths', () => {
-			expect(cleanPath(replaceExtension('path/to/file.js', '.ts'))).toBe(
-				'path/to/file.ts',
+			expect(replaceExtension('path/to/file.js', '.d.ts')).toBe(
+				'path/to/file.d.ts',
 			)
+			expect(replaceExtension('file.test.js', '.ts')).toBe('file.test.ts')
 		})
 
-		it("should add a dot if extension doesn't have one", () => {
-			expect(replaceExtension('file.js', 'ts')).toBe('file.ts')
+		it('should add extension if file has none', () => {
+			expect(replaceExtension('file', '.js')).toBe('file.js')
+			expect(replaceExtension('path/to/file', '.ts')).toBe('path/to/file.ts')
+		})
+	})
+
+	describe('deleteExtension', () => {
+		it('should remove the extension from a filename', () => {
+			expect(deleteExtension('file.js')).toBe('file')
+			expect(deleteExtension('path/to/file.ts')).toBe('path/to/file')
+			expect(deleteExtension('file.d.ts')).toBe('file')
+			expect(deleteExtension('file.test.js')).toBe('file.test')
 		})
 
-		it('should return the input if path is falsy', () => {
-			expect(replaceExtension('', '.ts')).toBe('')
+		it('should return the original string if no extension exists', () => {
+			expect(deleteExtension('file')).toBe('file')
+			expect(deleteExtension('path/to/file')).toBe('path/to/file')
 		})
 	})
 })

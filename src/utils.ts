@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
-import { basename, dirname, extname, join, normalize } from 'node:path'
+import { normalize } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
 import { isCI, isDevelopment } from 'std-env'
-import { TS_RE } from './re'
+import { EXTENSION_REGEX, TS_RE } from './re'
 
 export function ensureArray<T>(value: T | T[]): T[] {
 	return Array.isArray(value) ? value : [value]
@@ -15,6 +15,26 @@ export function isTypeScriptFile(path: string | null): boolean {
 
 export function returnPathIfExists(path: string): string | null {
 	return existsSync(path) ? path : null
+}
+
+export function getExtension(filename: string): string {
+	const match = filename.match(EXTENSION_REGEX)
+	if (!match) return ''
+
+	const ext = match[0]
+	return ext
+}
+
+export function replaceExtension(filename: string, newExt: string): string {
+	if (EXTENSION_REGEX.test(filename)) {
+		return filename.replace(EXTENSION_REGEX, newExt)
+	}
+
+	return filename + newExt
+}
+
+export function deleteExtension(filename: string): string {
+	return filename.replace(EXTENSION_REGEX, '')
 }
 
 export async function loadTsConfig(
@@ -51,23 +71,6 @@ export function isNullOrUndefined(value: unknown): value is undefined | null {
 	return value === undefined || value === null
 }
 
-export function replaceExtension(path: string, extension: string): string {
-	if (!path) return path
-
-	const normalizedExtension = extension.startsWith('.')
-		? extension
-		: `.${extension}`
-
-	if (!path.includes('.')) {
-		return `${path}${normalizedExtension}`
-	}
-
-	const dir = dirname(path)
-	const fileNameWithoutExt = basename(path, extname(path))
-
-	return join(dir, `${fileNameWithoutExt}${normalizedExtension}`)
-}
-
 export function cleanPath(path: string): string {
 	let cleaned = normalize(path).replace(/\\/g, '/')
 
@@ -84,17 +87,6 @@ export function getDeclarationExtension(ext: string): string {
 	if (ext === '.mjs') return '.d.mts'
 	if (ext === '.cjs') return '.d.cts'
 	return '.d.ts'
-}
-
-export function getExtension(filePath: string): string {
-	if (!filePath) return ''
-
-	const ext = extname(filePath)
-	return ext
-}
-
-export function removeFullExtension(filename: string): string {
-	return filename.replace(/(\.[^./\\]+)+$/, '')
 }
 
 export async function getFilesFromGlobs(

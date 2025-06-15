@@ -15,13 +15,13 @@ import { NODE_MODULES_RE } from './re'
 import { createResolver } from './resolver'
 import {
 	cleanPath,
+	deleteExtension,
 	generateRandomString,
 	getDeclarationExtension,
 	getExtension,
 	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
-	removeFullExtension,
 	replaceExtension,
 } from './utils'
 
@@ -190,7 +190,7 @@ export async function generateDts(
 				outputPath,
 				dts: dtsContent.code,
 				pathInfo: {
-					outputPathWithoutExtension: removeFullExtension(outputPath),
+					outputPathWithoutExtension: deleteExtension(outputPath),
 					ext: getExtension(outputPath),
 				},
 			})
