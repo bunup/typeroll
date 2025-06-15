@@ -156,21 +156,6 @@ export type DtsPluginOptions = {
 	 */
 	entry?: string | string[]
 	/**
-	 * Controls the error logging behavior
-	 *
-	 * @param boolean - When set to true, all declaration errors will be silenced
-	 * @param function - A filter function that determines which errors to silence
-	 *
-	 * @example
-	 * // Silence all errors
-	 * silent: true
-	 *
-	 * @example
-	 * // Silence only errors containing a specific message
-	 * silent: (error) => error.message.includes('some-error-message')
-	 */
-	silent?: boolean | ((error: IsolatedDeclarationError) => boolean)
-	/**
 	 * Callback function that is invoked when declaration files are generated.
 	 * This function receives the generated declaration results.
 	 *

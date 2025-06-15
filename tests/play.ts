@@ -1,5 +1,12 @@
-import { generateDts } from '../src'
+import { dts } from '../src'
 
-const result = await generateDts(['cool.tes.ts'])
-
-console.log(result.files.map((file) => file.pathInfo))
+console.time('build')
+await Bun.build({
+	entrypoints: ['bench/project/index.ts'],
+	format: 'esm',
+	outdir: 'tests/dist',
+	packages: 'external',
+	splitting: true,
+	plugins: [dts()],
+})
+console.timeEnd('build')
