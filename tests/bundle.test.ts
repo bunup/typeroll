@@ -1006,4 +1006,56 @@ describe('Bundle functionality', () => {
 			`)
 		})
 	})
+	describe('Ensure tokenization does not break build', () => {
+		test('should inline referenced function with camel case name', async () => {
+			createProject({
+				'src/index.ts': `
+					export function camelCaseFunction(): string {
+						return "CamelCaseFunction"
+					}
+
+					export type CamelCaseFunction = ReturnType<typeof camelCaseFunction>
+				`,
+			})
+
+			const files = await runGenerateDts(['src/index.ts'])
+
+			expect(files[0].dts).toMatchInlineSnapshot(`
+			  "declare function camelCaseFunction(): string;
+			  type CamelCaseFunction = ReturnType<typeof camelCaseFunction>;
+			  export { camelCaseFunction, CamelCaseFunction };
+			  "
+			`)
+		})
+
+		test('should not detect camel case strings as identifiers', async () => {
+			createProject({
+				'src/index.ts': `
+					type User = {
+						camelCase: string
+					}
+
+					function getUser(): User {
+						return {
+							camelCase: "camelCase"
+						}
+					}
+
+					export type GetUserReturnType = Omit<ReturnType<typeof getUser>, "camelCase">
+				`,
+			})
+
+			const files = await runGenerateDts(['src/index.ts'])
+
+			expect(files[0].dts).toMatchInlineSnapshot(`
+			  "type User = {
+			  	camelCase: string
+			  };
+			  declare function getUser(): User;
+			  type GetUserReturnType = Omit<ReturnType<typeof getUser>, "camelCase">;
+			  export { GetUserReturnType };
+			  "
+			`)
+		})
+	})
 })

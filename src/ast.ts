@@ -16,7 +16,10 @@ export function isLikelyVariableOrTypeName(token: string): boolean {
 	return (
 		CAPITAL_LETTER_RE.test(token) &&
 		!token.startsWith('/*') &&
-		!token.startsWith('@')
+		!token.startsWith('@') &&
+		!token.startsWith('"') &&
+		!token.startsWith("'") &&
+		!token.startsWith('`')
 	)
 }
 
