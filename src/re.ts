@@ -8,7 +8,7 @@ export const EXPORT_DEFAULT_RE: RegExp = /\bexport\s+default\s+/g
 export const EXPORT_RE: RegExp = /\bexport\s+/g
 export const TOKENIZE_RE: RegExp =
 	/(\s+|\/\/.*?(?:\n|$)|\/\*[\s\S]*?\*\/|[a-zA-Z_$][a-zA-Z0-9_$]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|[(){}\[\],.;:]|=>|&&|\|\||[=!<>]=?|\+\+|--|[-+*/%&|^!~?]|\.{3}|::|\.)/g
-export const CAPITAL_LETTER_RE: RegExp = /^[A-Z]/
+export const CAPITAL_LETTER_RE: RegExp = /[A-Z]/
 export const JS_RE: RegExp = /\.[cm]?jsx?$/
 export const TS_RE: RegExp = /\.[cm]?tsx?$|\.d\.[cm]?ts$/
 export const EXTENSION_REGEX: RegExp = /\.(d\.(ts|cts|mts)|[cm]?[jt]s)$/

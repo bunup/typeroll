@@ -1,5 +1,15 @@
-import { generateDts } from '../src'
+import { dts } from '../src'
 
-const res = await generateDts(['index.global.ts'])
-
-console.log(res.files)
+console.time('build')
+await Bun.build({
+	entrypoints: ['tests/fixtures/index.ts'],
+	format: 'esm',
+	outdir: 'tests/dist',
+	packages: 'external',
+	plugins: [
+		dts({
+			resolve: true,
+		}),
+	],
+})
+console.timeEnd('build')
