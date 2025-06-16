@@ -8,4 +8,7 @@ const createLogger = (): { log: (message: string) => void } => {
 	}
 }
 
+/**
+ * @description This is a comment
+ */
 export const logger: Logger = createLogger()
