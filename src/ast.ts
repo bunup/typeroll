@@ -10,16 +10,14 @@ import type {
 	Statement,
 } from '@babel/types'
 
-export function isLikelyVariableOrTypeName(name: string): boolean {
-	const identifierRegex = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/
-	if (!identifierRegex.test(name)) {
-		return false
-	}
+import { CAPITAL_LETTER_RE } from './re'
 
-	const isCamelCase = /^[a-z][a-zA-Z0-9]*$/.test(name)
-	const isPascalCase = /^[A-Z][a-zA-Z0-9]*$/.test(name)
-
-	return isCamelCase || isPascalCase
+export function isLikelyVariableOrTypeName(token: string): boolean {
+	return (
+		CAPITAL_LETTER_RE.test(token) &&
+		!token.startsWith('/*') &&
+		!token.startsWith('@')
+	)
 }
 
 export function isImportDeclaration(node: Node): boolean {
