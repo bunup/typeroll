@@ -1,6 +1,5 @@
 import type { BuildConfig } from 'bun'
 import type { IsolatedDeclarationError } from './isolated-decl-error'
-import { isNullOrUndefined } from './utils'
 
 export type Resolve = boolean | (string | RegExp)[]
 
