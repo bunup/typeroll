@@ -7,6 +7,9 @@
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
 	"types": "./dist/index.d.ts",
+	"bin": {
+		"typeroll": "./dist/cli.js"
+	},
 	"exports": {
 		".": {
 			"import": {
@@ -18,9 +21,6 @@
 				"default": "./dist/index.cjs"
 			}
 		}
-	},
-	"bin": {
-		"typeroll": "./dist/cli.js"
 	},
 	"scripts": {
 		"build": "bunup",
