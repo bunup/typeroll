@@ -3,14 +3,21 @@
 [![npm version](https://img.shields.io/npm/v/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 [![npm downloads](https://img.shields.io/npm/dm/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 
-An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.
+An extremely fast TypeScript declaration file generator and bundler for modern libraries.
 
 | Tool                  | Time    | Relative Speed  |
 |-----------------------|---------|-----------------|
 | **typeroll**          | 21ms    | baseline        |
 | dts-bundle-generator  | 4997ms  | 237x slower     |
 
-## 🚀 Quick Start
+## Features
+
+- 🚀 **Blazing Fast** - 237x faster than alternatives  
+- 📦 **Single File** - Bundle to one declaration file  
+- ✂️ **Code Splitting** - Optimize shared type declarations  
+- 🔧 **Minification** - Reduce declaration file size  
+
+## Quick Start
 
 Try typeroll instantly without installation:
 
@@ -20,7 +27,7 @@ bunx typeroll src/index.ts
 
 That's it! Your declaration files will be generated in the dist folder.
 
-## 📦 Installation
+## Installation
 
 Install as a dev dependency:
 
@@ -62,7 +69,7 @@ Now run:
 bun run build:dts
 ```
 
-## ⚙️ Command-Line Options
+## Command-Line Options
 
 | Option                             | Description                                                             |
 |-------------------------------------|-------------------------------------------------------------------------|
@@ -76,39 +83,7 @@ bun run build:dts
 | `-ra, --resolve-all`                | Resolve & include all external type dependencies                        |
 | `-r, --resolve <list>`              | Resolve only specified dependencies (comma-separated)                   |
 
-## 💻 Programmatic Usage
-
-Use the API for more control:
-
-```ts
-import { generateDts } from 'typeroll';
-
-const result = await generateDts(['src/index.ts']);
-
-for (const file of result.files) {
-  await Bun.write(`dist/${file.outputPath}`, file.dts);
-}
-```
-
-### Error Handling
-
-```ts
-import { generateDts, logErrors } from 'typeroll';
-
-const result = await generateDts(['src/index.ts']);
-
-if (result.errors.length > 0) {
-  logErrors(result.errors, {
-	shouldExit: true
-  });
-} else {
-  for (const file of result.files) {
-    await Bun.write(`dist/${file.outputPath}`, file.dts);
-  }
-}
-```
-
-## ✂️ Declaration Splitting
+## Declaration Splitting
 
 When `--splitting` is enabled, **shared types** are factored out into separate chunks to avoid duplication:
 
@@ -129,7 +104,7 @@ or
 await generateDts(['src/index.ts', 'src/cli.ts'], { splitting: true });
 ```
 
-## ✨ Minification
+## Minification
 
 Reduce your declaration file size while **preserving all exported names**:
 
@@ -170,7 +145,40 @@ export{r as fetchData,t as Response,e as DeepPartial};
 ```
 </details>
 
-## 🤝 Contributing
 
-We 💙 [contributions](CONTRIBUTING.md)!
+## Programmatic Usage
+
+Use the API for more control:
+
+```ts
+import { generateDts } from 'typeroll';
+
+const result = await generateDts(['src/index.ts']);
+
+for (const file of result.files) {
+  await Bun.write(`dist/${file.outputPath}`, file.dts);
+}
+```
+
+### Error Handling
+
+```ts
+import { generateDts, logErrors } from 'typeroll';
+
+const result = await generateDts(['src/index.ts']);
+
+if (result.errors.length > 0) {
+  logErrors(result.errors, {
+	shouldExit: true
+  });
+} else {
+  for (const file of result.files) {
+    await Bun.write(`dist/${file.outputPath}`, file.dts);
+  }
+}
+```
+
+## Contributing
+
+We love [contributions](CONTRIBUTING.md)!
 Help improve typeroll—submit bugs, request features, or open pull requests.
