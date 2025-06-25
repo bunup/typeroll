@@ -1,13 +1,13 @@
 # typeroll
 
-An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.
-
 [![npm version](https://img.shields.io/npm/v/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 [![npm downloads](https://img.shields.io/npm/dm/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 
+An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.
+
 | Tool                  | Time    | Relative Speed  |
 |-----------------------|---------|-----------------|
-| **typeroll**          | 21ms    | 1x (fastest!)   |
+| **typeroll**          | 21ms    | baseline        |
 | dts-bundle-generator  | 4997ms  | 237x slower     |
 
 ## 🚀 Quick Start
