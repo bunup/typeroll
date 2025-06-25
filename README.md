@@ -5,7 +5,12 @@ An extremely fast TypeScript declaration file generator and bundler to a single 
 [![npm version](https://img.shields.io/npm/v/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 [![npm downloads](https://img.shields.io/npm/dm/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 
-## 🚀 Quick Start
+| Tool                  | Time    | Relative Speed  |
+|-----------------------|---------|-----------------|
+| **typeroll**          | 21ms    | 1x (fastest!)   |
+| dts-bundle-generator  | 4997ms  | 237x slower     |
+
+## Quick Start
 
 Try typeroll instantly without installation:
 
@@ -15,16 +20,7 @@ bunx typeroll src/index.ts
 
 That's it! Your declaration files will be generated in the dist folder.
 
-## ⚡ Why typeroll?
-
-| Tool                  | Time    | Relative Speed  |
-|-----------------------|---------|-----------------|
-| **typeroll**          | 21ms    | 1x (fastest!)   |
-| dts-bundle-generator  | 4997ms  | 237x slower     |
-
-> typeroll is among the **fastest declaration generators** available—plus it's loaded with powerful features!
-
-## 📦 Installation
+## Installation
 
 Install as a dev dependency:
 
@@ -34,7 +30,7 @@ bun add -d typeroll
 
 ---
 
-## 🖥️ CLI Usage
+## CLI Usage
 
 Add to your project scripts or run directly:
 
@@ -62,6 +58,7 @@ bunx typeroll src/index.ts --splitting   		# Enable code splitting
     "build:dts:all": "typeroll \"src/**/*.ts\" \"!src/**/*.test.ts\" --outDir dist/types"
   }
 }
+```
 
 Now run:
 
@@ -71,7 +68,7 @@ bun run build:dts
 
 ---
 
-## 🎛️ Command-Line Options
+## Command-Line Options
 
 | Option                             | Description                                                             |
 |-------------------------------------|-------------------------------------------------------------------------|
@@ -87,7 +84,7 @@ bun run build:dts
 
 ---
 
-## 📚 Examples
+## Examples
 
 Generate declarations for a single entry point:
 ```bash
@@ -111,7 +108,7 @@ typeroll src/index.ts --resolve-all
 
 ---
 
-## 🛠️ Programmatic Usage
+## Programmatic Usage
 
 Use the API for more control:
 
@@ -145,7 +142,7 @@ if (result.errors.length > 0) {
 
 ---
 
-## 🔀 Declaration Splitting
+## Declaration Splitting
 
 When `--splitting` is enabled, **shared types** are factored out into separate chunks to avoid duplication:
 
@@ -168,7 +165,7 @@ await generateDts(['src/index.ts', 'src/cli.ts'], { splitting: true });
 
 ---
 
-## ✨ Minification
+## Minification
 
 Reduce your declaration file size while **preserving all exported names**:
 
@@ -211,7 +208,7 @@ export{r as fetchData,t as Response,e as DeepPartial};
 
 ---
 
-## 🔧 API Options Reference
+## API Options Reference
 
 | Option                   | Type                            | Description                                                                                                |
 |--------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------|
