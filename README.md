@@ -1,174 +1,228 @@
-# bun-dts
+# typeroll
 
-An extremely fast Bun plugin for generating and bundling TypeScript declaration files.
+An extremely fast TypeScript declaration file generator and bundler to a single file.
 
-[![npm version](https://img.shields.io/npm/v/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
-[![npm downloads](https://img.shields.io/npm/dm/bun-dts.svg?style=flat-square)](https://www.npmjs.com/package/bun-dts)
+[![npm version](https://img.shields.io/npm/v/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
+[![npm downloads](https://img.shields.io/npm/dm/typeroll.svg?style=flat-square)](https://www.npmjs.com/package/typeroll)
 
-| Name                 | Duration | Relative Speed       |
-| -------------------- | -------- | -------------------- |
-| bun-dts              | 21ms     | 1x (fastest)         |
-| bun-plugin-dts       | 5285ms   | 251.7x slower        |
-| dts-bundle-generator | 4997ms   | 237.0x slower        |
+## 🚀 Quick Start
+
+Try typeroll instantly without installation:
+
+```bash
+bunx typeroll src/index.ts
+```
+
+That's it! Your declaration files will be generated in the dist folder.
+
+## ⚡ Why typeroll?
+
+| Tool                  | Time    | Relative Speed  |
+|-----------------------|---------|-----------------|
+| **typeroll**          | 21ms    | 1x (fastest!)   |
+| dts-bundle-generator  | 4997ms  | 237x slower     |
+
+> typeroll is among the **fastest declaration generators** available—plus it's loaded with powerful features!
 
 ## 📦 Installation
 
+Install as a dev dependency:
+
 ```bash
-bun add -d bun-dts
+bun add -d typeroll
 ```
 
-## 🔌 Plugin Usage
+---
 
-Use the `dts()` plugin in your Bun build configuration to automatically generate and bundle TypeScript declaration files.
+## 🖥️ CLI Usage
 
-```ts
-import { dts } from 'bun-dts';
+Add to your project scripts or run directly:
 
-await Bun.build({
-	entrypoints: ['src/index.ts'],
-	outdir: 'dist',
-	plugins: [dts()],
-});
+```bash
+bunx typeroll [...entrypoints] [options]
 ```
 
-That's it, now running the build will output a dts file in `dist/index.d.ts`.
-
-The declaration file extension matches your JavaScript output format:
-
-- `.js` output → `.d.ts` declarations
-- `.mjs` output → `.d.mts` declarations
-- `.cjs` output → `.d.cts` declarations
-
-### 🎯 Entry Points
-
-The plugin supports flexible entry point configuration:
-
-```ts
-// Use build config's entrypoints (default)
-dts();
-
-// Single entry
-dts({ entry: 'src/api.ts' });
-
-// Multiple entries
-dts({ entry: ['src/index.ts', 'src/utils.ts'] });
-
-// Glob patterns (requires allowGlobs option)
-dts({ allowGlobs: true, entry: ['src/**/*.ts', '!src/**/*.test.ts'] });
+Examples:
+```bash
+bunx typeroll src/index.ts               		# Single entry
+bunx typeroll src/index.ts src/cli.ts    		# Multiple entrypoints
+bunx typeroll "src/**/*.ts"              		# Glob pattern for all .ts files in src
+bunx typeroll "src/**/*.ts" "!src/**/*.test.ts" # Include all .ts but exclude test files
+bunx typeroll src/index.ts --minify      		# Minify output
+bunx typeroll src/index.ts --splitting   		# Enable code splitting
 ```
 
-### ✂️ Declaration Splitting
+### Script Usage
 
-When `splitting` is enabled, shared types across entrypoints are extracted to separate `.d.ts` files to reduce duplication:
-
-```ts
-dts({ splitting: true });
-```
-
-Without splitting:
-```
-dist/
-├── index.d.ts     # 50KB (includes shared types)
-└── cli.d.ts       # 45KB (duplicates shared types)
-```
-
-With splitting:
-```
-dist/
-├── index.d.ts     # 15KB (imports from chunk)
-├── cli.d.ts       # 10KB (imports from chunk)
-└── chunk-abc123.d.ts  # 30KB (shared types)
-```
-
-This creates chunk files for shared types, and entry point files import from these chunks as needed. This is enabled by default if `splitting` is enabled in the Bun build config.
-
-### 🗜️ Minification
-
-You can minify the generated declaration files to reduce their size:
-
-```ts
-dts({ minify: true });
-```
-
-When enabled, minification will preserve public (exported) API names while minifying internal type names to reduce file size. This is particularly useful for large declaration files or multiple medium to large declaration files, which can reduce your bundle size significantly.
-
-#### Example
-
-Original:
-
-```typescript
-type DeepPartial<T> = { [P in keyof T]? : DeepPartial<T[P]> };
-interface Response<T> {
-	data: T;
-	error?: string;
-	meta?: Record<string, unknown>;
+```jsonc
+// package.json
+{
+  "scripts": {
+    "build:dts": "typeroll src/index.ts --outDir dist/types",
+    "build:dts:all": "typeroll \"src/**/*.ts\" \"!src/**/*.test.ts\" --outDir dist/types"
+  }
 }
-declare function fetchData<T>(url: string, options?: RequestInit): Promise<Response<T>>;
-export { fetchData, Response, DeepPartial };
+
+Now run:
+
+```bash
+bun run build:dts
 ```
 
-Minified:
+---
 
-```typescript
-type e<T> = { [P in keyof T]? : e<T[P]> };
-interface t<T> {
-	data: T;
-	error?: string;
-	meta?: Record<string, unknown>;
-}
-declare function r<T>(url: string, options?: RequestInit): Promise<t<T>>;
-export { r as fetchData, t as Response, e as DeepPartial };
+## 🎛️ Command-Line Options
+
+| Option                             | Description                                                             |
+|-------------------------------------|-------------------------------------------------------------------------|
+| `-o, --outDir <dir>`                | Output directory (default: `dist`)                                      |
+| `-s, --splitting`                   | Enable code splitting for shared types                                  |
+| `-m, --minify`                      | Enable all minification options                                         |
+| `-mj, --minify-jsdoc`               | Remove JSDoc comments                                                   |
+| `-mw, --minify-whitespace`          | Remove whitespace/newlines                                              |
+| `-mi, --minify-identifiers`         | Shorten internal type variable names                                    |
+| `-c, --clean`                       | Clean output directory before build (default: `true`)                   |
+| `-ra, --resolve-all`                | Resolve & include all external type dependencies                        |
+| `-r, --resolve <list>`              | Resolve only specified dependencies (comma-separated)                   |
+
+---
+
+## 📚 Examples
+
+Generate declarations for a single entry point:
+```bash
+typeroll src/index.ts
 ```
 
-## ⚙️ Options
+With multiple entry points and type splitting:
+```bash
+typeroll src/index.ts src/cli.ts --splitting
+```
 
-| Option                    | Type                                              | Description                                                                                                                                                                                     |
-| ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entry`                   | `string \| string[]`                              | Custom entry points to use instead of the ones from the build config. Can be a string, array of strings, or glob patterns that resolve to files.                                                |
-| `preferredTsConfigPath`   | `string`                                          | Path to the preferred tsconfig.json file. By default, the closest tsconfig.json file will be used.                                                                                              |
-| `resolve`                 | `boolean \| (string \| RegExp)[]`                 | Controls which external modules should be resolved. `true` to resolve all external modules, an array of strings or RegExp to match specific modules, or `false` to disable external resolution. |
-| `cwd`                     | `string`                                          | The directory where the generator will look for the `tsconfig.json` file and `node_modules`. By default, the current working directory will be used.                                            |
-| `splitting`               | `boolean`                                         | Whether to split declaration files when multiple entrypoints share types. Enabled by default if splitting is enabled in the Bun build config.                                                   |
-| `minify`                  | `boolean`                                         | Controls the minification of generated declaration files. When `true`, minifies internal type names while preserving public (exported) API names.                                             |
-| `onDeclarationsGenerated` | `(result: OnDeclarationsGeneratedResult) => void` | Callback function that is invoked when declaration files are generated.                                                                                                                         |
+Minified (with all minify options):
+```bash
+typeroll src/index.ts --minify
+```
 
-## Programmatic Usage
+Resolve all external dependencies:
+```bash
+typeroll src/index.ts --resolve-all
+```
 
-Use the `generateDts` function directly for more control:
+---
+
+## 🛠️ Programmatic Usage
+
+Use the API for more control:
 
 ```ts
-import { generateDts } from 'bun-dts';
+import { generateDts } from 'typeroll';
 
 const result = await generateDts(['src/index.ts']);
 
 for (const file of result.files) {
-	await Bun.write(`dist/${file.outputPath}`, file.dts);
+  await Bun.write(`dist/${file.outputPath}`, file.dts);
 }
 ```
 
-### Error Handling
+### Error Handling Example
 
 ```ts
-import { generateDts, logIsolatedDeclarationErrors } from 'bun-dts';
+import { generateDts, logErrors } from 'typeroll';
 
 const result = await generateDts(['src/index.ts']);
 
 if (result.errors.length > 0) {
-	logIsolatedDeclarationErrors(result.errors);
-	process.exit(1);
+  logErrors(result.errors, {
+	shouldExit: true
+  });
 } else {
-	for (const file of result.files) {
-		await Bun.write(`dist/${file.outputPath}`, file.dts);
-	}
+  for (const file of result.files) {
+    await Bun.write(`dist/${file.outputPath}`, file.dts);
+  }
 }
 ```
 
-## Comparison with [bun-plugin-dts](https://github.com/wobsoriano/bun-plugin-dts)
+---
 
-bun-dts is upto **200-300x faster** than bun-plugin-dts, significantly reducing your build times. Additionally, bun-dts offers many more cool features built-in.
+## 🔀 Declaration Splitting
 
-## ❤️ Contributing
+When `--splitting` is enabled, **shared types** are factored out into separate chunks to avoid duplication:
 
-For guidelines on contributing, please read the [contributing guide](../../CONTRIBUTING.md).
+```
+dist/
+├── index.d.ts         # ~15KB, imports from chunk
+├── cli.d.ts           # ~10KB, imports from chunk
+└── chunk-abc123.d.ts  # ~30KB, shared types
+```
 
-We welcome contributions from the community to enhance capabilities and make it even more powerful.
+Instead of duplicating types between multiple entry files, shared code is chunked!
+
+```bash
+typeroll src/index.ts src/cli.ts --splitting
+```
+or
+```ts
+await generateDts(['src/index.ts', 'src/cli.ts'], { splitting: true });
+```
+
+---
+
+## ✨ Minification
+
+Reduce your declaration file size while **preserving all exported names**:
+
+```bash
+typeroll src/index.ts --minify
+```
+
+Or via API:
+```ts
+await generateDts(['src/index.ts'], { minify: true });
+```
+
+#### Example (before & after):
+
+<details>
+<summary><b>Original</b></summary>
+
+```ts
+type DeepPartial<T> = { [P in keyof T]? : DeepPartial<T[P]> };
+interface Response<T> {
+  data: T;
+  error?: string;
+  meta?: Record<string, unknown>;
+}
+declare function fetchData<T>(url: string, options?: RequestInit): Promise<Response<T>>;
+export { fetchData, Response, DeepPartial };
+```
+</details>
+
+<details>
+<summary><b>Minified</b></summary>
+
+```ts
+type e<T>={[P in keyof T]?:e<T[P]>};
+interface t<T>{data:T;error?:string;meta?:Record<string,unknown>;}
+declare function r<T>(url:string,options?:RequestInit):Promise<t<T>>;
+export{r as fetchData,t as Response,e as DeepPartial};
+```
+</details>
+
+---
+
+## 🔧 API Options Reference
+
+| Option                   | Type                            | Description                                                                                                |
+|--------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------|
+| `entry`                  | `string \| string[]`            | One or multiple entry files (supports glob patterns like `"src/**/*.ts"` and exclude patterns with `!`)     |
+| `preferredTsConfigPath`  | `string`                        | Use specific tsconfig.json (defaults to nearest tsconfig)                                                  |
+| `resolve`                | `boolean \| (string\|RegExp)[]` | What external modules to resolve: `true`, array of names/regex, `false` for no resolving                   |
+| `cwd`                    | `string`                        | Working directory for tsconfig/node_modules (default: process cwd)                                         |
+| `splitting`              | `boolean`                       | Enable code splitting for shared types                                                                     |
+| `minify`                 | `boolean`                       | Minify declaration files (preserves exported symbols, shortens internals)                                  |
+
+## 🤝 Contributing
+
+We 💙 [contributions](CONTRIBUTING.md)!
+Help improve typeroll—submit bugs, request features, or open pull requests.

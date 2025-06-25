@@ -3,8 +3,8 @@ import path from 'node:path'
 import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
+import type { IsolatedDeclarationError } from './error-logger'
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
-import type { IsolatedDeclarationError } from './isolated-decl-error'
 import { handleBunBuildLogs } from './logger'
 import type {
 	GenerateDtsOptions,
@@ -27,7 +27,8 @@ import {
 
 /**
  * Generate a declaration file for a given entry point
- * @param entrypoints - The entry points to generate a declaration file for
+ * @param entrypoints - The entry points to generate a declaration file for.
+ * Supports glob patterns (e.g. "src/**\/*.ts") and exclude patterns (e.g. "!src/**\/*.test.ts")
  * @param options - The options for generating the declaration file
  * @returns The generated declaration file and any errors that occurred
  */
@@ -39,7 +40,7 @@ export async function generateDts(
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
 	const tempOutDir = path.resolve(
-		path.join(cwd, `.bun-dts-${generateRandomString()}`),
+		path.join(cwd, `.typeroll-${generateRandomString()}`),
 	)
 
 	const nonAbsoluteEntrypoints = entrypoints.filter(

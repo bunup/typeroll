@@ -1,18 +1,26 @@
 {
-	"name": "bun-dts",
-	"description": "An extremely fast Bun plugin for generating and bundling TypeScript declaration files (.d.ts)",
-	"version": "0.1.70",
+	"name": "typeroll",
+	"description": "An extremely fast TypeScript declaration file generator and bundler to a single file.",
+	"version": "0.1.0",
 	"type": "module",
 	"files": ["dist"],
-	"types": "./dist/index.d.cts",
 	"module": "./dist/index.js",
 	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.cts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
 		}
+	},
+	"bin": {
+		"typeroll": "./dist/cli.js"
 	},
 	"scripts": {
 		"build": "bunup",
@@ -34,6 +42,7 @@
 	"dependencies": {
 		"@babel/parser": "^7.27.5",
 		"@babel/types": "^7.27.3",
+		"cac": "^6.7.14",
 		"coffi": "^0.1.31",
 		"oxc-resolver": "^8.0.0",
 		"oxc-transform": "^0.67.0",
@@ -48,7 +57,7 @@
 		"@types/bun": "^1.2.11",
 		"bumpp": "^10.1.0",
 		"bun-plugin-dts": "^0.3.0",
-		"bunup": "^0.8.33",
+		"bunup": "^0.8.48",
 		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.7",
 		"typescript": "^5.8.3",
@@ -73,9 +82,9 @@
 	"funding": "https://github.com/sponsors/arshad-yaseen",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/arshad-yaseen/bun-dts.git"
+		"url": "git+https://github.com/arshad-yaseen/typeroll.git"
 	},
-	"homepage": "https://github.com/arshad-yaseen/bun-dts#readme",
+	"homepage": "https://github.com/arshad-yaseen/typeroll#readme",
 	"peerDependencies": {
 		"typescript": ">=4.5.0"
 	},
@@ -83,5 +92,6 @@
 		"typescript": {
 			"optional": true
 		}
-	}
+	},
+	"workspaces": ["bench"]
 }

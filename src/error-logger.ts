@@ -15,7 +15,7 @@ export type IsolatedDeclarationError = {
 /**
  * Options for logging isolated declaration errors
  */
-export type LogIsolatedDeclarationErrorsOptions = {
+export type logErrorsOptions = {
 	/**
 	 * Whether to exit the process after logging the errors
 	 */
@@ -27,9 +27,9 @@ export type LogIsolatedDeclarationErrorsOptions = {
  * @param errors - The errors to log
  * @param options - The options for logging the errors
  */
-export function logIsolatedDeclarationErrors(
+export function logErrors(
 	errors: IsolatedDeclarationError[],
-	options: LogIsolatedDeclarationErrorsOptions = {},
+	options: logErrorsOptions = {},
 ): void {
 	let hasSeverityError = false
 	for (const error of errors) {

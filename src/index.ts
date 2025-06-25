@@ -1,14 +1,12 @@
 export {
-	logIsolatedDeclarationErrors,
-	type LogIsolatedDeclarationErrorsOptions,
+	logErrors,
+	type logErrorsOptions,
 	type IsolatedDeclarationError,
-} from './isolated-decl-error'
+} from './error-logger'
 
 export type {
 	GenerateDtsOptions,
 	GenerateDtsResult,
-	DtsPluginOptions,
 } from './options'
 
 export { generateDts } from './generate'
-export { dts } from './plugin'

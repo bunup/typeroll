@@ -1,8 +1,8 @@
-# Contributing to bun-dts
+# Contributing to typeroll
 
 Thank you for your interest in contributing to our project! This guide will help you get started with the development process.
 
-📖 **[Learn how bun-dts works under the hood](./guides/how-it-works.md)**
+📖 **[Learn how typeroll works under the hood](./guides/how-it-works.md)**
 
 ## Development Setup
 
@@ -13,8 +13,8 @@ Thank you for your interest in contributing to our project! This guide will help
 ### Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/arshad-yaseen/bun-dts.git`
-3. Navigate to the project directory: `cd bun-dts`
+2. Clone your fork: `git clone https://github.com/arshad-yaseen/typeroll.git`
+3. Navigate to the project directory: `cd typeroll`
 4. Install dependencies: `bun install`
 5. Start development: `bun run dev`
 
@@ -58,4 +58,4 @@ Please be respectful and constructive in all interactions within our community.
 
 If you have any questions, please open an issue for discussion.
 
-Thank you for contributing to bun-dts!
+Thank you for contributing to typeroll!

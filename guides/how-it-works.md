@@ -1,6 +1,6 @@
-# How bun-dts Works
+# How typeroll Works
 
-bun-dts generates TypeScript declaration files by transforming `.d.ts` files into fake JavaScript that preserves type dependencies as real variables, enabling Bun's bundler to apply tree-shaking and name mangling.
+typeroll generates TypeScript declaration files by transforming `.d.ts` files into fake JavaScript that preserves type dependencies as real variables, enabling Bun's bundler to apply tree-shaking and name mangling.
 
 ## Core Process
 

@@ -1,7 +1,6 @@
-import dtsPlugin from 'bun-plugin-dts'
 import { generateDtsBundle } from 'dts-bundle-generator'
 import pc from 'picocolors'
-import { dts } from '../src'
+import { generateDts } from '../src'
 
 type Benchmark = {
 	name: string
@@ -29,24 +28,8 @@ const benchmark = async (name: string, fn: Benchmark['fn']) => {
 
 const benchmarks: Benchmark[] = [
 	{
-		name: 'bun-dts',
-		fn: () =>
-			Bun.build({
-				entrypoints: ['bench/project/index.ts'],
-				format: 'esm',
-				outdir: 'bench/dist/bun-dts',
-				plugins: [dts()],
-			}),
-	},
-	{
-		name: 'bun-plugin-dts',
-		fn: () =>
-			Bun.build({
-				entrypoints: ['bench/project/index.ts'],
-				format: 'esm',
-				outdir: 'bench/dist/bun-plugin-dts',
-				plugins: [dtsPlugin()],
-			}),
+		name: 'typeroll',
+		fn: () => generateDts(['bench/project/index.ts']),
 	},
 	{
 		name: 'dts-bundle-generator',
@@ -61,10 +44,8 @@ const benchmarks: Benchmark[] = [
 
 const getBundlerColor = (name: string) => {
 	switch (name) {
-		case 'bun-dts':
+		case 'typeroll':
 			return pc.cyan
-		case 'bun-plugin-dts':
-			return pc.magenta
 		case 'dts-bundle-generator':
 			return pc.yellow
 		default:
