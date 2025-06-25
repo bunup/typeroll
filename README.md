@@ -25,7 +25,7 @@ Try typeroll instantly without installation:
 bunx typeroll src/index.ts
 ```
 
-That's it! Your declaration files will be generated in the dist folder.
+That's it! Your declaration files will be generated in the `dist` folder.
 
 ## Installation
 
