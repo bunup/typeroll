@@ -28,8 +28,6 @@ Install as a dev dependency:
 bun add -d typeroll
 ```
 
----
-
 ## CLI Usage
 
 Add to your project scripts or run directly:
@@ -66,7 +64,6 @@ Now run:
 bun run build:dts
 ```
 
----
 
 ## Command-Line Options
 
@@ -82,7 +79,6 @@ bun run build:dts
 | `-ra, --resolve-all`                | Resolve & include all external type dependencies                        |
 | `-r, --resolve <list>`              | Resolve only specified dependencies (comma-separated)                   |
 
----
 
 ## Examples
 
@@ -105,8 +101,6 @@ Resolve all external dependencies:
 ```bash
 typeroll src/index.ts --resolve-all
 ```
-
----
 
 ## Programmatic Usage
 
@@ -140,8 +134,6 @@ if (result.errors.length > 0) {
 }
 ```
 
----
-
 ## Declaration Splitting
 
 When `--splitting` is enabled, **shared types** are factored out into separate chunks to avoid duplication:
@@ -162,8 +154,6 @@ or
 ```ts
 await generateDts(['src/index.ts', 'src/cli.ts'], { splitting: true });
 ```
-
----
 
 ## Minification
 
@@ -205,8 +195,6 @@ declare function r<T>(url:string,options?:RequestInit):Promise<t<T>>;
 export{r as fetchData,t as Response,e as DeepPartial};
 ```
 </details>
-
----
 
 ## 🤝 Contributing
 
