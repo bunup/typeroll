@@ -208,17 +208,6 @@ export{r as fetchData,t as Response,e as DeepPartial};
 
 ---
 
-## API Options Reference
-
-| Option                   | Type                            | Description                                                                                                |
-|--------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------|
-| `entry`                  | `string \| string[]`            | One or multiple entry files (supports glob patterns like `"src/**/*.ts"` and exclude patterns with `!`)     |
-| `preferredTsConfigPath`  | `string`                        | Use specific tsconfig.json (defaults to nearest tsconfig)                                                  |
-| `resolve`                | `boolean \| (string\|RegExp)[]` | What external modules to resolve: `true`, array of names/regex, `false` for no resolving                   |
-| `cwd`                    | `string`                        | Working directory for tsconfig/node_modules (default: process cwd)                                         |
-| `splitting`              | `boolean`                       | Enable code splitting for shared types                                                                     |
-| `minify`                 | `boolean`                       | Minify declaration files (preserves exported symbols, shortens internals)                                  |
-
 ## 🤝 Contributing
 
 We 💙 [contributions](CONTRIBUTING.md)!
