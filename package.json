@@ -92,6 +92,5 @@
 		"typescript": {
 			"optional": true
 		}
-	},
-	"workspaces": ["bench"]
+	}
 }
