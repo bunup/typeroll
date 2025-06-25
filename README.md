@@ -40,17 +40,17 @@ bun add -d typeroll
 Add to your project scripts or run directly:
 
 ```bash
-typeroll [...entrypoints] [options]
+bunx typeroll [...entrypoints] [options]
 ```
 
 Examples:
 ```bash
-typeroll src/index.ts               		    # Single entry
-typeroll src/index.ts src/cli.ts    		    # Multiple entrypoints
-typeroll "src/**/*.ts"              		    # Glob pattern for all .ts files in src
-typeroll "src/**/*.ts" "!src/**/*.test.ts"  # Include all .ts but exclude test files
-typeroll src/index.ts --minify      		    # Minify output
-typeroll src/index.ts --splitting   		    # Enable code splitting
+bunx typeroll src/index.ts               		# Single entry
+bunx typeroll src/index.ts src/cli.ts    		# Multiple entrypoints
+bunx typeroll "src/**/*.ts"              		# Glob pattern for all .ts files in src
+bunx typeroll "src/**/*.ts" "!src/**/*.test.ts" # Include all .ts but exclude test files
+bunx typeroll src/index.ts --minify      		# Minify output
+bunx typeroll src/index.ts --splitting   		# Enable code splitting
 ```
 
 ## Command-Line Options
