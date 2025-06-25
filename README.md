@@ -12,7 +12,7 @@ An extremely fast TypeScript declaration file generator and bundler for modern l
 
 ## Features
 
-- 🚀 **Blazing Fast** - 237x faster than alternatives  
+- 🚀 **Blazing Fast** - 200x faster than alternatives  
 - 📦 **Single File** - Bundle to one clean declaration file  
 - ✂️ **Code Splitting** - Optimize shared type declarations  
 - 🔧 **Minification** - Reduce declaration file size  
