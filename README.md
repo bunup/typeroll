@@ -44,13 +44,24 @@ bunx typeroll [...entrypoints] [options]
 ```
 
 Examples:
+
 ```bash
-bunx typeroll src/index.ts    # Single entry
-bunx typeroll src/index.ts src/cli.ts   # Multiple entrypoints
-bunx typeroll "src/**/*.ts"   # Glob pattern for all .ts files in src
+bunx typeroll src/index.ts               		      # Single entry
+```
+```bash
+bunx typeroll src/index.ts src/cli.ts    		      # Multiple entrypoints
+```
+```bash
+bunx typeroll "src/**/*.ts"              		      # Glob pattern for all .ts files in src
+```
+```bash
 bunx typeroll "src/**/*.ts" "!src/**/*.test.ts"   # Include all .ts but exclude test files
-bunx typeroll src/index.ts --minify   # Minify output
-bunx typeroll src/index.ts --splitting    # Enable code splitting
+```
+```bash
+bunx typeroll src/index.ts --minify      		      # Minify output
+```
+```bash
+bunx typeroll src/index.ts --splitting   		      # Enable code splitting
 ```
 
 ## Command-Line Options
