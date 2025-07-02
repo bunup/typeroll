@@ -178,7 +178,7 @@ export async function generateDts(
 
 			const treeshakedDts = isolatedDeclaration('treeshake.d.ts', dtsContent)
 
-			if (treeshakedDts.errors.length) {
+			if (treeshakedDts.errors.length && !treeshakedDts.code) {
 				console.log(treeshakedDts.errors)
 				throw new TyperollError(
 					`DTS treeshaking failed for ${entrypoint || outputPath}`,
