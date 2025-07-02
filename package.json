@@ -19,9 +19,6 @@
 			}
 		}
 	},
-	"bin": {
-		"typeroll": "./dist/cli.js"
-	},
 	"scripts": {
 		"build": "bunup",
 		"dev": "bunup --watch",

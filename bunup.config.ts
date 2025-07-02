@@ -8,8 +8,4 @@ export default defineConfig([
 		dts: true,
 		plugins: [exports()],
 	},
-	{
-		entry: ['src/cli.ts'],
-		format: ['esm'],
-	},
 ])
