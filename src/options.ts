@@ -1,13 +1,13 @@
 import type { IsolatedDeclarationError } from './isolated-decl-logger'
 
-export type Resolve = boolean | (string | RegExp)[]
-
 export type Naming =
 	| string
 	| {
 			entry: string
 			chunk: string
 	  }
+
+export type Resolve = boolean | (string | RegExp)[]
 
 /**
  * Options for generating declaration file
