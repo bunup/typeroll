@@ -55,7 +55,7 @@ export async function generateDts(
 
 	if (![...resolvedEntrypoints, ...absoluteEntrypoints].length) {
 		throw new TyperollError(
-			'The dts entrypoints you provided do not exist. Please make sure the entrypoints point to valid files.',
+			'One or more of the entrypoints you provided do not exist. Please check that each entrypoint points to a valid file.',
 		)
 	}
 
