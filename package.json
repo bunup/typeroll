@@ -1,7 +1,7 @@
 {
 	"name": "typeroll",
 	"description": "An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.",
-	"version": "0.6.4",
+	"version": "0.6.5",
 	"type": "module",
 	"files": ["dist"],
 	"module": "./dist/index.js",
