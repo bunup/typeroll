@@ -1,6 +1,5 @@
 export {
 	logIsolatedDeclarationErrors,
-	type logErrorsOptions,
 	type IsolatedDeclarationError,
 } from './isolated-decl-logger'
 

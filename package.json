@@ -42,7 +42,6 @@
 	"dependencies": {
 		"@babel/parser": "^7.27.5",
 		"@babel/types": "^7.27.3",
-		"cac": "^6.7.14",
 		"coffi": "^0.1.31",
 		"oxc-resolver": "^8.0.0",
 		"oxc-transform": "^0.67.0",
