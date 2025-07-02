@@ -1,8 +1,8 @@
 export {
-	logErrors,
+	logIsolatedDeclarationErrors,
 	type logErrorsOptions,
 	type IsolatedDeclarationError,
-} from './error-logger'
+} from './isolated-decl-logger'
 
 export type {
 	GenerateDtsOptions,

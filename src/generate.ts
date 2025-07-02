@@ -3,9 +3,13 @@ import path from 'node:path'
 import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
-import type { IsolatedDeclarationError } from './error-logger'
+
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
-import { handleBunBuildLogs } from './logger'
+import {
+	type IsolatedDeclarationError,
+	logIsolatedDeclarationErrors,
+} from './isolated-decl-logger'
+import { logger } from './logger'
 import type {
 	GenerateDtsOptions,
 	GenerateDtsResult,
@@ -17,7 +21,7 @@ import {
 	cleanPath,
 	deleteExtension,
 	generateRandomString,
-	getDeclarationExtension,
+	getDeclarationExtensionFromJsExtension,
 	getExtension,
 	getFilesFromGlobs,
 	isTypeScriptFile,
@@ -25,22 +29,17 @@ import {
 	replaceExtension,
 } from './utils'
 
-/**
- * Generate a declaration file for a given entry point
- * @param entrypoints - The entry points to generate a declaration file for.
- * Supports glob patterns (e.g. "src/**\/*.ts") and exclude patterns (e.g. "!src/**\/*.test.ts")
- * @param options - The options for generating the declaration file
- * @returns The generated declaration file and any errors that occurred
- */
 export async function generateDts(
 	entrypoints: string[],
-	options: GenerateDtsOptions = {},
+	options: GenerateDtsOptions,
 ): Promise<GenerateDtsResult> {
-	const { preferredTsConfigPath, resolve } = options
+	const { resolve, preferredTsConfigPath } = options
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
+	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
+
 	const tempOutDir = path.resolve(
-		path.join(cwd, `.typeroll-${generateRandomString()}`),
+		path.join(cwd, `.bunup-dts-${generateRandomString()}`),
 	)
 
 	const nonAbsoluteEntrypoints = entrypoints.filter(
@@ -62,14 +61,12 @@ export async function generateDts(
 		)
 	}
 
-	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
-
 	const collectedErrors: IsolatedDeclarationError[] = []
 
 	const resolver = createResolver({
-		tsconfig: tsconfig.filepath,
 		cwd,
 		resolveOption: resolve,
+		tsconfig: tsconfig.filepath,
 	})
 
 	const fakeJsPlugin: BunPlugin = {
@@ -140,12 +137,18 @@ export async function generateDts(
 		target: 'node',
 		splitting: options.splitting,
 		plugins: [fakeJsPlugin],
-		throw: false,
 		packages: 'external',
 		minify: options.minify,
+		throw: false,
 	})
 
-	handleBunBuildLogs(result.logs)
+	if (collectedErrors.length) {
+		logIsolatedDeclarationErrors(collectedErrors)
+	}
+
+	if (!result.success) {
+		throw new Error(`DTS bundling failed: ${result.logs}`)
+	}
 
 	try {
 		const outputs = result.outputs.filter(
@@ -157,11 +160,7 @@ export async function generateDts(
 		for (const output of outputs) {
 			const bundledFakeJsPath = output.path
 			const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
-
-			const dtsContent = isolatedDeclaration(
-				'treeshake.d.ts',
-				await fakeJsToDts(bundledFakeJsContent),
-			)
+			const dtsContent = await fakeJsToDts(bundledFakeJsContent)
 
 			const entrypoint =
 				output.kind === 'entry-point'
@@ -172,23 +171,36 @@ export async function generateDts(
 				output.kind === 'chunk'
 					? replaceExtension(
 							path.basename(output.path),
-							getDeclarationExtension(getExtension(output.path)),
+							getDeclarationExtensionFromJsExtension(getExtension(output.path)),
 						)
 					: undefined
 
 			const outputPath = cleanPath(
 				replaceExtension(
 					cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
-					getDeclarationExtension(getExtension(output.path)),
+					getDeclarationExtensionFromJsExtension(getExtension(output.path)),
 				),
 			)
+
+			let dtsContentToWrite = dtsContent
+
+			const treeshakedDts = isolatedDeclaration('treeshake.d.ts', dtsContent)
+
+			if (treeshakedDts.errors.length) {
+				logger.error(
+					`DTS treeshaking failed for ${entrypoint || outputPath}:\n`,
+				)
+				console.log(treeshakedDts.errors)
+			} else {
+				dtsContentToWrite = treeshakedDts.code
+			}
 
 			bundledFiles.push({
 				kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
 				entrypoint,
 				chunkFileName,
 				outputPath,
-				dts: dtsContent.code,
+				dts: dtsContentToWrite,
 				pathInfo: {
 					outputPathWithoutExtension: deleteExtension(outputPath),
 					ext: getExtension(outputPath),
@@ -198,12 +210,6 @@ export async function generateDts(
 
 		return {
 			files: bundledFiles,
-			errors: collectedErrors,
-		}
-	} catch (error) {
-		console.error(error)
-		return {
-			files: [],
 			errors: collectedErrors,
 		}
 	} finally {

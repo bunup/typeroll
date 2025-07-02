@@ -5,7 +5,6 @@ import type {
 	Node,
 	Statement,
 } from '@babel/types'
-
 import {
 	getAllImportNames,
 	getCommentText,
@@ -221,21 +220,41 @@ function processTokenArray(arrayLiteral: Node): string | null {
 	const tokens = []
 
 	for (const element of arrayLiteral.elements) {
-		if (
-			element?.type === 'StringLiteral' &&
-			typeof element.value === 'string'
-		) {
-			const processedValue = element.value
-				.replace(/\\n/g, '\n')
-				.replace(/\\t/g, '\t')
-				.replace(/\\r/g, '\r')
-			tokens.push(processedValue)
-		} else if (element?.type === 'Identifier') {
-			tokens.push(element.name)
+		if (!element) continue
+		const processed = processTokenElement(element)
+		if (processed !== null) {
+			tokens.push(processed)
 		}
 	}
 
 	return tokens.join('')
+}
+
+function processTokenElement(element: any): string | null {
+	if (element.type === 'StringLiteral' && typeof element.value === 'string') {
+		return element.value
+			.replace(/\\n/g, '\n')
+			.replace(/\\t/g, '\t')
+			.replace(/\\r/g, '\r')
+	}
+
+	if (element.type === 'Identifier') {
+		return element.name
+	}
+
+	if (element.type === 'TemplateLiteral') {
+		const parts = []
+		parts.push(element.quasis[0]?.value?.raw || '')
+		for (let i = 0; i < element.expressions.length; i++) {
+			const expr = element.expressions[i]
+			if (expr.type === 'Identifier') {
+				parts.push(expr.name)
+			}
+			parts.push(element.quasis[i + 1]?.value?.raw || '')
+		}
+		return parts.join('')
+	}
+	return null
 }
 
 function handleNamespace(stmt: ExpressionStatement): string | null {

@@ -88,16 +88,8 @@ export function getName(
 			break
 
 		case 'TSModuleDeclaration':
-			if (node.id) {
-				if (node.id.type === 'Identifier') {
-					return node.id.name
-				}
-				if (
-					node.id.type === 'StringLiteral' &&
-					typeof node.id.value === 'string'
-				) {
-					return node.id.value
-				}
+			if (node.id && node.id.type === 'Identifier') {
+				return node.id.name
 			}
 			break
 

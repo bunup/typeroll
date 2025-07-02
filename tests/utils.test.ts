@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'bun:test'
 import {
 	deleteExtension,
-	getDeclarationExtension,
+	getDeclarationExtensionFromJsExtension,
 	getExtension,
 	replaceExtension,
 } from '../src/utils'
 
 describe('utils', () => {
-	describe('getDeclarationExtension', () => {
+	describe('getDeclarationExtensionFromJsExtension', () => {
 		it('should return the correct extension for .mjs', () => {
-			expect(getDeclarationExtension('.mjs')).toBe('.d.mts')
+			expect(getDeclarationExtensionFromJsExtension('.mjs')).toBe('.d.mts')
 		})
 
 		it('should return the correct extension for .cjs', () => {
-			expect(getDeclarationExtension('.cjs')).toBe('.d.cts')
+			expect(getDeclarationExtensionFromJsExtension('.cjs')).toBe('.d.cts')
 		})
 
 		it('should return the correct extension for .js', () => {
-			expect(getDeclarationExtension('.js')).toBe('.d.ts')
+			expect(getDeclarationExtensionFromJsExtension('.js')).toBe('.d.ts')
 		})
 	})
 

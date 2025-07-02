@@ -1,4 +1,4 @@
-import type { IsolatedDeclarationError } from './error-logger'
+import type { IsolatedDeclarationError } from './isolated-decl-logger'
 
 export type Resolve = boolean | (string | RegExp)[]
 

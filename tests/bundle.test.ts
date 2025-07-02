@@ -1058,4 +1058,43 @@ describe('Bundle functionality', () => {
 			`)
 		})
 	})
+	describe('Ensure stitching tokens back to string does not break build', () => {
+		test('should handle quotes in strings', async () => {
+			createProject({
+				'src/index.ts': `
+					export const TWO_FACTOR_ERROR_CODES = {
+	OTP_NOT_ENABLED: "OTP not enabled",
+	OTP_HAS_EXPIRED: "OTP has expired",
+	TOTP_NOT_ENABLED: "TOTP not enabled",
+	TWO_FACTOR_NOT_ENABLED: "Two factor isn't enabled",
+	BACKUP_CODES_NOT_ENABLED: "Backup codes aren't enabled",
+	INVALID_BACKUP_CODE: "Invalid backup code",
+	INVALID_CODE: "Invalid code",
+	TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE:
+		"Too many attempts. Please request a new code.",
+	INVALID_TWO_FACTOR_COOKIE: "Invalid two factor cookie",
+} as const;
+
+				`,
+			})
+
+			const files = await runGenerateDts(['src/index.ts'])
+
+			expect(files[0].dts).toMatchInlineSnapshot(`
+			  "declare const TWO_FACTOR_ERROR_CODES: {
+			  	readonly OTP_NOT_ENABLED: "OTP not enabled"
+			  	readonly OTP_HAS_EXPIRED: "OTP has expired"
+			  	readonly TOTP_NOT_ENABLED: "TOTP not enabled"
+			  	readonly TWO_FACTOR_NOT_ENABLED: "Two factor isn't enabled"
+			  	readonly BACKUP_CODES_NOT_ENABLED: "Backup codes aren't enabled"
+			  	readonly INVALID_BACKUP_CODE: "Invalid backup code"
+			  	readonly INVALID_CODE: "Invalid code"
+			  	readonly TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE: "Too many attempts. Please request a new code."
+			  	readonly INVALID_TWO_FACTOR_COOKIE: "Invalid two factor cookie"
+			  };
+			  export { TWO_FACTOR_ERROR_CODES };
+			  "
+			`)
+		})
+	})
 })

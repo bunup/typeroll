@@ -5,7 +5,7 @@ import path from 'node:path'
 import cac from 'cac'
 import pc from 'picocolors'
 import { version } from '../package.json'
-import { logErrors } from './error-logger'
+import { logIsolatedDeclarationErrors } from './isolated-decl-logger'
 import { formatFileSize } from './utils'
 
 const cli = cac()
@@ -110,7 +110,7 @@ async function main() {
 			}
 
 			if (result.errors.length > 0) {
-				logErrors(result.errors, {
+				logIsolatedDeclarationErrors(result.errors, {
 					shouldExit: true,
 				})
 			}

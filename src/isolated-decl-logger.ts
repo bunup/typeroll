@@ -27,7 +27,7 @@ export type logErrorsOptions = {
  * @param errors - The errors to log
  * @param options - The options for logging the errors
  */
-export function logErrors(
+export function logIsolatedDeclarationErrors(
 	errors: IsolatedDeclarationError[],
 	options: logErrorsOptions = {},
 ): void {

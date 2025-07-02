@@ -83,7 +83,7 @@ export function cleanPath(path: string): string {
 	return cleaned
 }
 
-export function getDeclarationExtension(ext: string): string {
+export function getDeclarationExtensionFromJsExtension(ext: string): string {
 	if (ext === '.mjs') return '.d.mts'
 	if (ext === '.cjs') return '.d.cts'
 	return '.d.ts'
