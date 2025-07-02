@@ -1,4 +1,5 @@
 import pc from 'picocolors'
+import { TyperollError } from './errors'
 
 class Logger {
 	private static instance: Logger
@@ -38,7 +39,9 @@ export function handleBunBuildLogs(
 	for (const log of logs) {
 		if (log.level === 'error') {
 			logger.error(`${log.message} in ${log.position?.file}`)
-			throw new Error('Failed to generate declaration file')
+			throw new TyperollError(
+				`Failed to generate declaration file: ${log.message}`,
+			)
 		}
 
 		if (log.level === 'warning') {

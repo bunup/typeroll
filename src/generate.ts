@@ -4,11 +4,9 @@ import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
 
+import { TyperollError } from './errors'
 import { dtsToFakeJs, fakeJsToDts } from './fake-js'
-import {
-	type IsolatedDeclarationError,
-	logIsolatedDeclarationErrors,
-} from './isolated-decl-logger'
+import type { IsolatedDeclarationError } from './isolated-decl-logger'
 import { logger } from './logger'
 import type {
 	GenerateDtsOptions,
@@ -56,7 +54,7 @@ export async function generateDts(
 	)
 
 	if (![...resolvedEntrypoints, ...absoluteEntrypoints].length) {
-		throw new Error(
+		throw new TyperollError(
 			'The dts entrypoints you provided do not exist. Please make sure the entrypoints point to valid files.',
 		)
 	}
@@ -142,12 +140,8 @@ export async function generateDts(
 		throw: false,
 	})
 
-	if (collectedErrors.length) {
-		logIsolatedDeclarationErrors(collectedErrors)
-	}
-
 	if (!result.success) {
-		throw new Error(`DTS bundling failed: ${result.logs}`)
+		throw new TyperollError(`DTS bundling failed: ${result.logs}`)
 	}
 
 	try {
