@@ -176,17 +176,13 @@ export async function generateDts(
 				),
 			)
 
-			let dtsContentToWrite = dtsContent
-
 			const treeshakedDts = isolatedDeclaration('treeshake.d.ts', dtsContent)
 
 			if (treeshakedDts.errors.length) {
-				logger.error(
-					`DTS treeshaking failed for ${entrypoint || outputPath}:\n`,
-				)
 				console.log(treeshakedDts.errors)
-			} else {
-				dtsContentToWrite = treeshakedDts.code
+				throw new TyperollError(
+					`DTS treeshaking failed for ${entrypoint || outputPath}`,
+				)
 			}
 
 			bundledFiles.push({
@@ -194,7 +190,7 @@ export async function generateDts(
 				entrypoint,
 				chunkFileName,
 				outputPath,
-				dts: dtsContentToWrite,
+				dts: treeshakedDts.code,
 				pathInfo: {
 					outputPathWithoutExtension: deleteExtension(outputPath),
 					ext: getExtension(outputPath),
