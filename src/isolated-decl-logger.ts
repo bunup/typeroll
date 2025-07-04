@@ -41,13 +41,11 @@ const ISOLATED_DECLARATION_ERRORS: Record<string, string> = {
 		'Expression type cannot be inferred. Add a type annotation where this expression is assigned or used.',
 	TS9014:
 		'Computed property names must be simple (e.g., string/number literals or basic identifiers).',
-	TS9015:
-		'Object spread properties prevent type inference. Either add an explicit type to the object or avoid spread.',
+	TS9015: 'Either add an explicit type to the object or avoid spread.',
 	TS9016:
-		'Object shorthand properties prevent type inference. Either add an explicit type to the object or use full `key: value` syntax.',
+		'Either add an explicit type to the object or use full `key: value` syntax.',
 	TS9017: `For array type inference, use \`as const\` (e.g., \`[1, 2, 3] ${pc.green('as const')}\`).`,
-	TS9018:
-		'Array spread elements prevent type inference. Either add an explicit type to the array or avoid spread.',
+	TS9018: 'Either add an explicit type to the array or avoid spread.',
 	TS9019: `Avoid direct export of destructured bindings. Instead, declare and then export, e.g., \`const { x } = obj; ${pc.green('export { x };')}\`.`,
 	TS9020:
 		'Enum member initializers must be simple, constant values (like numbers or strings), not expressions or external references.',
