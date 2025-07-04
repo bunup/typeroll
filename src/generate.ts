@@ -29,7 +29,7 @@ import {
 
 export async function generateDts(
 	entrypoints: string[],
-	options: GenerateDtsOptions,
+	options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult> {
 	const { resolve, preferredTsConfigPath } = options
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()

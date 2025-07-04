@@ -98,7 +98,7 @@ function logSingle({ error, file, content }: IsolatedDeclarationError): void {
 		? `\n${pc.cyan('Help:')} ${error.helpMessage}`
 		: ''
 
-	console.log(`\n${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}`)
+	console.log(`${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}\n\n`)
 }
 
 function extractErrorCode(message: string): string {
