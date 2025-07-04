@@ -70,6 +70,8 @@ export function logIsolatedDeclarationErrors(
 
 	const hasErrors = errors.some(({ error }) => error.severity === 'Error')
 
+	console.log()
+
 	errors.forEach(logSingle)
 
 	if (hasErrors) {
@@ -98,7 +100,7 @@ function logSingle({ error, file, content }: IsolatedDeclarationError): void {
 		? `\n${pc.cyan('Help:')} ${error.helpMessage}`
 		: ''
 
-	console.log(`${formattedMessage}${helpMessage}\n\n${pc.gray(codeFrame)}\n\n`)
+	console.log(`${formattedMessage}${helpMessage}\n${pc.gray(codeFrame)}\n`)
 }
 
 function extractErrorCode(message: string): string {
