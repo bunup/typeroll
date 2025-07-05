@@ -10,11 +10,8 @@ A blazing-fast `.d.ts` bundler written in [Bun](https://bun.sh/), designed to ge
 ## ✨ Features
 
 - 🧩 **Declaration Splitting** — Keep related types modular (reduce bundle size).
-
 - 📦 **Single Output File** — Merges all declarations into one clean `index.d.ts`.
-
 - 🪶 **Minification** — Optional size reduction for smaller output.
-
 - 🚀 **Instant Performance** — Not just fast—instant. Powered by Bun.
 
 typeroll powers [Bunup's TypeScript declarations feature](https://bunup.dev/docs/guide/typescript-declarations). Learn more at [bunup.dev](https://bunup.dev/).
