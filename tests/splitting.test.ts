@@ -256,30 +256,6 @@ describe('Output Path Tests', () => {
 		)
 	})
 
-	test('should handle different file extensions correctly', async () => {
-		createProject({
-			'src/module.mjs': `export const mjs = 'module';`,
-			'src/common.cjs': `export const cjs = 'common';`,
-			'src/regular.js': `export const js = 'regular';`,
-		})
-
-		const files = await runGenerateDts([
-			'src/module.mjs',
-			'src/common.cjs',
-			'src/regular.js',
-		])
-
-		expect(files).toHaveLength(3)
-
-		const mjsResult = files.find((r) => r.entrypoint?.includes('module.mjs'))
-		const cjsResult = files.find((r) => r.entrypoint?.includes('common.cjs'))
-		const jsResult = files.find((r) => r.entrypoint?.includes('regular.js'))
-
-		expect(mjsResult?.outputPath).toBe('module.d.ts')
-		expect(cjsResult?.outputPath).toBe('common.d.ts')
-		expect(jsResult?.outputPath).toBe('regular.d.ts')
-	})
-
 	test('should handle outputPath with splitting and complex directory structure', async () => {
 		createProject({
 			'src/shared/types.ts': `

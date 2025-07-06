@@ -53,7 +53,10 @@ export async function generateDts(
 		path.isAbsolute(entrypoint),
 	)
 
-	if (![...resolvedEntrypoints, ...absoluteEntrypoints].length) {
+	if (
+		!filterTypescriptFiles([...resolvedEntrypoints, ...absoluteEntrypoints])
+			.length
+	) {
 		throw new TyperollError(
 			'One or more of the entrypoints you provided do not exist. Please check that each entrypoint points to a valid file.',
 		)
