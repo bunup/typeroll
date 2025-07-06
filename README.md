@@ -9,10 +9,12 @@ Typeroll powers [Bunup's TypeScript declarations feature](https://bunup.dev/docs
 
 ## How It Works
 
-`typeroll` compiles `.d.ts` files into synthetic JavaScript modules ("FakeJS") where all type-level entities are serialized into token arrays. Identifiers within these arrays are preserved as **live variable references**, not strings. This design allows Bun’s bundler to treat types as analyzable, treeshakeable bindings. Only *used* identifiers are preserved during bundling, while unused ones are eliminated — a process impossible with static `.d.ts` concatenation alone.
+`typeroll` generates `.d.ts` files from TypeScript sources using **TypeScript isolated declarations** via `oxc-transform`.
 
-The FakeJS modules are then passed through Bun's bundler, where splitting and minification are fully supported. When splitting is enabled, shared types between entrypoints are extracted into discrete chunks, allowing type reuse without duplication. Because identifiers are actual symbols, Bun can apply deterministic name mangling, including across chunk boundaries, while retaining the correct reference graph.
+Once `.d.ts` files are generated, `typeroll` compiles them into synthetic JavaScript modules ("FakeJS"), where all type-level constructs are converted into token arrays. Identifiers within these arrays are preserved as **live variable references**, not strings — enabling Bun’s bundler to track usage, apply tree-shaking, and perform name mangling safely.
 
-Post-bundling, each output chunk is rehydrated: token arrays are reassembled into valid `.d.ts` declarations by analyzing the resulting AST and restoring original type syntax. This bidirectional transformation ensures compatibility with complex type graphs while enabling aggressive optimizations at the module level.
+The FakeJS modules are then bundled by Bun. When **splitting** is enabled, shared types between entrypoints are factored into chunks, reducing duplication. Since type references remain symbolic, Bun is free to mangle names across modules without breaking linkage — even under aggressive minification.
 
-The result is a fully bundled `.d.ts` file (or split graph of files) that maintains semantic integrity, supports tree-shaking, respects module boundaries, and minimizes size — without relying on TypeScript's emit pipeline.
+After bundling, each output chunk is **rehydrated**: the token arrays are parsed and reassembled into clean `.d.ts` declarations. This round-trip transformation preserves structure and semantics while allowing the bundler to optimize the intermediate graph as if it were runtime code.
+
+The final result is a set of treeshaken, optionally split, and minified `.d.ts` files — emitted without using TypeScript's own emit pipeline.
