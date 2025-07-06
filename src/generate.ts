@@ -17,6 +17,7 @@ import { createResolver } from './resolver'
 import {
 	cleanPath,
 	deleteExtension,
+	filterTypescriptFiles,
 	generateRandomString,
 	getDeclarationExtensionFromJsExtension,
 	getExtension,
@@ -124,10 +125,10 @@ export async function generateDts(
 
 	const result = await Bun.build({
 		entrypoints: [
-			...resolvedEntrypoints.map((entry) =>
+			...filterTypescriptFiles(resolvedEntrypoints).map((entry) =>
 				path.resolve(path.join(cwd, entry)),
 			),
-			...absoluteEntrypoints,
+			...filterTypescriptFiles(absoluteEntrypoints),
 		],
 		outdir: tempOutDir,
 		format: 'esm',

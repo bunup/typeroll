@@ -129,3 +129,7 @@ export function formatFileSize(bytes: number): string {
 
 	return `${(bytes / 1024 ** i).toFixed(2)} ${units[i]}`
 }
+
+export function filterTypescriptFiles(files: string[]): string[] {
+	return files.filter((file) => isTypeScriptFile(file))
+}
