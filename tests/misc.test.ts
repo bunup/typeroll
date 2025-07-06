@@ -40,4 +40,45 @@ describe('DTS Misc', () => {
 		  "
 		`)
 	})
+
+	test('should generate dts for namespace with imported types using aliases', async () => {
+		createProject({
+			'src/socket.ts': `
+				export type Socket = {
+					connect: () => void
+				}
+				export type Manager = {
+					connect: () => void
+				}
+			`,
+			'src/index.ts': `
+				import type {
+					Socket as ClientSocket,
+					Manager as ClientManager,
+				} from './socket';
+
+				export namespace Hello {
+					export type Socket = ClientSocket;
+					export type Manager = ClientManager;
+				}
+			`,
+		})
+
+		const files = await runGenerateDts(['src/index.ts'])
+
+		expect(files[0].dts).toMatchInlineSnapshot(`
+		  "type Socket2 = {
+		  	connect: () => void
+		  };
+		  type Manager2 = {
+		  	connect: () => void
+		  };
+		  declare namespace Hello {
+		  	type Socket = Socket2;
+		  	type Manager = Manager2;
+		  }
+		  export { Hello };
+		  "
+		`)
+	})
 })

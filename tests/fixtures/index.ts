@@ -1,16 +1,4 @@
-export type Logger = ReturnType<typeof createLogger>
+import type { Manager as ManagerType, Socket as SocketType } from '@/socket'
 
-const createLogger = (): { log: (message: string) => void } => {
-	return {
-		log: (message: string) => {
-			console.log(message)
-		},
-	}
-}
-
-/**
- * @description This is a comment
- */
-export const logger: Logger = createLogger()
-
-export type AnotherType = Omit<Logger, 'log' | 'outDir'>
+export type Socket = SocketType
+export type Manager = ManagerType
