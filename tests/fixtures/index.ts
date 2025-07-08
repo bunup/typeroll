@@ -1,4 +1,5 @@
-import type { Manager as ManagerType, Socket as SocketType } from '@/socket'
+import type { ReturnType } from './utils'
 
-export type Socket = SocketType
-export type Manager = ManagerType
+export function test(): ReturnType {
+	return 1
+}

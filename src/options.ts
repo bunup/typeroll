@@ -3,7 +3,6 @@ import type { IsolatedDeclarationError } from './isolated-decl-logger'
 export type Naming =
 	| string
 	| {
-			entry: string
 			chunk: string
 	  }
 
@@ -13,6 +12,7 @@ export type Resolve = boolean | (string | RegExp)[]
  * Options for generating declaration file
  */
 export type GenerateDtsOptions = {
+	naming?: Naming
 	/**
 	 * Path to the preferred tsconfig.json file
 	 * By default, the closest tsconfig.json file will be used

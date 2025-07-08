@@ -31,7 +31,7 @@ export async function generateDts(
 	entrypoints: string[],
 	options: GenerateDtsOptions = {},
 ): Promise<GenerateDtsResult> {
-	const { resolve, preferredTsConfigPath } = options
+	const { resolve, preferredTsConfigPath, naming } = options
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
@@ -136,6 +136,7 @@ export async function generateDts(
 		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
+		naming,
 		splitting: options.splitting,
 		plugins: [fakeJsPlugin],
 		packages: 'external',
