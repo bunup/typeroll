@@ -37,8 +37,8 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@babel/parser": "^7.27.5",
-		"@babel/types": "^7.27.3",
+		"@babel/parser": "^7.28.0",
+		"@babel/types": "^7.28.1",
 		"coffi": "^0.1.31",
 		"oxc-resolver": "^8.0.0",
 		"oxc-transform": "^0.67.0",
@@ -48,15 +48,15 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@commitlint/cli": "^19.8.0",
-		"@commitlint/config-conventional": "^19.8.0",
-		"@types/bun": "^1.2.11",
-		"bumpp": "^10.1.0",
-		"bunup": "^0.8.48",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"@types/bun": "^1.2.18",
+		"bumpp": "^10.2.0",
+		"bunup": "^0.8.60",
 		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.7",
 		"typescript": "^5.8.3",
-		"vitest": "^3.1.2"
+		"vitest": "^3.2.4"
 	},
 	"license": "MIT",
 	"author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
