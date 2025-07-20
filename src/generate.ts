@@ -24,6 +24,7 @@ import {
 	getFilesFromGlobs,
 	isTypeScriptFile,
 	loadTsConfig,
+	minifyDts,
 	replaceExtension,
 } from './utils'
 
@@ -180,7 +181,10 @@ export async function generateDts(
 				),
 			)
 
-			const treeshakedDts = isolatedDeclaration('treeshake.d.ts', dtsContent)
+			const treeshakedDts = isolatedDeclaration(
+				`${generateRandomString()}.d.ts`,
+				dtsContent,
+			)
 
 			if (treeshakedDts.errors.length && !treeshakedDts.code) {
 				console.log(treeshakedDts.errors)
@@ -194,7 +198,9 @@ export async function generateDts(
 				entrypoint,
 				chunkFileName,
 				outputPath,
-				dts: treeshakedDts.code,
+				dts: options.minify
+					? minifyDts(treeshakedDts.code)
+					: treeshakedDts.code,
 				pathInfo: {
 					outputPathWithoutExtension: deleteExtension(outputPath),
 					ext: getExtension(outputPath),

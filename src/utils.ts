@@ -3,6 +3,7 @@ import { normalize } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
 import { isCI, isDevelopment } from 'std-env'
 import { EXTENSION_REGEX, TS_RE } from './re'
+import { minify } from 'oxc-minify'
 
 export function ensureArray<T>(value: T | T[]): T[] {
 	return Array.isArray(value) ? value : [value]
@@ -132,4 +133,15 @@ export function formatFileSize(bytes: number): string {
 
 export function filterTypescriptFiles(files: string[]): string[] {
 	return files.filter((file) => isTypeScriptFile(file))
+}
+
+export function minifyDts(dts: string): string {
+	return minify(`${generateRandomString()}.d.ts`, dts, {
+		codegen: {
+			removeWhitespace: true,
+		},
+		mangle: false,
+		compress: false,
+		sourcemap: false,
+	}).code
 }

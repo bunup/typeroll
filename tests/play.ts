@@ -5,6 +5,7 @@ const result = await generateDts(
 	['tests/fixtures/index.ts', 'tests/fixtures/main.ts'],
 	{
 		splitting: true,
+		minify: true,
 	},
 )
 for (const file of result.files) {
