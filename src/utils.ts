@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs'
 import { normalize } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
+import { minify } from 'oxc-minify'
 import { isCI, isDevelopment } from 'std-env'
 import { EXTENSION_REGEX, TS_RE } from './re'
-import { minify } from 'oxc-minify'
 
 export function ensureArray<T>(value: T | T[]): T[] {
 	return Array.isArray(value) ? value : [value]

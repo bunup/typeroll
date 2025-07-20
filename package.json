@@ -1,94 +1,92 @@
 {
-  "name": "typeroll",
-  "description": "An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.",
-  "version": "0.6.19",
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "module": "./dist/index.js",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "scripts": {
-    "build": "bunup",
-    "dev": "bunup --watch",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format .",
-    "format:fix": "biome format --write .",
-    "tsc": "tsc --noEmit",
-    "test": "bun test",
-    "test:watch": "bun test --watch",
-    "test:coverage": "bun test --coverage",
-    "play": "bun run tests/play.ts",
-    "bench": "bun run bench/index.ts",
-    "release": "bumpp --commit --push --tag",
-    "publish:ci": "bun publish --access public --no-git-checks",
-    "prepare": "husky"
-  },
-  "dependencies": {
-    "@babel/parser": "^7.28.0",
-    "@babel/types": "^7.28.1",
-    "coffi": "^0.1.31",
-    "oxc-minify": "^0.77.2",
-    "oxc-resolver": "^8.0.0",
-    "oxc-transform": "^0.67.0",
-    "picocolors": "^1.1.1",
-    "std-env": "^3.9.0",
-    "ts-import-resolver": "^0.1.22"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
-    "@types/bun": "^1.2.18",
-    "bumpp": "^10.2.0",
-    "bunup": "^0.8.60",
-    "dts-bundle-generator": "^9.5.1",
-    "husky": "^9.1.7",
-    "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
-  },
-  "license": "MIT",
-  "author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
-  "maintainers": [
-    {
-      "name": "Arshad Yaseen",
-      "email": "m@arshadyaseen.com",
-      "url": "https://arshadyaseen.com"
-    }
-  ],
-  "keywords": [
-    "typescript",
-    "dts",
-    "declaration",
-    "declaration map",
-    "declaration map generation"
-  ],
-  "funding": "https://github.com/sponsors/arshad-yaseen",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/arshad-yaseen/typeroll.git"
-  },
-  "homepage": "https://github.com/arshad-yaseen/typeroll#readme",
-  "peerDependencies": {
-    "typescript": ">=4.5.0"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
-  }
+	"name": "typeroll",
+	"description": "An extremely fast TypeScript declaration file generator and bundler that outputs to a single file.",
+	"version": "0.6.19",
+	"type": "module",
+	"files": ["dist"],
+	"module": "./dist/index.js",
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"scripts": {
+		"build": "bunup",
+		"dev": "bunup --watch",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format .",
+		"format:fix": "biome format --write .",
+		"tsc": "tsc --noEmit",
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"test:coverage": "bun test --coverage",
+		"play": "bun run tests/play.ts",
+		"bench": "bun run bench/index.ts",
+		"release": "bumpp --commit --push --tag",
+		"publish:ci": "bun publish --access public --no-git-checks",
+		"prepare": "husky"
+	},
+	"dependencies": {
+		"@babel/parser": "^7.28.0",
+		"@babel/types": "^7.28.1",
+		"coffi": "^0.1.31",
+		"oxc-minify": "^0.77.2",
+		"oxc-resolver": "^8.0.0",
+		"oxc-transform": "^0.67.0",
+		"picocolors": "^1.1.1",
+		"std-env": "^3.9.0",
+		"ts-import-resolver": "^0.1.22"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"@types/bun": "^1.2.18",
+		"bumpp": "^10.2.0",
+		"bunup": "^0.8.60",
+		"dts-bundle-generator": "^9.5.1",
+		"husky": "^9.1.7",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	},
+	"license": "MIT",
+	"author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
+	"maintainers": [
+		{
+			"name": "Arshad Yaseen",
+			"email": "m@arshadyaseen.com",
+			"url": "https://arshadyaseen.com"
+		}
+	],
+	"keywords": [
+		"typescript",
+		"dts",
+		"declaration",
+		"declaration map",
+		"declaration map generation"
+	],
+	"funding": "https://github.com/sponsors/arshad-yaseen",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshad-yaseen/typeroll.git"
+	},
+	"homepage": "https://github.com/arshad-yaseen/typeroll#readme",
+	"peerDependencies": {
+		"typescript": ">=4.5.0"
+	},
+	"peerDependenciesMeta": {
+		"typescript": {
+			"optional": true
+		}
+	}
 }
