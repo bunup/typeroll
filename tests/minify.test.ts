@@ -1083,14 +1083,22 @@ describe('Minify Tests', () => {
 					)
 				}
 
-				// Default export with everything
-				export default {
+				const ex: {
+					EntityModel: typeof EntityModel
+					EntityRepository: typeof EntityRepository
+					EntityService: typeof EntityService
+					createEntityService: typeof createEntityService
+					createEntity: typeof createEntity
+				} = {
 					EntityModel,
 					EntityRepository,
 					EntityService,
 					createEntityService,
 					createEntity
 				}
+
+				// Default export with everything
+				export default ex
 			`,
 		})
 
@@ -1098,7 +1106,7 @@ describe('Minify Tests', () => {
 
 		expect(files).toHaveLength(1)
 		expect(files[0].dts).toMatchInlineSnapshot(
-			`"interface e{id:string;type:string;data:Record<string,any>;metadata?:Record<string,any>;}declare class t extends n{type:string;data:Record<string,any>;metadata?:Record<string,any>;constructor(id:string,type:string,data?:Record<string,any>);update(updates:Partial<e>):void;validate():boolean;}declare abstract class n{id:string;createdAt:Date;updatedAt:Date;constructor(id:string);abstract validate():boolean;}interface a<T extends n>{findById(id:string):Promise<T|null>;findAll():Promise<T[]>;save(entity:T):Promise<T>;delete(id:string):Promise<void>;}declare abstract class i<T extends n> implements a<T>{protected entities:Map<string,T>;findById(id:string):Promise<T|null>;findAll():Promise<T[]>;save(entity:T):Promise<T>;delete(id:string):Promise<void>;}declare class r extends i<t>{findByType(type:string):Promise<t[]>;findByMetadata(key:string,value:any):Promise<t[]>;}declare class s{private repository;constructor(repository:r);createEntity(type:string,data?:Record<string,any>,metadata?:Record<string,any>):Promise<t>;updateEntity(id:string,updates:Partial<t>):Promise<t>;deleteEntity(id:string):Promise<void>;getEntity(id:string):Promise<t|null>;getAllEntities():Promise<t[]>;getEntitiesByType(type:string):Promise<t[]>;private generateId}declare function d(): EntityService;declare function o(type:string,data?:Record<string,any>,metadata?:Record<string,any>): EntityModel;declare const p:{};export{p as default,d as createEntityService,o as createEntity,a as RepositoryInterface,a as Repository,e as EntityType,s as EntityService,r as EntityRepository,t as EntityModel,e as Entity,i as BaseRepository,n as BaseModel};"`,
+			`"interface a{id:string;type:string;data:Record<string,any>;metadata?:Record<string,any>;}declare class t extends n{type:string;data:Record<string,any>;metadata?:Record<string,any>;constructor(id:string,type:string,data?:Record<string,any>);update(updates:Partial<a>):void;validate():boolean;}declare abstract class n{id:string;createdAt:Date;updatedAt:Date;constructor(id:string);abstract validate():boolean;}interface e<T extends n>{findById(id:string):Promise<T|null>;findAll():Promise<T[]>;save(entity:T):Promise<T>;delete(id:string):Promise<void>;}declare abstract class i<T extends n> implements e<T>{protected entities:Map<string,T>;findById(id:string):Promise<T|null>;findAll():Promise<T[]>;save(entity:T):Promise<T>;delete(id:string):Promise<void>;}declare class r extends i<t>{findByType(type:string):Promise<t[]>;findByMetadata(key:string,value:any):Promise<t[]>;}declare class o{private repository;constructor(repository:r);createEntity(type:string,data?:Record<string,any>,metadata?:Record<string,any>):Promise<t>;updateEntity(id:string,updates:Partial<t>):Promise<t>;deleteEntity(id:string):Promise<void>;getEntity(id:string):Promise<t|null>;getAllEntities():Promise<t[]>;getEntitiesByType(type:string):Promise<t[]>;private generateId}declare function s(): EntityService;declare function d(type:string,data?:Record<string,any>,metadata?:Record<string,any>): EntityModel;declare const p:{EntityModel:typeof EntityModel;EntityRepository:typeof EntityRepository;EntityService:typeof EntityService;s:typeof s;d:typeof d;};export{p as default,s as createEntityService,d as createEntity,e as RepositoryInterface,e as Repository,a as EntityType,o as EntityService,r as EntityRepository,t as EntityModel,a as Entity,i as BaseRepository,n as BaseModel};"`,
 		)
 	})
 })

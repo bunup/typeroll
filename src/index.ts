@@ -8,4 +8,4 @@ export type {
 	GenerateDtsResult,
 } from './options'
 
-export { generateDts } from './generate'
+export { generateDts } from './gen'
