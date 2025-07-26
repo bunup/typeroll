@@ -4,6 +4,7 @@ import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
 import { resolveTsImportPath } from 'ts-import-resolver'
 
+import { EMPTY_EXPORT } from './constants'
 import { TyperollError } from './errors'
 import { dtsToFakeJs, fakeJsToDts } from './fake'
 import type { IsolatedDeclarationError } from './isolated-decl-logger'
@@ -106,6 +107,8 @@ export async function generateDts(
 					const sourceText = await Bun.file(args.path).text()
 					const declarationResult = isolatedDeclaration(args.path, sourceText)
 
+					let fakeJsContent = ''
+
 					if (!collectedErrors.some((e) => e.file === args.path)) {
 						for (const error of declarationResult.errors) {
 							collectedErrors.push({
@@ -116,7 +119,11 @@ export async function generateDts(
 						}
 					}
 
-					const fakeJsContent = await dtsToFakeJs(declarationResult.code)
+					if (declarationResult.code) {
+						fakeJsContent = await dtsToFakeJs(declarationResult.code)
+					} else {
+						fakeJsContent = EMPTY_EXPORT
+					}
 
 					return {
 						loader: 'js',
