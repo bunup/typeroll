@@ -194,9 +194,8 @@ export async function generateDts(
 			)
 
 			if (treeshakedDts.errors.length && !treeshakedDts.code) {
-				console.log(treeshakedDts.errors)
 				throw new TyperollError(
-					`DTS treeshaking failed for ${entrypoint || outputPath}`,
+					`DTS treeshaking failed for ${entrypoint || outputPath}\n\n${JSON.stringify(treeshakedDts.errors, null, 2)}`,
 				)
 			}
 
