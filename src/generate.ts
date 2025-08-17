@@ -6,7 +6,7 @@ import { resolveTsImportPath } from 'ts-import-resolver'
 
 import { EMPTY_EXPORT } from './constants'
 import { TyperollError } from './errors'
-import { dtsToFakeJs, fakeJsToDts } from './fake'
+import { dtsToFakeJs, fakeJsToDts } from './fake-js'
 import type { IsolatedDeclarationError } from './isolated-decl-logger'
 import type {
 	GenerateDtsOptions,
