@@ -30,6 +30,13 @@ Thank you for your interest in contributing to our project! This guide will help
 8. Push your branch to your fork
 9. Open a pull request
 
+## Testing Your Changes
+
+To test your bug fixes or new features, you have two options:
+
+1. **Unit/Integration Tests**: Add tests in `tests/specs` for your specific changes and run `bun run test`
+2. **Manual Testing**: Add test files in `tests/fixtures` with an entry point at `index.ts`, then check `play.ts` and run `bun run play` which will run typeroll bundling with `tests/fixtures/index.ts` as the entry point
+
 ## Commit Message Conventions
 
 We follow [Conventional Commits](https://www.conventionalcommits.org/) for clear and structured commit messages:
