@@ -27,7 +27,7 @@
 		"bench": "bun run bench/index.ts",
 		"release": "bumpp --commit --push --tag",
 		"publish:ci": "bun publish --access public --no-git-checks",
-		"prepare": "husky"
+		"prepare": "simple-git-hooks"
 	},
 	"dependencies": {
 		"@babel/parser": "^7.28.0",
@@ -42,12 +42,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@commitlint/cli": "^19.8.1",
-		"@commitlint/config-conventional": "^19.8.1",
 		"@types/bun": "^1.2.18",
 		"bumpp": "^10.2.0",
 		"bunup": "^0.8.60",
-		"husky": "^9.1.7",
+		"simple-git-hooks": "^2.13.1",
 		"typescript": "^5.8.3"
 	},
 	"license": "MIT",
@@ -74,6 +72,9 @@
 	"homepage": "https://github.com/arshad-yaseen/typeroll#readme",
 	"peerDependencies": {
 		"typescript": ">=4.5.0"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "bun run lint:fix"
 	},
 	"peerDependenciesMeta": {
 		"typescript": {
