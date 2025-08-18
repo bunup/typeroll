@@ -47,10 +47,8 @@
 		"@types/bun": "^1.2.18",
 		"bumpp": "^10.2.0",
 		"bunup": "^0.8.60",
-		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.7",
-		"typescript": "^5.8.3",
-		"vitest": "^3.2.4"
+		"typescript": "^5.8.3"
 	},
 	"license": "MIT",
 	"author": "Arshad Yaseen <m@arshadyaseen.com> (https://arshadyaseen.com)",
