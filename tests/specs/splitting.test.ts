@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { cleanProjectDir, createProject, runGenerateDts } from './utils'
+import { cleanProjectDir, createProject, runGenerateDts } from '../utils'
 
 describe('Code Splitting Tests', () => {
 	beforeEach(() => {
@@ -13,27 +13,27 @@ describe('Code Splitting Tests', () => {
 					id: string;
 					name: string;
 				}
-				
+
 				export type Status = 'active' | 'inactive';
 			`,
 			'src/client.ts': `
 				import type { User, Status } from './shared';
-				
+
 				export function getUser(): User {
 					return { id: '1', name: 'John' };
 				}
-				
+
 				export function getStatus(): Status {
 					return 'active';
 				}
 			`,
 			'src/server.ts': `
 				import type { User, Status } from './shared';
-				
+
 				export function createUser(user: User): void {
 					console.log(user);
 				}
-				
+
 				export function updateStatus(status: Status): void {
 					console.log(status);
 				}
@@ -85,7 +85,7 @@ describe('Code Splitting Tests', () => {
 			`,
 			'src/user.ts': `
 				import type { BaseEntity } from './base';
-				
+
 				export interface User extends BaseEntity {
 					name: string;
 					email: string;
@@ -93,7 +93,7 @@ describe('Code Splitting Tests', () => {
 			`,
 			'src/product.ts': `
 				import type { BaseEntity } from './base';
-				
+
 				export interface Product extends BaseEntity {
 					title: string;
 					price: number;
@@ -102,11 +102,11 @@ describe('Code Splitting Tests', () => {
 			'src/api.ts': `
 				import type { User } from './user';
 				import type { Product } from './product';
-				
+
 				export function getUser(): User {
 					return {} as User;
 				}
-				
+
 				export function getProduct(): Product {
 					return {} as Product;
 				}
@@ -114,7 +114,7 @@ describe('Code Splitting Tests', () => {
 			'src/admin.ts': `
 				import type { User } from './user';
 				import type { Product } from './product';
-				
+
 				export function deleteUser(user: User): void {}
 				export function deleteProduct(product: Product): void {}
 			`,

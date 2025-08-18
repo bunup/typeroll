@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { cleanProjectDir, createProject, runGenerateDts } from './utils'
+import { cleanProjectDir, createProject, runGenerateDts } from '../utils'
 
 describe('Minify Tests', () => {
 	beforeEach(() => {
@@ -261,15 +261,15 @@ describe('Minify Tests', () => {
 					/** GET request */
 					get: <T>(endpoint: string, config?: RequestConfig) =>
 						apiRequest<T>(endpoint, HttpMethod.GET, undefined, config),
-					
+
 					/** POST request */
 					post: <T>(endpoint: string, data: any, config?: RequestConfig) =>
 						apiRequest<T>(endpoint, HttpMethod.POST, data, config),
-					
+
 					/** PUT request */
 					put: <T>(endpoint: string, data: any, config?: RequestConfig) =>
 						apiRequest<T>(endpoint, HttpMethod.PUT, data, config),
-					
+
 					/** DELETE request */
 					delete: <T>(endpoint: string, config?: RequestConfig) =>
 						apiRequest<T>(endpoint, HttpMethod.DELETE, undefined, config)
@@ -950,7 +950,7 @@ describe('Minify Tests', () => {
 					 */
 					async findByMetadata(key: string, value: any): Promise<EntityModel[]> {
 						const entities = await this.findAll()
-						return entities.filter(entity => 
+						return entities.filter(entity =>
 							entity.metadata && entity.metadata[key] === value
 						)
 					}

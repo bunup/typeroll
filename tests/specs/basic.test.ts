@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { cleanProjectDir, createProject, runGenerateDts } from './utils'
+import { cleanProjectDir, createProject, runGenerateDts } from '../utils'
 
 describe('generateDts', () => {
 	beforeEach(() => {
@@ -32,9 +32,9 @@ describe('generateDts', () => {
 						add(a: number, b: number): number {
 							return a + b
 						}
-						
+
 						private value: number = 0
-						
+
 						getValue(): number {
 							return this.value
 						}
@@ -86,7 +86,7 @@ describe('generateDts', () => {
 				'src/index.ts': `
 					export type Status = 'pending' | 'completed' | 'failed'
 					export type UserWithStatus = User & { status: Status }
-					
+
 					interface User {
 						id: number
 						name: string
@@ -118,7 +118,7 @@ describe('generateDts', () => {
 						Green = 'green',
 						Blue = 'blue'
 					}
-					
+
 					export enum Direction {
 						Up,
 						Down,
@@ -192,10 +192,10 @@ describe('generateDts', () => {
 				'src/index.ts': `
 					export default class Database {
 						private connection: string = ''
-						
+
 						connect(): void {}
 						disconnect(): void {}
-						
+
 						query<T>(sql: string): Promise<T[]> {
 							return Promise.resolve([])
 						}
@@ -251,23 +251,23 @@ describe('generateDts', () => {
 						id: number
 						name: string
 					}
-					
+
 					export class UserService {
 						getUser(id: number): User | null {
 							return null
 						}
-						
+
 						createUser(data: Omit<User, 'id'>): User {
 							return { id: Date.now(), ...data }
 						}
 					}
-					
+
 					export const DEFAULT_USER: User = { id: 0, name: 'Guest' }
-					
+
 					export function validateUser(user: User): boolean {
 						return user.name.length > 0
 					}
-					
+
 					export default UserService
 				`,
 			})
@@ -298,11 +298,11 @@ describe('generateDts', () => {
 					export function identity<T>(value: T): T {
 						return value
 					}
-					
+
 					export function map<T, U>(items: T[], fn: (item: T) => U): U[] {
 						return items.map(fn)
 					}
-					
+
 					export function filter<T>(items: T[], predicate: (item: T, index: number) => boolean): T[] {
 						return items.filter(predicate)
 					}
@@ -328,19 +328,19 @@ describe('generateDts', () => {
 				'src/index.ts': `
 					export class Container<T> {
 						private value: T
-						
+
 						constructor(value: T) {
 							this.value = value
 						}
-						
+
 						get(): T {
 							return this.value
 						}
-						
+
 						set(value: T): void {
 							this.value = value
 						}
-						
+
 						map<U>(fn: (value: T) => U): Container<U> {
 							return new Container(fn(this.value))
 						}
@@ -371,14 +371,14 @@ describe('generateDts', () => {
 						save(entity: T): Promise<T>
 						delete(id: string): Promise<void>
 					}
-					
+
 					export interface PaginatedResponse<T> {
 						data: T[]
 						total: number
 						page: number
 						limit: number
 					}
-					
+
 					export interface ApiClient<T = any> {
 						get<U = T>(url: string): Promise<PaginatedResponse<U>>
 						post<U = T>(url: string, data: U): Promise<U>
@@ -420,13 +420,13 @@ describe('generateDts', () => {
 						export function isString(value: any): value is string {
 							return typeof value === 'string'
 						}
-						
+
 						export function isNumber(value: any): value is number {
 							return typeof value === 'number'
 						}
-						
+
 						export const VERSION: string = '1.0.0'
-						
+
 						export interface Config {
 							debug: boolean
 						}
@@ -468,7 +468,7 @@ describe('generateDts', () => {
 					export function add(a: number, b: number): number {
 						return a + b
 					}
-					
+
 					/**
 					 * A user interface with comprehensive documentation
 					 */
@@ -516,13 +516,13 @@ describe('generateDts', () => {
 				'src/index.ts': `
 					export type Optional<T> = T | undefined
 					export type NonNullable<T> = T extends null | undefined ? never : T
-					
+
 					export interface User {
 						id: number
 						name: string
 						email?: string
 					}
-					
+
 					export type PartialUser = Partial<User>
 					export type RequiredUser = Required<User>
 					export type UserKeys = keyof User
@@ -558,13 +558,13 @@ describe('generateDts', () => {
 						const response = await fetch(url)
 						return response.text()
 					}
-					
+
 					export async function* generateNumbers(count: number): AsyncGenerator<number, void, unknown> {
 						for (let i = 0; i < count; i++) {
 							yield i
 						}
 					}
-					
+
 					export function createPromise<T>(value: T): Promise<T> {
 						return Promise.resolve(value)
 					}
@@ -587,50 +587,50 @@ describe('generateDts', () => {
 				'src/index.ts': `
 					export abstract class Animal {
 						abstract makeSound(): string
-						
+
 						getName(): string {
 							return 'Animal'
 						}
-						
+
 						protected age: number = 0
 					}
-					
+
 					export class Dog extends Animal {
 						makeSound(): string {
 							return 'Woof!'
 						}
-						
+
 						fetch(): void {}
 					}
-					
+
 					export interface Flyable {
 						fly(): void
 						altitude: number
 					}
-					
+
 					export interface Swimmer {
 						swim(): void
 						depth: number
 					}
-					
+
 					export class Bird extends Animal implements Flyable {
 						altitude: number = 0
-						
+
 						makeSound(): string {
 							return 'Tweet!'
 						}
-						
+
 						fly(): void {}
 					}
-					
+
 					export class Duck extends Animal implements Flyable, Swimmer {
 						altitude: number = 0
 						depth: number = 0
-						
+
 						makeSound(): string {
 							return 'Quack!'
 						}
-						
+
 						fly(): void {}
 						swim(): void {}
 					}

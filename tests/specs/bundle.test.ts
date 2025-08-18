@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
-import { cleanProjectDir, createProject, runGenerateDts } from './utils'
+import { cleanProjectDir, createProject, runGenerateDts } from '../utils'
 
 describe('Bundle functionality', () => {
 	beforeEach(() => {
@@ -14,16 +14,16 @@ describe('Bundle functionality', () => {
 						id: number
 						name: string
 					}
-					
+
 					export type UserRole = 'admin' | 'user' | 'guest'
 				`,
 				'src/index.ts': `
 					import { User, UserRole } from './types'
-					
+
 					export function getUser(id: number): User | null {
 						return null
 					}
-					
+
 					export function hasRole(user: User, role: UserRole): boolean {
 						return true
 					}
@@ -52,9 +52,9 @@ describe('Bundle functionality', () => {
 						id: number
 						name: string
 					}
-					
+
 					export type UserRole = 'admin' | 'user'
-					
+
 					export class UserValidator {
 						validate(user: User): boolean {
 							return true
@@ -63,7 +63,7 @@ describe('Bundle functionality', () => {
 				`,
 				'src/index.ts': `
 					export { User, type UserRole, UserValidator } from './types'
-					
+
 					export function createUser(name: string): User {
 						return { id: Date.now(), name }
 					}
@@ -93,7 +93,7 @@ describe('Bundle functionality', () => {
 					export function test(): string {
 						return 'test'
 					}
-					
+
 					export const test2 = 'test2'
 				`,
 				'src/index.ts': `
@@ -118,9 +118,9 @@ describe('Bundle functionality', () => {
 						id: number
 						name: string
 					}
-					
+
 					export type UserRole = 'admin' | 'user'
-					
+
 					export enum UserStatus {
 						Active,
 						Inactive
@@ -128,7 +128,7 @@ describe('Bundle functionality', () => {
 				`,
 				'src/index.ts': `
 					export * from './types'
-					
+
 					export function createUser(name: string): User {
 						return { id: Date.now(), name }
 					}
@@ -159,7 +159,7 @@ describe('Bundle functionality', () => {
 					export function test(): string {
 						return 'test'
 					}
-					
+
 					export const test2 = 'test2'
 				`,
 				'src/index.ts': `
@@ -187,22 +187,22 @@ describe('Bundle functionality', () => {
 					export function fetchUser(): { id: number; name: string; email: string } {
 						return { id: 1, name: 'John', email: 'john@example.com' }
 					}
-					
+
 					export async function fetchData(): Promise<{ data: string; timestamp: number }> {
 						return { data: 'test', timestamp: Date.now() }
 					}
 				`,
 				'src/index.ts': `
 					import { fetchUser, fetchData } from './api'
-					
+
 					export type User = ReturnType<typeof fetchUser>
 					export type ApiResponse = ReturnType<typeof fetchData>
 					export type UserEmail = User['email']
-					
+
 					export function processUser(user: User): UserEmail {
 						return user.email
 					}
-					
+
 					export function createUser(): User {
 						return fetchUser()
 					}
@@ -239,7 +239,7 @@ describe('Bundle functionality', () => {
 					export function test(): string {
 						return 'test'
 					}
-					
+
 					export const test2 = 'test2'
 				`,
 				'src/index.ts': `
@@ -267,14 +267,14 @@ describe('Bundle functionality', () => {
 					export function calculate(a: number, b: number): number {
 						return a + b
 					}
-					
+
 					export const PI = 3.14159
 				`,
 				'src/string.ts': `
 					export function calculate(text: string): string {
 						return text.toUpperCase()
 					}
-					
+
 					export const EMPTY = ''
 				`,
 				'src/index.ts': `
@@ -304,20 +304,20 @@ describe('Bundle functionality', () => {
 					export function process(data: string): string {
 						return data.trim()
 					}
-					
+
 					export function validate(input: string): boolean {
 						return input.length > 0
 					}
-					
+
 					export const CONFIG = { debug: true }
 				`,
 				'src/index.ts': `
-					export { 
-						process as processString, 
+					export {
+						process as processString,
 						validate as validateInput,
-						CONFIG as AppConfig 
+						CONFIG as AppConfig
 					} from './utils'
-					
+
 					export function newFunction(): string {
 						return 'new'
 					}
@@ -345,12 +345,12 @@ describe('Bundle functionality', () => {
 						log(message: string): void {
 							console.log(message)
 						}
-						
+
 						error(message: string): void {
 							console.error(message)
 						}
 					}
-					
+
 					export const LOG_LEVELS = {
 						INFO: 'info',
 						ERROR: 'error',
@@ -362,7 +362,7 @@ describe('Bundle functionality', () => {
 						apiUrl: string
 						timeout: number
 					}
-					
+
 					export const defaultConfig: AppConfig = {
 						apiUrl: 'https://api.example.com',
 						timeout: 5000
@@ -410,12 +410,12 @@ describe('Bundle functionality', () => {
 				`,
 				'src/services/user.ts': `
 					import { User, UserRole } from '../types'
-					
+
 					export class UserService {
 						getUser(id: number): User | null {
 							return null
 						}
-						
+
 						hasRole(user: User, role: UserRole): boolean {
 							return true
 						}
@@ -453,12 +453,12 @@ describe('Bundle functionality', () => {
 						id: number
 						name: string
 					}
-					
+
 					export interface Product {
 						id: string
 						price: number
 					}
-					
+
 					export class UserService {
 						getUser(): User | null {
 							return null
@@ -468,11 +468,11 @@ describe('Bundle functionality', () => {
 				'src/index.ts': `
 					import type { User, Product } from './types'
 					import { UserService } from './types'
-					
+
 					export function createUser(service: UserService): User | null {
 						return service.getUser()
 					}
-					
+
 					export type { User, Product }
 				`,
 			})
@@ -504,29 +504,29 @@ describe('Bundle functionality', () => {
 						apiUrl: string
 						timeout: number
 					}
-					
+
 					export type Theme = 'light' | 'dark'
-					
+
 					export const DEFAULT_CONFIG: Config = {
 						apiUrl: 'https://api.example.com',
 						timeout: 5000
 					}
-					
+
 					export function validateConfig(config: Config): boolean {
 						return config.timeout > 0
 					}
 				`,
 				'src/index.ts': `
 					import { type Config, type Theme, DEFAULT_CONFIG, validateConfig } from './types'
-					
+
 					export function useConfig(): Config {
 						return DEFAULT_CONFIG
 					}
-					
+
 					export function isValidConfig(config: Config): boolean {
 						return validateConfig(config)
 					}
-					
+
 					export type { Config, Theme }
 					export { DEFAULT_CONFIG }
 				`,
@@ -555,27 +555,27 @@ describe('Bundle functionality', () => {
 						id: number
 						username: string
 					}
-					
+
 					export interface ProductModel {
 						sku: string
 						name: string
 					}
-					
+
 					export type Status = 'active' | 'inactive'
 				`,
 				'src/index.ts': `
-					import { 
-						type UserModel as User, 
+					import {
+						type UserModel as User,
 						type ProductModel as Product,
-						type Status as ItemStatus 
+						type Status as ItemStatus
 					} from './models'
-					
+
 					export interface Order {
 						user: User
 						products: Product[]
 						status: ItemStatus
 					}
-					
+
 					export type { User, Product, ItemStatus }
 				`,
 			})
@@ -609,20 +609,20 @@ describe('Bundle functionality', () => {
 						debug: boolean
 						version: string
 					}
-					
+
 					export class CoreService {
 						config: CoreConfig
 						constructor(config: CoreConfig) {
 							this.config = config
 						}
 					}
-					
+
 					export type LogLevel = 'info' | 'warn' | 'error'
 				`,
 				'src/index.ts': `
 					export type { CoreConfig, LogLevel } from './core'
 					export { CoreService } from './core'
-					
+
 					export function createDefaultConfig(): CoreConfig {
 						return { debug: false, version: '1.0.0' }
 					}
@@ -654,7 +654,7 @@ describe('Bundle functionality', () => {
 						render(): void
 						name: string
 					}
-					
+
 					export interface ComponentProps {
 						className?: string
 					}
@@ -662,14 +662,14 @@ describe('Bundle functionality', () => {
 				'src/index.ts': `
 					import type Component from './component'
 					import type { ComponentProps } from './component'
-					
+
 					export default class MyComponent implements Component {
 						name = 'MyComponent'
 						render(): void {
 							console.log('rendering')
 						}
 					}
-					
+
 					export type { Component, ComponentProps }
 				`,
 			})
@@ -700,18 +700,18 @@ describe('Bundle functionality', () => {
 						id: number
 						name: string
 					}
-					
+
 					export interface Post {
 						id: number
 						title: string
 						author: User
 					}
-					
+
 					export type Permission = 'read' | 'write' | 'admin'
 				`,
 				'src/index.ts': `
 					import type * as Types from './types'
-					
+
 					export function createPost(author: Types.User): Types.Post {
 						return {
 							id: 1,
@@ -719,11 +719,11 @@ describe('Bundle functionality', () => {
 							author
 						}
 					}
-					
+
 					export function hasPermission(user: Types.User, perm: Types.Permission): boolean {
 						return true
 					}
-					
+
 					export type { Types }
 				`,
 			})
@@ -758,14 +758,14 @@ describe('Bundle functionality', () => {
 						id: string
 						createdAt: Date
 					}
-					
+
 					export interface Timestamped {
 						updatedAt: Date
 					}
 				`,
 				'src/user.ts': `
 					import type { BaseEntity, Timestamped } from './base'
-					
+
 					export interface User extends BaseEntity, Timestamped {
 						email: string
 					}
@@ -800,25 +800,25 @@ describe('Bundle functionality', () => {
 					export default class Framework {
 						name = 'MyFramework'
 					}
-					
+
 					export interface FrameworkConfig {
 						plugins: string[]
 					}
-					
+
 					export type FrameworkHook = () => void
-					
+
 					export const VERSION = '1.0.0'
 				`,
 				'src/index.ts': `
-					import Framework, { 
-						type FrameworkConfig, 
+					import Framework, {
+						type FrameworkConfig,
 						type FrameworkHook as Hook,
-						VERSION 
+						VERSION
 					} from './framework'
-					
+
 					export { Framework as default, VERSION }
 					export type { FrameworkConfig, Hook }
-					
+
 					export function createFramework(config: FrameworkConfig): Framework {
 						return new Framework()
 					}
@@ -848,23 +848,23 @@ describe('Bundle functionality', () => {
 					export interface Model {
 						id: string
 					}
-					
+
 					export type ModelType = 'user' | 'post' | 'comment'
-					
+
 					export class ModelFactory {
 						create(type: ModelType): Model {
 							return { id: '1' }
 						}
 					}
-					
+
 					export const MODEL_VERSION = 2
 				`,
 				'src/services.ts': `
 					import { Model, ModelType, ModelFactory } from './models'
-					
+
 					export class Service {
 						factory: ModelFactory = new ModelFactory()
-						
+
 						getModel(type: ModelType): Model {
 							return this.factory.create(type)
 						}
@@ -874,7 +874,7 @@ describe('Bundle functionality', () => {
 					// Re-export everything with type annotations
 					export { type Model, type ModelType, ModelFactory, MODEL_VERSION } from './models'
 					export { Service } from './services'
-					
+
 					// Type-only re-export
 					export type { Model as BaseModel } from './models'
 				`,
@@ -912,11 +912,11 @@ describe('Bundle functionality', () => {
 				`,
 				'src/index.ts': `
 					import legacy = require('./legacy')
-					
+
 					export function useLegacy(): string {
 						return legacy.legacyFunction()
 					}
-					
+
 					export const constant: number = legacy.LEGACY_CONSTANT
 				`,
 			})
@@ -961,7 +961,7 @@ describe('Bundle functionality', () => {
 						}
 						return !value;
 					}
-					
+
 					export function createItem(name: string): { name: string };
 					export function createItem(id: number, name: string): { id: number; name: string };
 					export function createItem(nameOrId: string | number, name?: string): any {
