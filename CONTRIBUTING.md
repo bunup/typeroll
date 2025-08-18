@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing to our project! This guide will help you get started with the development process.
 
-📖 **[Learn how typeroll works under the hood](./guides/how-it-works.md)**
-
 ## Development Setup
 
 ### Prerequisites
@@ -22,8 +20,7 @@ Thank you for your interest in contributing to our project! This guide will help
 
 1. Create a new branch: `git checkout -b feature/your-feature-name`
 2. Make your changes
-3. Format your code: `bun run format`
-4. Run linting: `bun run lint`
+3. Check and fix code style and formatting issues: `bun run lint:fix`
 5. Run tests: `bun run test`
 6. Build the project: `bun run build`
 7. Commit your changes using the conventions below
