@@ -74,7 +74,7 @@
 		"typescript": ">=4.5.0"
 	},
 	"simple-git-hooks": {
-		"pre-commit": "bun run lint:fix"
+		"pre-commit": "bun run lint:fix && git add ."
 	},
 	"peerDependenciesMeta": {
 		"typescript": {
