@@ -18,5 +18,5 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 .turbo
-project/.test
+tests/project/.test
 funcs

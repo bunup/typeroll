@@ -193,6 +193,10 @@ export async function generateDts(
 				dtsContent,
 			)
 
+			if (!treeshakedDts.code.length) {
+				continue
+			}
+
 			if (treeshakedDts.errors.length && !treeshakedDts.code) {
 				throw new TyperollError(
 					`DTS treeshaking failed for ${entrypoint || outputPath}\n\n${JSON.stringify(treeshakedDts.errors, null, 2)}`,

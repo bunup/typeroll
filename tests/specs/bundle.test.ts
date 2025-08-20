@@ -1099,14 +1099,18 @@ describe('Bundle functionality', () => {
 	})
 
 	describe('Edge cases', () => {
-		test('should generate empty dts file when declaration file is empty', async () => {
+		test('should not generate dts file if no dts needed', async () => {
 			createProject({
-				'src/index.ts': '',
+				'src/cli.ts': `
+					#!/usr/bin/env node
+					console.log('Hello World');
+					process.exit(0);
+				`,
 			})
 
-			const files = await runGenerateDts(['src/index.ts'])
+			const files = await runGenerateDts(['src/cli.ts'])
 
-			expect(files[0].dts).toMatchInlineSnapshot(`""`)
+			expect(files).toEqual([])
 		})
 	})
 })
