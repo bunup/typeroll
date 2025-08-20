@@ -193,7 +193,7 @@ export async function generateDts(
 				dtsContent,
 			)
 
-			if (!treeshakedDts.code.length) {
+			if (!treeshakedDts.code.length && !treeshakedDts.errors.length) {
 				continue
 			}
 
