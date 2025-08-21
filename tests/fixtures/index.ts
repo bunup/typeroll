@@ -1,5 +1,3 @@
-/* AUTO-GENERATED BARREL */
-
 export * as File_39 from './alpha/charlie/echo_zulu_39'
 export * as File_46 from './alpha/kilo_zulu_46'
 export * as File_24 from './alpha_zulu_24'

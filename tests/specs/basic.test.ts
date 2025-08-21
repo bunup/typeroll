@@ -490,9 +490,9 @@ describe('generateDts', () => {
 			  * @param b - Second number
 			  * @returns The sum of a and b
 			  * @example
-			  * \`\`\`ts
+			  * \\\`\\\`\\\`ts
 			  * add(2, 3) // returns 5
-			  * \`\`\`
+			  * \\\`\\\`\\\`
 			  */
 			  declare function add(a: number, b: number): number;
 			  /**

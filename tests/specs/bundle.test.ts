@@ -1098,20 +1098,6 @@ describe('Bundle functionality', () => {
 		})
 	})
 
-	test('should not generate dts file if no dts needed', async () => {
-		createProject({
-			'src/cli.ts': `
-					#!/usr/bin/env node
-					console.log('Hello World');
-					process.exit(0);
-				`,
-		})
-
-		const files = await runGenerateDts(['src/cli.ts'])
-
-		expect(files).toEqual([])
-	})
-
 	test('should not preserve side-effect imports like CSS imports in dts file', async () => {
 		createProject({
 			'src/styles.css': `

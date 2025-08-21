@@ -210,8 +210,7 @@ function tokenizeText(text: string, referencedNames: Set<string>): string[] {
 		if (isLikelyVariableOrTypeName(token) || referencedNames.has(token)) {
 			tokens.push(token)
 		} else {
-			const processedToken = token.replace(/\n/g, '\\n').replace(/\t/g, '\\t')
-			tokens.push(JSON.stringify(processedToken))
+			tokens.push(JSON.stringify(token))
 		}
 	}
 
@@ -239,9 +238,6 @@ function processTokenArray(arrayLiteral: Node): string | null {
 function processTokenElement(element: any): string | null {
 	if (element.type === 'StringLiteral' && typeof element.value === 'string') {
 		return element.value
-			.replace(/\\n/g, '\n')
-			.replace(/\\t/g, '\t')
-			.replace(/\\r/g, '\r')
 	}
 
 	if (element.type === 'Identifier') {

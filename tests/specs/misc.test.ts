@@ -41,6 +41,20 @@ describe('DTS Misc', () => {
 		`)
 	})
 
+	test('should not generate dts file if no dts needed', async () => {
+		createProject({
+			'src/cli.ts': `
+					#!/usr/bin/env node
+					console.log('Hello World');
+					process.exit(0);
+				`,
+		})
+
+		const files = await runGenerateDts(['src/cli.ts'])
+
+		expect(files).toEqual([])
+	})
+
 	test('should generate dts for namespace with imported types using aliases', async () => {
 		createProject({
 			'src/socket.ts': `
