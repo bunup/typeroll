@@ -1,3 +1,5 @@
+import './styles.css'
+
 export namespace telegram {
 	class Telegram {
 		constructor(
@@ -12,4 +14,8 @@ export namespace telegram {
 	export function telegram2() {
 		return 'telegram2'
 	}
+}
+
+export function sum() {
+	return 'sum'
 }

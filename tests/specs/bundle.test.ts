@@ -1098,19 +1098,74 @@ describe('Bundle functionality', () => {
 		})
 	})
 
-	describe('Edge cases', () => {
-		test('should not generate dts file if no dts needed', async () => {
-			createProject({
-				'src/cli.ts': `
+	test('should not generate dts file if no dts needed', async () => {
+		createProject({
+			'src/cli.ts': `
 					#!/usr/bin/env node
 					console.log('Hello World');
 					process.exit(0);
 				`,
-			})
-
-			const files = await runGenerateDts(['src/cli.ts'])
-
-			expect(files).toEqual([])
 		})
+
+		const files = await runGenerateDts(['src/cli.ts'])
+
+		expect(files).toEqual([])
+	})
+
+	test('should not preserve side-effect imports like CSS imports in dts file', async () => {
+		createProject({
+			'src/styles.css': `
+					.button {
+						background-color: blue;
+						color: white;
+					}
+				`,
+			'src/index.ts': `
+					import "./styles.css"
+
+					import "./config.json"
+
+					import "./polyfills"
+
+					export interface ButtonProps {
+						label: string;
+						disabled?: boolean;
+					}
+
+					export function createButton(props: ButtonProps): HTMLElement {
+						const button = document.createElement('button');
+						button.textContent = props.label;
+						button.disabled = props.disabled ?? false;
+						button.className = 'button';
+						return button;
+					}
+
+					export const VERSION = '1.0.0';
+				`,
+			'src/config.json': `{
+					"apiUrl": "https://api.example.com",
+					"timeout": 5000
+				}`,
+			'src/polyfills.ts': `
+					if (!Array.prototype.includes) {
+						Array.prototype.includes = function(searchElement) {
+							return this.indexOf(searchElement) !== -1;
+						};
+					}
+				`,
+		})
+
+		const files = await runGenerateDts(['src/index.ts'])
+
+		expect(files[0].dts).toMatchInlineSnapshot(`
+		  "interface ButtonProps {
+		  	label: string;
+		  	disabled?: boolean;
+		  }
+		  declare function createButton(props: ButtonProps): HTMLElement;
+		  declare const VERSION = "1.0.0";
+		  export { createButton, VERSION, ButtonProps };
+		  "
+		`)
 	})
 })

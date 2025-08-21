@@ -16,6 +16,7 @@ import {
 	isImportDeclaration,
 	isLikelyVariableOrTypeName,
 	isReExportStatement,
+	isSideEffectImport,
 } from './ast'
 import {
 	EXPORT_DEFAULT_RE,
@@ -82,6 +83,10 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 			isExportAllDeclaration(statement) ||
 			isReExportStatement(statement)
 		) {
+			if (isSideEffectImport(statement)) {
+				continue
+			}
+
 			result.push(jsifyImportExport(statement, dtsContent))
 			continue
 		}

@@ -35,6 +35,10 @@ export function isReExportStatement(node: Node): boolean {
 	return node.type === 'ExportNamedDeclaration' && !node.declaration
 }
 
+export function isSideEffectImport(node: Node): boolean {
+	return node.type === 'ImportDeclaration' && node.specifiers.length === 0
+}
+
 export function hasExportModifier(node: Node, text: string): boolean {
 	return node.type.startsWith('Export') || text.trim().startsWith('export')
 }
