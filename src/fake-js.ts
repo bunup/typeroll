@@ -115,6 +115,7 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 async function fakeJsToDts(fakeJsContent: string): Promise<string> {
 	const parseResult = parse(fakeJsContent, {
 		sourceType: 'module',
+		attachComment: false,
 	})
 
 	const program = parseResult.program
