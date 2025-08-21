@@ -1,7 +1,7 @@
 import { generateDts } from '../src'
 
 console.time('build')
-const result = await generateDts(['tests/fixtures-2/index.ts'], {
+const result = await generateDts(['tests/fixtures/index.ts'], {
 	splitting: true,
 })
 for (const file of result.files) {

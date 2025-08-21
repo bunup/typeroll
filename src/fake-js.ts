@@ -1,9 +1,10 @@
 import { parse } from '@babel/parser'
-import type {
-	Directive,
-	ExpressionStatement,
-	Node,
-	Statement,
+import {
+	type Directive,
+	type ExpressionStatement,
+	type Node,
+	type Statement,
+	isImport,
 } from '@babel/types'
 import {
 	getAllImportNames,
@@ -113,10 +114,12 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 }
 
 async function fakeJsToDts(fakeJsContent: string): Promise<string> {
+	console.time('parse')
 	const parseResult = parse(fakeJsContent, {
 		sourceType: 'module',
 		attachComment: false,
 	})
+	console.timeEnd('parse')
 
 	const program = parseResult.program
 	const resultParts = []
@@ -131,17 +134,24 @@ async function fakeJsToDts(fakeJsContent: string): Promise<string> {
 			isExportAllDeclaration(node) ||
 			isReExportStatement(node)
 		) {
-			resultParts.push(
-				// This is important when `splitting` is enabled, as
-				// the import paths would be referencing chunk files with .js extensions
-				// that need to be removed for proper type declarations
-				fakeJsContent
-					.substring(node.start, node.end)
-					.trim()
-					.replace('.mjs', '')
-					.replace('.cjs', '')
-					.replace('.js', ''),
-			)
+			if (isImportDeclaration(node)) {
+				resultParts.push(
+					// This is important when `splitting` is enabled, as
+					// the import paths would be referencing chunk files with .js extensions
+					// that need to be removed for proper type declarations
+					fakeJsContent
+						.substring(node.start, node.end)
+						.trim()
+						.replace('.mjs', '')
+						.replace('.cjs', '')
+						.replace('.js', ''),
+				)
+
+				continue
+			}
+
+			resultParts.push(fakeJsContent.substring(node.start, node.end))
+
 			continue
 		}
 
