@@ -10,7 +10,7 @@ import type {
 	Statement,
 } from '@babel/types'
 
-import { CAPITAL_LETTER_RE } from './re'
+import { CAPITAL_LETTER_RE, EXPORT_DEFAULT_RE, EXPORT_RE } from './re'
 
 export function isLikelyVariableOrTypeName(token: string): boolean {
 	return (
@@ -25,6 +25,10 @@ export function isLikelyVariableOrTypeName(token: string): boolean {
 
 export function isImportDeclaration(node: Node): boolean {
 	return node.type === 'ImportDeclaration'
+}
+
+export function removeExportSyntaxes(text: string): string {
+	return text.replace(EXPORT_DEFAULT_RE, '').replace(EXPORT_RE, '')
 }
 
 export function isExportAllDeclaration(node: Node): boolean {

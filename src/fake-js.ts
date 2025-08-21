@@ -1,11 +1,5 @@
 import { parse } from '@babel/parser'
-import {
-	type Directive,
-	type ExpressionStatement,
-	type Node,
-	type Statement,
-	isImport,
-} from '@babel/types'
+import type { ExpressionStatement, Node } from '@babel/types'
 import {
 	getAllImportNames,
 	getCommentText,
@@ -18,10 +12,9 @@ import {
 	isLikelyVariableOrTypeName,
 	isReExportStatement,
 	isSideEffectImport,
+	removeExportSyntaxes,
 } from './ast'
 import {
-	EXPORT_DEFAULT_RE,
-	EXPORT_RE,
 	EXPORT_TYPE_RE,
 	IMPORT_EXPORT_NAMES_RE,
 	IMPORT_EXPORT_WITH_DEFAULT_RE,
@@ -35,8 +28,6 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 	const parsed = parse(dtsContent, {
 		sourceType: 'module',
 		plugins: ['typescript'],
-		allowImportExportEverywhere: true,
-		allowAwaitOutsideFunction: true,
 	})
 
 	const referencedNames = new Set<string>()
@@ -55,13 +46,7 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 			continue
 		}
 
-		let leadingComment: string | null = null
-
-		leadingComment = getCommentText(statement.leadingComments)
-
-		const slicedContent = dtsContent.substring(statement.start, statement.end)
-
-		let statementText = `${leadingComment ? `${leadingComment}\n` : ''}${slicedContent}`
+		const statementText = dtsContent.substring(statement.start, statement.end)
 
 		const name = getName(statement, dtsContent)
 
@@ -70,7 +55,6 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 		}
 
 		const isDefaultExport = hasDefaultExportModifier(statement, statementText)
-		const isExported = hasExportModifier(statement, statementText)
 
 		if (isDefaultExport) {
 			result.push(`export { ${name} as default };`)
@@ -88,17 +72,30 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 				continue
 			}
 
-			result.push(jsifyImportExport(statement, dtsContent))
+			const jsImportExport = jsifyImportExport(statementText)
+
+			result.push(jsImportExport)
 			continue
 		}
 
+		let leadingComment: string | null = null
+
+		leadingComment = getCommentText(statement.leadingComments)
+
+		let statementTextWithCommentsAttatched = `${leadingComment ? `${leadingComment}\n` : ''}${statementText}`
+
+		const isExported = hasExportModifier(statement, statementText)
+
 		if (isExported) {
-			statementText = statementText
-				.replace(EXPORT_DEFAULT_RE, '')
-				.replace(EXPORT_RE, '')
+			statementTextWithCommentsAttatched = removeExportSyntaxes(
+				statementTextWithCommentsAttatched,
+			)
 		}
 
-		const tokens = tokenizeText(statementText, referencedNames)
+		const tokens = tokenizeText(
+			statementTextWithCommentsAttatched,
+			referencedNames,
+		)
 
 		const varName = name || generateRandomString()
 
@@ -114,57 +111,58 @@ async function dtsToFakeJs(dtsContent: string): Promise<string> {
 }
 
 async function fakeJsToDts(fakeJsContent: string): Promise<string> {
-	console.time('parse')
 	const parseResult = parse(fakeJsContent, {
 		sourceType: 'module',
 		attachComment: false,
 	})
-	console.timeEnd('parse')
 
 	const program = parseResult.program
 	const resultParts = []
 
-	for (const node of program.body) {
-		if (isNullOrUndefined(node.start) || isNullOrUndefined(node.end)) {
+	for (const statement of program.body) {
+		if (
+			isNullOrUndefined(statement.start) ||
+			isNullOrUndefined(statement.end)
+		) {
 			continue
 		}
 
+		const statementText = fakeJsContent.substring(
+			statement.start,
+			statement.end,
+		)
+
 		if (
-			isImportDeclaration(node) ||
-			isExportAllDeclaration(node) ||
-			isReExportStatement(node)
+			isImportDeclaration(statement) ||
+			isExportAllDeclaration(statement) ||
+			isReExportStatement(statement)
 		) {
-			if (isImportDeclaration(node)) {
+			if (isImportDeclaration(statement)) {
 				resultParts.push(
 					// This is important when `splitting` is enabled, as
 					// the import paths would be referencing chunk files with .js extensions
 					// that need to be removed for proper type declarations
-					fakeJsContent
-						.substring(node.start, node.end)
-						.trim()
-						.replace('.mjs', '')
-						.replace('.cjs', '')
-						.replace('.js', ''),
+					statementText.replace(/.(?:mjs|cjs|js)\b/g, ''),
 				)
 
 				continue
 			}
 
-			resultParts.push(fakeJsContent.substring(node.start, node.end))
+			resultParts.push(statementText)
 
 			continue
 		}
 
-		if (node.type === 'ExpressionStatement') {
-			const namespaceDecl = handleNamespace(node)
+		if (statement.type === 'ExpressionStatement') {
+			const namespaceDecl = handleNamespace(statement)
 			if (namespaceDecl) {
 				resultParts.push(namespaceDecl)
 				continue
 			}
 		}
 
-		if (node.type === 'VariableDeclaration') {
-			for (const declaration of node.declarations) {
+		if (statement.type === 'VariableDeclaration') {
+			for (const declaration of statement.declarations) {
 				if (declaration.init?.type === 'ArrayExpression') {
 					const dtsContent = processTokenArray(declaration.init)
 					if (dtsContent) {
@@ -178,16 +176,7 @@ async function fakeJsToDts(fakeJsContent: string): Promise<string> {
 	return resultParts.join('\n')
 }
 
-function jsifyImportExport(
-	node: Directive | Statement,
-	source: string,
-): string {
-	if (isNullOrUndefined(node.start) || isNullOrUndefined(node.end)) {
-		return ''
-	}
-
-	const text = source.substring(node.start, node.end)
-
+function jsifyImportExport(text: string): string {
 	let result = text
 		.replace(IMPORT_TYPE_RE, 'import ')
 		.replace(EXPORT_TYPE_RE, 'export ')
@@ -211,6 +200,7 @@ function tokenizeText(text: string, referencedNames: Set<string>): string[] {
 	const tokens = []
 
 	let match: RegExpExecArray | null
+	TOKENIZE_RE.lastIndex = 0
 	while (true) {
 		match = TOKENIZE_RE.exec(text)
 		if (match === null) break
