@@ -23,6 +23,7 @@ import {
 	getDeclarationExtensionFromJsExtension,
 	getExtension,
 	getFilesFromGlobs,
+	getTempOutDir,
 	isTypeScriptFile,
 	loadTsConfig,
 	minifyDts,
@@ -38,9 +39,7 @@ export async function generateDts(
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
-	const tempOutDir = path.resolve(
-		path.join(cwd, `.bunup-dts-${generateRandomString()}`),
-	)
+	const tempOutDir = getTempOutDir(cwd)
 
 	const nonAbsoluteEntrypoints = entrypoints.filter(
 		(entrypoint) => !path.isAbsolute(entrypoint),

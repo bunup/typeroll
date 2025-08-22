@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
-import { normalize } from 'node:path'
+import { tmpdir } from 'node:os'
+import path, { normalize } from 'node:path'
 import { type LoadConfigResult, loadConfig } from 'coffi'
 import { minify } from 'oxc-minify'
 import { isCI, isDevelopment } from 'std-env'
@@ -144,4 +145,9 @@ export function minifyDts(dts: string): string {
 		compress: false,
 		sourcemap: false,
 	}).code
+}
+
+export function getTempOutDir(cwd: string): string {
+	const randomDir = `.bunup-dts-${generateRandomString()}`
+	return path.join(tmpdir(), randomDir)
 }
