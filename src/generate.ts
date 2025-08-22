@@ -39,7 +39,7 @@ export async function generateDts(
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
 
-	const tempOutDir = getTempOutDir(cwd)
+	const tempOutDir = getTempOutDir()
 
 	const nonAbsoluteEntrypoints = entrypoints.filter(
 		(entrypoint) => !path.isAbsolute(entrypoint),

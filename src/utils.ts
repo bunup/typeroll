@@ -147,7 +147,7 @@ export function minifyDts(dts: string): string {
 	}).code
 }
 
-export function getTempOutDir(cwd: string): string {
+export function getTempOutDir(): string {
 	const randomDir = `.bunup-dts-${generateRandomString()}`
 	return path.join(tmpdir(), randomDir)
 }
