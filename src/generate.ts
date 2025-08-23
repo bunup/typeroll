@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { BunPlugin } from 'bun'
 import { isolatedDeclaration } from 'oxc-transform'
@@ -23,7 +22,6 @@ import {
 	getDeclarationExtensionFromJsExtension,
 	getExtension,
 	getFilesFromGlobs,
-	getTempOutDir,
 	isTypeScriptFile,
 	loadTsConfig,
 	minifyDts,
@@ -38,8 +36,6 @@ export async function generateDts(
 	const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd()
 
 	const tsconfig = await loadTsConfig(cwd, preferredTsConfigPath)
-
-	const tempOutDir = getTempOutDir()
 
 	const nonAbsoluteEntrypoints = entrypoints.filter(
 		(entrypoint) => !path.isAbsolute(entrypoint),
@@ -140,7 +136,6 @@ export async function generateDts(
 			),
 			...filterTypescriptFiles(absoluteEntrypoints),
 		],
-		outdir: tempOutDir,
 		format: 'esm',
 		target: 'node',
 		naming,
@@ -155,73 +150,66 @@ export async function generateDts(
 		throw new TyperollError(`DTS bundling failed: ${result.logs}`)
 	}
 
-	try {
-		const outputs = result.outputs.filter(
-			(output) => output.kind === 'chunk' || output.kind === 'entry-point',
+	const outputs = result.outputs.filter(
+		(output) => output.kind === 'chunk' || output.kind === 'entry-point',
+	)
+
+	const bundledFiles: GenerateDtsResultFile[] = []
+
+	for (const output of outputs) {
+		const bundledFakeJsContent = await output.text()
+		const dtsContent = await fakeJsToDts(bundledFakeJsContent)
+
+		const entrypoint =
+			output.kind === 'entry-point'
+				? entrypoints[bundledFiles.length]
+				: undefined
+
+		const chunkFileName =
+			output.kind === 'chunk'
+				? replaceExtension(
+						path.basename(output.path),
+						getDeclarationExtensionFromJsExtension(getExtension(output.path)),
+					)
+				: undefined
+
+		const outputPath = cleanPath(
+			replaceExtension(
+				cleanPath(output.path),
+				getDeclarationExtensionFromJsExtension(getExtension(output.path)),
+			),
 		)
 
-		const bundledFiles: GenerateDtsResultFile[] = []
+		const treeshakedDts = isolatedDeclaration(
+			`${generateRandomString()}.d.ts`,
+			dtsContent,
+		)
 
-		for (const output of outputs) {
-			const bundledFakeJsPath = output.path
-			const bundledFakeJsContent = await Bun.file(bundledFakeJsPath).text()
-			const dtsContent = await fakeJsToDts(bundledFakeJsContent)
-
-			const entrypoint =
-				output.kind === 'entry-point'
-					? entrypoints[bundledFiles.length]
-					: undefined
-
-			const chunkFileName =
-				output.kind === 'chunk'
-					? replaceExtension(
-							path.basename(output.path),
-							getDeclarationExtensionFromJsExtension(getExtension(output.path)),
-						)
-					: undefined
-
-			const outputPath = cleanPath(
-				replaceExtension(
-					cleanPath(output.path).replace(`${cleanPath(tempOutDir)}/`, ''),
-					getDeclarationExtensionFromJsExtension(getExtension(output.path)),
-				),
-			)
-
-			const treeshakedDts = isolatedDeclaration(
-				`${generateRandomString()}.d.ts`,
-				dtsContent,
-			)
-
-			if (!treeshakedDts.code.length && !treeshakedDts.errors.length) {
-				continue
-			}
-
-			if (treeshakedDts.errors.length && !treeshakedDts.code) {
-				throw new TyperollError(
-					`DTS treeshaking failed for ${entrypoint || outputPath}\n\n${JSON.stringify(treeshakedDts.errors, null, 2)}`,
-				)
-			}
-
-			bundledFiles.push({
-				kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
-				entrypoint,
-				chunkFileName,
-				outputPath,
-				dts: options.minify
-					? minifyDts(treeshakedDts.code)
-					: treeshakedDts.code,
-				pathInfo: {
-					outputPathWithoutExtension: deleteExtension(outputPath),
-					ext: getExtension(outputPath),
-				},
-			})
+		if (!treeshakedDts.code.length && !treeshakedDts.errors.length) {
+			continue
 		}
 
-		return {
-			files: bundledFiles,
-			errors: collectedErrors,
+		if (treeshakedDts.errors.length && !treeshakedDts.code) {
+			throw new TyperollError(
+				`DTS treeshaking failed for ${entrypoint || outputPath}\n\n${JSON.stringify(treeshakedDts.errors, null, 2)}`,
+			)
 		}
-	} finally {
-		await fs.rm(tempOutDir, { recursive: true, force: true })
+
+		bundledFiles.push({
+			kind: output.kind === 'entry-point' ? 'entry-point' : 'chunk',
+			entrypoint,
+			chunkFileName,
+			outputPath,
+			dts: options.minify ? minifyDts(treeshakedDts.code) : treeshakedDts.code,
+			pathInfo: {
+				outputPathWithoutExtension: deleteExtension(outputPath),
+				ext: getExtension(outputPath),
+			},
+		})
+	}
+
+	return {
+		files: bundledFiles,
+		errors: collectedErrors,
 	}
 }
