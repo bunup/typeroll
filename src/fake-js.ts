@@ -210,7 +210,7 @@ function tokenizeText(text: string, referencedNames: Set<string>): string[] {
 		if (isLikelyVariableOrTypeName(token) || referencedNames.has(token)) {
 			tokens.push(token)
 		} else {
-			tokens.push(JSON.stringify(token))
+			tokens.push(JSON.stringify(escapeNewlinesAndTabs(token)))
 		}
 	}
 
@@ -237,7 +237,7 @@ function processTokenArray(arrayLiteral: Node): string | null {
 
 function processTokenElement(element: any): string | null {
 	if (element.type === 'StringLiteral' && typeof element.value === 'string') {
-		return element.value
+		return unescapeNewlinesAndTabs(element.value)
 	}
 
 	if (element.type === 'Identifier') {
@@ -246,17 +246,35 @@ function processTokenElement(element: any): string | null {
 
 	if (element.type === 'TemplateLiteral') {
 		const parts = []
-		parts.push(element.quasis[0]?.value?.raw || '')
+		parts.push(unescapeNewlinesAndTabs(element.quasis[0]?.value?.raw || ''))
 		for (let i = 0; i < element.expressions.length; i++) {
 			const expr = element.expressions[i]
 			if (expr.type === 'Identifier') {
 				parts.push(expr.name)
 			}
-			parts.push(element.quasis[i + 1]?.value?.raw || '')
+			parts.push(
+				unescapeNewlinesAndTabs(element.quasis[i + 1]?.value?.raw || ''),
+			)
 		}
 		return parts.join('')
 	}
 	return null
+}
+
+// escapes newlines and tabs to prevent bun bundler from converting tokens/strings
+// to template literals and escaping backticks/etc in the final fake-js bundle.
+// https://github.com/bunup/bunup/issues/63
+function escapeNewlinesAndTabs(text: string): string {
+	return text
+		.replace(/\n/g, '__typeroll_intermediate_new__line__')
+		.replace(/\t/g, '__typeroll_intermediate__tab__')
+}
+
+// unescapes previously escaped newlines and tabs back to actual characters.
+function unescapeNewlinesAndTabs(text: string): string {
+	return text
+		.replace(/__typeroll_intermediate_new__line__/g, '\n')
+		.replace(/__typeroll_intermediate__tab__/g, '\t')
 }
 
 function handleNamespace(stmt: ExpressionStatement): string | null {

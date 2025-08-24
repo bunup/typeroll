@@ -158,6 +158,7 @@ export async function generateDts(
 
 	for (const output of outputs) {
 		const bundledFakeJsContent = await output.text()
+
 		const dtsContent = await fakeJsToDts(bundledFakeJsContent)
 
 		const entrypoint =
