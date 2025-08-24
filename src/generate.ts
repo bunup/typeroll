@@ -72,7 +72,12 @@ export async function generateDts(
 		setup(build) {
 			build.onResolve({ filter: /.*/ }, (args) => {
 				if (!NODE_MODULES_RE.test(args.importer)) {
-					const resolved = Bun.resolveSync(args.path, args.resolveDir)
+					const resolved = resolveTsImportPath({
+						importer: args.importer,
+						path: args.path,
+						cwd,
+						tsconfig: tsconfig.config,
+					})
 
 					if (resolved && isTypeScriptFile(resolved)) {
 						return { path: resolved }
